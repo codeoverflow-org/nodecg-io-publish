@@ -1,0 +1,28 @@
+{
+    "name": "nodecg-io-twitch-auth",
+    "version": "0.3.0",
+    "description": "Utility package that handles authentication for all nodecg-io twitch services.",
+    "author": {
+        "name": "CodeOverflow team",
+        "url": "https://github.com/codeoverflow-org"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/codeoverflow-org/nodecg-io.git",
+        "directory": "utils/nodecg-io-twitch-chat"
+    },
+    "keywords": [
+        "nodecg-io"
+    ],
+    "nodecg": {
+        "compatibleRange": "^1.1.1"
+    },
+    "license": "MIT",
+    "devDependencies": {
+        "@types/node": "^16.11.10",
+        "typescript": "^4.4.4"
+    },
+    "dependencies": {
+        "@twurple/auth": "^5.0.9"
+    }
+}

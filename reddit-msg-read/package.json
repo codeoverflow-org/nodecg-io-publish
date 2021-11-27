@@ -1,0 +1,24 @@
+{
+    "name": "reddit-msg-read",
+    "version": "0.3.0",
+    "description": "Example nodecg-io Reddit-Bundle that monitors messages from reddit.",
+    "private": true,
+    "author": {
+        "name": "noeppi_noeppi",
+        "url": "https://github.com/noeppi-noeppi"
+    },
+    "nodecg": {
+        "compatibleRange": "^1.1.1",
+        "bundleDependencies": {
+            "nodecg-io-reddit": "^0.3.0"
+        }
+    },
+    "license": "MIT",
+    "dependencies": {
+        "@types/node": "^16.11.10",
+        "nodecg-types": "^1.8.3",
+        "nodecg-io-core": "^0.3.0",
+        "nodecg-io-reddit": "^0.3.0",
+        "typescript": "^4.4.4"
+    }
+}

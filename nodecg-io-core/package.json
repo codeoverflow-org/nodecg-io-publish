@@ -1,0 +1,60 @@
+{
+    "name": "nodecg-io-core",
+    "version": "0.3.0",
+    "description": "The core of nodecg-io. Connects everything up.",
+    "homepage": "https://nodecg.io/RELEASE",
+    "author": {
+        "name": "CodeOverflow team",
+        "url": "https://github.com/codeoverflow-org"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/codeoverflow-org/nodecg-io.git",
+        "directory": "nodecg-io-core"
+    },
+    "files": [
+        "extension/**/*.js",
+        "extension/**/*.js.map",
+        "extension/**/*.d.ts",
+        "index.js",
+        "index.js.map",
+        "index.d.ts",
+        "*.json"
+    ],
+    "scripts": {
+        "test": "jest",
+        "watchTest": "jest --watch",
+        "coverage": "jest --coverage"
+    },
+    "keywords": [
+        "nodecg-io",
+        "nodecg-bundle"
+    ],
+    "nodecg": {
+        "compatibleRange": "^1.1.1",
+        "dashboardPanels": [
+            {
+                "name": "nodecg-io",
+                "title": "nodecg-io",
+                "file": "panel.html",
+                "fullbleed": true,
+                "headerColor": "#525F78"
+            }
+        ]
+    },
+    "license": "MIT",
+    "devDependencies": {
+        "@types/crypto-js": "^4.0.2",
+        "@types/jest": "^27.0.2",
+        "@types/node": "^16.11.10",
+        "jest": "^27.3.1",
+        "nodecg-types": "^1.8.3",
+        "typescript": "^4.4.4",
+        "ts-jest": "^27.0.7"
+    },
+    "dependencies": {
+        "ajv": "^8.8.1",
+        "crypto-js": "^4.1.1",
+        "tslib": "^2.3.1"
+    }
+}

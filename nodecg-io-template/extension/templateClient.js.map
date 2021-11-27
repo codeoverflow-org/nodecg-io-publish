@@ -1,0 +1,1 @@
+{"version":3,"file":"templateClient.js","sourceRoot":"","sources":["templateClient.ts"],"names":[],"mappings":";;;AAGA,MAAa,cAAc;IACvB,YAAY,CAAiB,EAAE,EAAU;QACrC,kBAAkB;IACtB,CAAC;IAED,MAAM,CAAC,YAAY,CAAC,MAAsB,EAAE,MAAc;QACtD,kBAAkB;QAClB,OAAO,IAAI,cAAc,CAAC,MAAM,EAAE,MAAM,CAAC,CAAC;IAC9C,CAAC;CACJ;AATD,wCASC"}

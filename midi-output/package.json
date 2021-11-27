@@ -1,0 +1,22 @@
+{
+    "name": "midi-output",
+    "version": "0.3.0",
+    "private": true,
+    "nodecg": {
+        "compatibleRange": "^1.1.1",
+        "bundleDependencies": {
+            "nodecg-io-midi-output": "^0.3.0"
+        }
+    },
+    "scripts": {
+        "list": "node ../midi-input/helperscripts/listDevices.js"
+    },
+    "license": "MIT",
+    "dependencies": {
+        "@types/node": "^16.11.10",
+        "nodecg-types": "^1.8.3",
+        "nodecg-io-core": "^0.3.0",
+        "nodecg-io-midi-output": "^0.3.0",
+        "typescript": "^4.4.4"
+    }
+}

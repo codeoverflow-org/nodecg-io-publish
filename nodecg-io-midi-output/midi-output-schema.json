@@ -1,0 +1,16 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+        "device": {
+            "type": "string",
+            "description": "The MIDI device id"
+        },
+        "virtual": {
+            "type": "boolean",
+            "description": "true to create a virtual device."
+        }
+    },
+    "required": ["device"]
+}
