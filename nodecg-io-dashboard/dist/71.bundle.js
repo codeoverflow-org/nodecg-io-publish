@@ -1,7 +1,7 @@
 "use strict";
 (self["webpackChunknodecg_io_dashboard"] = self["webpackChunknodecg_io_dashboard"] || []).push([[71],{
 
-/***/ 922:
+/***/ 1615:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -15,24 +15,25 @@ __webpack_require__.r(__webpack_exports__);
  *--------------------------------------------------------------------------------------------*/
 var conf = {
     comments: {
-        lineComment: '#'
+        lineComment: '//',
+        blockComment: ['/*', '*/']
     },
     brackets: [
         ['{', '}'],
         ['[', ']'],
-        ['(', ')']
+        ['(', ')'],
+        ['<', '>']
     ],
     autoClosingPairs: [
-        { open: "'", close: "'", notIn: ['string'] },
-        { open: '"', close: '"', notIn: ['string'] },
-        { open: '{', close: '}' },
-        { open: '[', close: ']' },
-        { open: '(', close: ')' }
+        { open: '"', close: '"', notIn: ['string', 'comment'] },
+        { open: '{', close: '}', notIn: ['string', 'comment'] },
+        { open: '[', close: ']', notIn: ['string', 'comment'] },
+        { open: '(', close: ')', notIn: ['string', 'comment'] }
     ]
 };
 var language = {
     defaultToken: '',
-    tokenPostfix: '.rq',
+    tokenPostfix: '.aes',
     brackets: [
         { token: 'delimiter.curly', open: '{', close: '}' },
         { token: 'delimiter.parenthesis', open: '(', close: ')' },
@@ -40,172 +41,170 @@ var language = {
         { token: 'delimiter.angle', open: '<', close: '>' }
     ],
     keywords: [
-        'add',
-        'as',
-        'asc',
-        'ask',
-        'base',
-        'by',
-        'clear',
-        'construct',
-        'copy',
-        'create',
-        'data',
-        'delete',
-        'desc',
-        'describe',
-        'distinct',
-        'drop',
-        'false',
-        'filter',
-        'from',
-        'graph',
-        'group',
-        'having',
-        'in',
-        'insert',
-        'limit',
-        'load',
-        'minus',
-        'move',
-        'named',
-        'not',
-        'offset',
-        'optional',
-        'order',
-        'prefix',
-        'reduced',
-        'select',
-        'service',
-        'silent',
-        'to',
-        'true',
-        'undef',
-        'union',
-        'using',
-        'values',
-        'where',
-        'with'
-    ],
-    builtinFunctions: [
-        'a',
-        'abs',
-        'avg',
-        'bind',
-        'bnode',
-        'bound',
-        'ceil',
-        'coalesce',
-        'concat',
-        'contains',
-        'count',
+        // Main keywords
+        'contract',
+        'library',
+        'entrypoint',
+        'function',
+        'stateful',
+        'state',
+        'hash',
+        'signature',
+        'tuple',
+        'list',
+        'address',
+        'string',
+        'bool',
+        'int',
+        'record',
         'datatype',
-        'day',
-        'encode_for_uri',
-        'exists',
-        'floor',
-        'group_concat',
-        'hours',
+        'type',
+        'option',
+        'oracle',
+        'oracle_query',
+        'Call',
+        'Bits',
+        'Bytes',
+        'Oracle',
+        'String',
+        'Crypto',
+        'Address',
+        'Auth',
+        'Chain',
+        'None',
+        'Some',
+        'bits',
+        'bytes',
+        'event',
+        'let',
+        'map',
+        'private',
+        'public',
+        'true',
+        'false',
+        'var',
         'if',
-        'iri',
-        'isblank',
-        'isiri',
-        'isliteral',
-        'isnumeric',
-        'isuri',
-        'lang',
-        'langmatches',
-        'lcase',
-        'max',
-        'md5',
-        'min',
-        'minutes',
-        'month',
-        'now',
-        'rand',
-        'regex',
-        'replace',
-        'round',
-        'sameterm',
-        'sample',
-        'seconds',
-        'sha1',
-        'sha256',
-        'sha384',
-        'sha512',
-        'str',
-        'strafter',
-        'strbefore',
-        'strdt',
-        'strends',
-        'strlang',
-        'strlen',
-        'strstarts',
-        'struuid',
-        'substr',
-        'sum',
-        'timezone',
-        'tz',
-        'ucase',
-        'uri',
-        'uuid',
-        'year'
+        'else',
+        'throw'
     ],
-    // describe tokens
-    ignoreCase: true,
+    operators: [
+        '=',
+        '>',
+        '<',
+        '!',
+        '~',
+        '?',
+        '::',
+        ':',
+        '==',
+        '<=',
+        '>=',
+        '!=',
+        '&&',
+        '||',
+        '++',
+        '--',
+        '+',
+        '-',
+        '*',
+        '/',
+        '&',
+        '|',
+        '^',
+        '%',
+        '<<',
+        '>>',
+        '>>>',
+        '+=',
+        '-=',
+        '*=',
+        '/=',
+        '&=',
+        '|=',
+        '^=',
+        '%=',
+        '<<=',
+        '>>=',
+        '>>>='
+    ],
+    // we include these common regular expressions
+    symbols: /[=><!~?:&|+\-*\/\^%]+/,
+    escapes: /\\(?:[abfnrtv\\"']|x[0-9A-Fa-f]{1,4}|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})/,
+    integersuffix: /(ll|LL|u|U|l|L)?(ll|LL|u|U|l|L)?/,
+    floatsuffix: /[fFlL]?/,
+    // The main tokenizer for our languages
     tokenizer: {
         root: [
-            // resource indicators
-            [/<[^\s\u00a0>]*>?/, 'tag'],
-            // strings
-            { include: '@strings' },
-            // line comment
-            [/#.*/, 'comment'],
-            // special chars with special meaning
-            [/[{}()\[\]]/, '@brackets'],
-            [/[;,.]/, 'delimiter'],
-            // (prefixed) name
-            [/[_\w\d]+:(\.(?=[\w_\-\\%])|[:\w_-]|\\[-\\_~.!$&'()*+,;=/?#@%]|%[a-f\d][a-f\d])*/, 'tag'],
-            [/:(\.(?=[\w_\-\\%])|[:\w_-]|\\[-\\_~.!$&'()*+,;=/?#@%]|%[a-f\d][a-f\d])+/, 'tag'],
-            // identifiers, builtinFunctions and keywords
+            // identifiers and keywords
             [
-                /[$?]?[_\w\d]+/,
+                /[a-zA-Z_]\w*/,
                 {
                     cases: {
-                        '@keywords': { token: 'keyword' },
-                        '@builtinFunctions': { token: 'predefined.sql' },
+                        '@keywords': { token: 'keyword.$0' },
                         '@default': 'identifier'
                     }
                 }
             ],
-            // operators
-            [/\^\^/, 'operator.sql'],
-            [/\^[*+\-<>=&|^\/!?]*/, 'operator.sql'],
-            [/[*+\-<>=&|\/!?]/, 'operator.sql'],
-            // symbol
-            [/@[a-z\d\-]*/, 'metatag.html'],
-            // whitespaces
-            [/\s+/, 'white']
-        ],
-        strings: [
-            [/'([^'\\]|\\.)*$/, 'string.invalid'],
-            [/'$/, 'string.sql', '@pop'],
-            [/'/, 'string.sql', '@stringBody'],
+            // whitespace
+            { include: '@whitespace' },
+            // [[ attributes ]].
+            [/\[\[.*\]\]/, 'annotation'],
+            // Preprocessor directive
+            [/^\s*#\w+/, 'keyword'],
+            //DataTypes
+            [/int\d*/, 'keyword'],
+            // delimiters and operators
+            [/[{}()\[\]]/, '@brackets'],
+            [/[<>](?!@symbols)/, '@brackets'],
+            [
+                /@symbols/,
+                {
+                    cases: {
+                        '@operators': 'delimiter',
+                        '@default': ''
+                    }
+                }
+            ],
+            // numbers
+            [/\d*\d+[eE]([\-+]?\d+)?(@floatsuffix)/, 'number.float'],
+            [/\d*\.\d+([eE][\-+]?\d+)?(@floatsuffix)/, 'number.float'],
+            [/0[xX][0-9a-fA-F']*[0-9a-fA-F](@integersuffix)/, 'number.hex'],
+            [/0[0-7']*[0-7](@integersuffix)/, 'number.octal'],
+            [/0[bB][0-1']*[0-1](@integersuffix)/, 'number.binary'],
+            [/\d[\d']*\d(@integersuffix)/, 'number'],
+            [/\d(@integersuffix)/, 'number'],
+            // delimiter: after number because of .\d floats
+            [/[;,.]/, 'delimiter'],
+            // strings
             [/"([^"\\]|\\.)*$/, 'string.invalid'],
-            [/"$/, 'string.sql', '@pop'],
-            [/"/, 'string.sql', '@dblStringBody']
+            [/"/, 'string', '@string'],
+            // characters
+            [/'[^\\']'/, 'string'],
+            [/(')(@escapes)(')/, ['string', 'string.escape', 'string']],
+            [/'/, 'string.invalid']
         ],
-        // single-quoted strings
-        stringBody: [
-            [/[^\\']+/, 'string.sql'],
-            [/\\./, 'string.escape'],
-            [/'/, 'string.sql', '@pop']
+        whitespace: [
+            [/[ \t\r\n]+/, ''],
+            [/\/\*\*(?!\/)/, 'comment.doc', '@doccomment'],
+            [/\/\*/, 'comment', '@comment'],
+            [/\/\/.*$/, 'comment']
         ],
-        // double-quoted strings
-        dblStringBody: [
-            [/[^\\"]+/, 'string.sql'],
-            [/\\./, 'string.escape'],
-            [/"/, 'string.sql', '@pop']
+        comment: [
+            [/[^\/*]+/, 'comment'],
+            [/\*\//, 'comment', '@pop'],
+            [/[\/*]/, 'comment']
+        ],
+        //Identical copy of comment above, except for the addition of .doc
+        doccomment: [
+            [/[^\/*]+/, 'comment.doc'],
+            [/\*\//, 'comment.doc', '@pop'],
+            [/[\/*]/, 'comment.doc']
+        ],
+        string: [
+            [/[^\\"]+/, 'string'],
+            [/@escapes/, 'string.escape'],
+            [/\\./, 'string.escape.invalid'],
+            [/"/, 'string', '@pop']
         ]
     }
 };

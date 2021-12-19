@@ -1,7 +1,7 @@
 "use strict";
 (self["webpackChunknodecg_io_dashboard"] = self["webpackChunknodecg_io_dashboard"] || []).push([[27],{
 
-/***/ 878:
+/***/ 1571:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -9,312 +9,187 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "conf": () => (/* binding */ conf),
 /* harmony export */   "language": () => (/* binding */ language)
 /* harmony export */ });
-/* harmony import */ var _fillers_monaco_editor_core_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(711);
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-
-var EMPTY_ELEMENTS = [
-    'area',
-    'base',
-    'br',
-    'col',
-    'embed',
-    'hr',
-    'img',
-    'input',
-    'keygen',
-    'link',
-    'menuitem',
-    'meta',
-    'param',
-    'source',
-    'track',
-    'wbr'
-];
 var conf = {
-    wordPattern: /(-?\d*\.\d\w*)|([^\`\~\!\@\$\^\&\*\(\)\=\+\[\{\]\}\\\|\;\:\'\"\,\.\<\>\/\s]+)/g,
     comments: {
-        blockComment: ['<!--', '-->']
+        lineComment: '#',
+        blockComment: ['/*', '*/']
     },
     brackets: [
-        ['<!--', '-->'],
-        ['<', '>'],
         ['{', '}'],
+        ['[', ']'],
         ['(', ')']
     ],
     autoClosingPairs: [
         { open: '{', close: '}' },
         { open: '[', close: ']' },
         { open: '(', close: ')' },
-        { open: '"', close: '"' },
-        { open: "'", close: "'" }
+        { open: '"', close: '"', notIn: ['string'] }
     ],
     surroundingPairs: [
-        { open: '"', close: '"' },
-        { open: "'", close: "'" },
         { open: '{', close: '}' },
         { open: '[', close: ']' },
         { open: '(', close: ')' },
-        { open: '<', close: '>' }
-    ],
-    onEnterRules: [
-        {
-            beforeText: new RegExp("<(?!(?:" + EMPTY_ELEMENTS.join('|') + "))([_:\\w][_:\\w-.\\d]*)([^/>]*(?!/)>)[^<]*$", 'i'),
-            afterText: /^<\/([_:\w][_:\w-.\d]*)\s*>$/i,
-            action: {
-                indentAction: _fillers_monaco_editor_core_js__WEBPACK_IMPORTED_MODULE_0__.languages.IndentAction.IndentOutdent
-            }
-        },
-        {
-            beforeText: new RegExp("<(?!(?:" + EMPTY_ELEMENTS.join('|') + "))(\\w[\\w\\d]*)([^/>]*(?!/)>)[^<]*$", 'i'),
-            action: { indentAction: _fillers_monaco_editor_core_js__WEBPACK_IMPORTED_MODULE_0__.languages.IndentAction.Indent }
-        }
-    ],
-    folding: {
-        markers: {
-            start: new RegExp('^\\s*<!--\\s*#region\\b.*-->'),
-            end: new RegExp('^\\s*<!--\\s*#endregion\\b.*-->')
-        }
-    }
+        { open: '"', close: '"' }
+    ]
 };
 var language = {
     defaultToken: '',
-    tokenPostfix: '.html',
-    ignoreCase: true,
-    // The main tokenizer for our languages
+    tokenPostfix: '.hcl',
+    keywords: [
+        'var',
+        'local',
+        'path',
+        'for_each',
+        'any',
+        'string',
+        'number',
+        'bool',
+        'true',
+        'false',
+        'null',
+        'if ',
+        'else ',
+        'endif ',
+        'for ',
+        'in',
+        'endfor'
+    ],
+    operators: [
+        '=',
+        '>=',
+        '<=',
+        '==',
+        '!=',
+        '+',
+        '-',
+        '*',
+        '/',
+        '%',
+        '&&',
+        '||',
+        '!',
+        '<',
+        '>',
+        '?',
+        '...',
+        ':'
+    ],
+    symbols: /[=><!~?:&|+\-*\/\^%]+/,
+    escapes: /\\(?:[abfnrtv\\"']|x[0-9A-Fa-f]{1,4}|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})/,
+    terraformFunctions: /(abs|ceil|floor|log|max|min|pow|signum|chomp|format|formatlist|indent|join|lower|regex|regexall|replace|split|strrev|substr|title|trimspace|upper|chunklist|coalesce|coalescelist|compact|concat|contains|distinct|element|flatten|index|keys|length|list|lookup|map|matchkeys|merge|range|reverse|setintersection|setproduct|setunion|slice|sort|transpose|values|zipmap|base64decode|base64encode|base64gzip|csvdecode|jsondecode|jsonencode|urlencode|yamldecode|yamlencode|abspath|dirname|pathexpand|basename|file|fileexists|fileset|filebase64|templatefile|formatdate|timeadd|timestamp|base64sha256|base64sha512|bcrypt|filebase64sha256|filebase64sha512|filemd5|filemd1|filesha256|filesha512|md5|rsadecrypt|sha1|sha256|sha512|uuid|uuidv5|cidrhost|cidrnetmask|cidrsubnet|tobool|tolist|tomap|tonumber|toset|tostring)/,
+    terraformMainBlocks: /(module|data|terraform|resource|provider|variable|output|locals)/,
     tokenizer: {
         root: [
-            [/<!DOCTYPE/, 'metatag', '@doctype'],
-            [/<!--/, 'comment', '@comment'],
-            [/(<)((?:[\w\-]+:)?[\w\-]+)(\s*)(\/>)/, ['delimiter', 'tag', '', 'delimiter']],
-            [/(<)(script)/, ['delimiter', { token: 'tag', next: '@script' }]],
-            [/(<)(style)/, ['delimiter', { token: 'tag', next: '@style' }]],
-            [/(<)((?:[\w\-]+:)?[\w\-]+)/, ['delimiter', { token: 'tag', next: '@otherTag' }]],
-            [/(<\/)((?:[\w\-]+:)?[\w\-]+)/, ['delimiter', { token: 'tag', next: '@otherTag' }]],
-            [/</, 'delimiter'],
-            [/[^<]+/] // text
+            // highlight main blocks
+            [
+                /^@terraformMainBlocks([ \t]*)([\w-]+|"[\w-]+"|)([ \t]*)([\w-]+|"[\w-]+"|)([ \t]*)(\{)/,
+                ['type', '', 'string', '', 'string', '', '@brackets']
+            ],
+            // highlight all the remaining blocks
+            [
+                /(\w+[ \t]+)([ \t]*)([\w-]+|"[\w-]+"|)([ \t]*)([\w-]+|"[\w-]+"|)([ \t]*)(\{)/,
+                ['identifier', '', 'string', '', 'string', '', '@brackets']
+            ],
+            // highlight block
+            [
+                /(\w+[ \t]+)([ \t]*)([\w-]+|"[\w-]+"|)([ \t]*)([\w-]+|"[\w-]+"|)(=)(\{)/,
+                ['identifier', '', 'string', '', 'operator', '', '@brackets']
+            ],
+            // terraform general highlight - shared with expressions
+            { include: '@terraform' }
         ],
-        doctype: [
-            [/[^>]+/, 'metatag.content'],
-            [/>/, 'metatag', '@pop']
+        terraform: [
+            // highlight terraform functions
+            [/@terraformFunctions(\()/, ['type', '@brackets']],
+            // all other words are variables or keywords
+            [
+                /[a-zA-Z_]\w*-*/,
+                {
+                    cases: {
+                        '@keywords': { token: 'keyword.$0' },
+                        '@default': 'variable'
+                    }
+                }
+            ],
+            { include: '@whitespace' },
+            { include: '@heredoc' },
+            // delimiters and operators
+            [/[{}()\[\]]/, '@brackets'],
+            [/[<>](?!@symbols)/, '@brackets'],
+            [
+                /@symbols/,
+                {
+                    cases: {
+                        '@operators': 'operator',
+                        '@default': ''
+                    }
+                }
+            ],
+            // numbers
+            [/\d*\d+[eE]([\-+]?\d+)?/, 'number.float'],
+            [/\d*\.\d+([eE][\-+]?\d+)?/, 'number.float'],
+            [/\d[\d']*/, 'number'],
+            [/\d/, 'number'],
+            [/[;,.]/, 'delimiter'],
+            // strings
+            [/"/, 'string', '@string'],
+            [/'/, 'invalid']
+        ],
+        heredoc: [
+            [/<<[-]*\s*["]?([\w\-]+)["]?/, { token: 'string.heredoc.delimiter', next: '@heredocBody.$1' }]
+        ],
+        heredocBody: [
+            [
+                /([\w\-]+)$/,
+                {
+                    cases: {
+                        '$1==$S2': [
+                            {
+                                token: 'string.heredoc.delimiter',
+                                next: '@popall'
+                            }
+                        ],
+                        '@default': 'string.heredoc'
+                    }
+                }
+            ],
+            [/./, 'string.heredoc']
+        ],
+        whitespace: [
+            [/[ \t\r\n]+/, ''],
+            [/\/\*/, 'comment', '@comment'],
+            [/\/\/.*$/, 'comment'],
+            [/#.*$/, 'comment']
         ],
         comment: [
-            [/-->/, 'comment', '@pop'],
-            [/[^-]+/, 'comment.content'],
-            [/./, 'comment.content']
+            [/[^\/*]+/, 'comment'],
+            [/\*\//, 'comment', '@pop'],
+            [/[\/*]/, 'comment']
         ],
-        otherTag: [
-            [/\/?>/, 'delimiter', '@pop'],
-            [/"([^"]*)"/, 'attribute.value'],
-            [/'([^']*)'/, 'attribute.value'],
-            [/[\w\-]+/, 'attribute.name'],
-            [/=/, 'delimiter'],
-            [/[ \t\r\n]+/] // whitespace
+        string: [
+            [/\$\{/, { token: 'delimiter', next: '@stringExpression' }],
+            [/[^\\"\$]+/, 'string'],
+            [/@escapes/, 'string.escape'],
+            [/\\./, 'string.escape.invalid'],
+            [/"/, 'string', '@popall']
         ],
-        // -- BEGIN <script> tags handling
-        // After <script
-        script: [
-            [/type/, 'attribute.name', '@scriptAfterType'],
-            [/"([^"]*)"/, 'attribute.value'],
-            [/'([^']*)'/, 'attribute.value'],
-            [/[\w\-]+/, 'attribute.name'],
-            [/=/, 'delimiter'],
-            [
-                />/,
-                {
-                    token: 'delimiter',
-                    next: '@scriptEmbedded',
-                    nextEmbedded: 'text/javascript'
-                }
-            ],
-            [/[ \t\r\n]+/],
-            [/(<\/)(script\s*)(>)/, ['delimiter', 'tag', { token: 'delimiter', next: '@pop' }]]
+        stringInsideExpression: [
+            [/[^\\"]+/, 'string'],
+            [/@escapes/, 'string.escape'],
+            [/\\./, 'string.escape.invalid'],
+            [/"/, 'string', '@pop']
         ],
-        // After <script ... type
-        scriptAfterType: [
-            [/=/, 'delimiter', '@scriptAfterTypeEquals'],
-            [
-                />/,
-                {
-                    token: 'delimiter',
-                    next: '@scriptEmbedded',
-                    nextEmbedded: 'text/javascript'
-                }
-            ],
-            [/[ \t\r\n]+/],
-            [/<\/script\s*>/, { token: '@rematch', next: '@pop' }]
-        ],
-        // After <script ... type =
-        scriptAfterTypeEquals: [
-            [
-                /"([^"]*)"/,
-                {
-                    token: 'attribute.value',
-                    switchTo: '@scriptWithCustomType.$1'
-                }
-            ],
-            [
-                /'([^']*)'/,
-                {
-                    token: 'attribute.value',
-                    switchTo: '@scriptWithCustomType.$1'
-                }
-            ],
-            [
-                />/,
-                {
-                    token: 'delimiter',
-                    next: '@scriptEmbedded',
-                    nextEmbedded: 'text/javascript'
-                }
-            ],
-            [/[ \t\r\n]+/],
-            [/<\/script\s*>/, { token: '@rematch', next: '@pop' }]
-        ],
-        // After <script ... type = $S2
-        scriptWithCustomType: [
-            [
-                />/,
-                {
-                    token: 'delimiter',
-                    next: '@scriptEmbedded.$S2',
-                    nextEmbedded: '$S2'
-                }
-            ],
-            [/"([^"]*)"/, 'attribute.value'],
-            [/'([^']*)'/, 'attribute.value'],
-            [/[\w\-]+/, 'attribute.name'],
-            [/=/, 'delimiter'],
-            [/[ \t\r\n]+/],
-            [/<\/script\s*>/, { token: '@rematch', next: '@pop' }]
-        ],
-        scriptEmbedded: [
-            [/<\/script/, { token: '@rematch', next: '@pop', nextEmbedded: '@pop' }],
-            [/[^<]+/, '']
-        ],
-        // -- END <script> tags handling
-        // -- BEGIN <style> tags handling
-        // After <style
-        style: [
-            [/type/, 'attribute.name', '@styleAfterType'],
-            [/"([^"]*)"/, 'attribute.value'],
-            [/'([^']*)'/, 'attribute.value'],
-            [/[\w\-]+/, 'attribute.name'],
-            [/=/, 'delimiter'],
-            [
-                />/,
-                {
-                    token: 'delimiter',
-                    next: '@styleEmbedded',
-                    nextEmbedded: 'text/css'
-                }
-            ],
-            [/[ \t\r\n]+/],
-            [/(<\/)(style\s*)(>)/, ['delimiter', 'tag', { token: 'delimiter', next: '@pop' }]]
-        ],
-        // After <style ... type
-        styleAfterType: [
-            [/=/, 'delimiter', '@styleAfterTypeEquals'],
-            [
-                />/,
-                {
-                    token: 'delimiter',
-                    next: '@styleEmbedded',
-                    nextEmbedded: 'text/css'
-                }
-            ],
-            [/[ \t\r\n]+/],
-            [/<\/style\s*>/, { token: '@rematch', next: '@pop' }]
-        ],
-        // After <style ... type =
-        styleAfterTypeEquals: [
-            [
-                /"([^"]*)"/,
-                {
-                    token: 'attribute.value',
-                    switchTo: '@styleWithCustomType.$1'
-                }
-            ],
-            [
-                /'([^']*)'/,
-                {
-                    token: 'attribute.value',
-                    switchTo: '@styleWithCustomType.$1'
-                }
-            ],
-            [
-                />/,
-                {
-                    token: 'delimiter',
-                    next: '@styleEmbedded',
-                    nextEmbedded: 'text/css'
-                }
-            ],
-            [/[ \t\r\n]+/],
-            [/<\/style\s*>/, { token: '@rematch', next: '@pop' }]
-        ],
-        // After <style ... type = $S2
-        styleWithCustomType: [
-            [
-                />/,
-                {
-                    token: 'delimiter',
-                    next: '@styleEmbedded.$S2',
-                    nextEmbedded: '$S2'
-                }
-            ],
-            [/"([^"]*)"/, 'attribute.value'],
-            [/'([^']*)'/, 'attribute.value'],
-            [/[\w\-]+/, 'attribute.name'],
-            [/=/, 'delimiter'],
-            [/[ \t\r\n]+/],
-            [/<\/style\s*>/, { token: '@rematch', next: '@pop' }]
-        ],
-        styleEmbedded: [
-            [/<\/style/, { token: '@rematch', next: '@pop', nextEmbedded: '@pop' }],
-            [/[^<]+/, '']
+        stringExpression: [
+            [/\}/, { token: 'delimiter', next: '@pop' }],
+            [/"/, 'string', '@stringInsideExpression'],
+            { include: '@terraform' }
         ]
-        // -- END <style> tags handling
     }
 };
-// TESTED WITH:
-// <!DOCTYPE html>
-// <html>
-// <head>
-//   <title>Monarch Workbench</title>
-//   <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-//   <!----
-//   -- -- -- a comment -- -- --
-//   ---->
-//   <style bah="bah">
-//     body { font-family: Consolas; } /* nice */
-//   </style>
-// </head
-// >
-// a = "asd"
-// <body>
-//   <br/>
-//   <div
-//   class
-//   =
-//   "test"
-//   >
-//     <script>
-//       function() {
-//         alert("hi </ script>"); // javascript
-//       };
-//     </script>
-//     <script
-// 	bah="asdfg"
-// 	type="text/css"
-// 	>
-//   .bar { text-decoration: underline; }
-//     </script>
-//   </div>
-// </body>
-// </html>
 
 
 /***/ })

@@ -1,7 +1,7 @@
 "use strict";
 (self["webpackChunknodecg_io_debug"] = self["webpackChunknodecg_io_debug"] || []).push([[45],{
 
-/***/ 851:
+/***/ 1544:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -14,9 +14,11 @@ __webpack_require__.r(__webpack_exports__);
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 var conf = {
+    // the default separators except `@$`
+    wordPattern: /(-?\d*\.\d\w*)|([^\`\~\!\#\%\^\&\*\(\)\-\=\+\[\{\]\}\\\|\;\:\'\"\,\.\<\>\/\?\s]+)/g,
     comments: {
         lineComment: '//',
-        blockComment: ['(*', '*)']
+        blockComment: ['{', '}']
     },
     brackets: [
         ['{', '}'],
@@ -37,11 +39,17 @@ var conf = {
         { open: '(', close: ')' },
         { open: '<', close: '>' },
         { open: "'", close: "'" }
-    ]
+    ],
+    folding: {
+        markers: {
+            start: new RegExp("^\\s*\\{\\$REGION(\\s\\'.*\\')?\\}"),
+            end: new RegExp('^\\s*\\{\\$ENDREGION\\}')
+        }
+    }
 };
 var language = {
     defaultToken: '',
-    tokenPostfix: '.pascaligo',
+    tokenPostfix: '.pascal',
     ignoreCase: true,
     brackets: [
         { open: '{', close: '}', token: 'delimiter.curly' },
@@ -50,45 +58,126 @@ var language = {
         { open: '<', close: '>', token: 'delimiter.angle' }
     ],
     keywords: [
+        'absolute',
+        'abstract',
+        'all',
+        'and_then',
+        'array',
+        'as',
+        'asm',
+        'attribute',
         'begin',
-        'block',
+        'bindable',
         'case',
+        'class',
         'const',
+        'contains',
+        'default',
+        'div',
         'else',
         'end',
-        'fail',
-        'for',
-        'from',
-        'function',
+        'except',
+        'exports',
+        'external',
+        'far',
+        'file',
+        'finalization',
+        'finally',
+        'forward',
+        'generic',
+        'goto',
         'if',
+        'implements',
+        'import',
+        'in',
+        'index',
+        'inherited',
+        'initialization',
+        'interrupt',
         'is',
-        'nil',
+        'label',
+        'library',
+        'mod',
+        'module',
+        'name',
+        'near',
+        'not',
+        'object',
         'of',
-        'remove',
-        'return',
-        'skip',
+        'on',
+        'only',
+        'operator',
+        'or_else',
+        'otherwise',
+        'override',
+        'package',
+        'packed',
+        'pow',
+        'private',
+        'program',
+        'protected',
+        'public',
+        'published',
+        'interface',
+        'implementation',
+        'qualified',
+        'read',
+        'record',
+        'resident',
+        'requires',
+        'resourcestring',
+        'restricted',
+        'segment',
+        'set',
+        'shl',
+        'shr',
+        'specialize',
+        'stored',
+        'strict',
         'then',
+        'threadvar',
+        'to',
+        'try',
         'type',
+        'unit',
+        'uses',
         'var',
-        'while',
+        'view',
+        'virtual',
+        'dynamic',
+        'overload',
+        'reintroduce',
         'with',
-        'option',
-        'None',
-        'transaction'
+        'write',
+        'xor',
+        'true',
+        'false',
+        'procedure',
+        'function',
+        'constructor',
+        'destructor',
+        'property',
+        'break',
+        'continue',
+        'exit',
+        'abort',
+        'while',
+        'do',
+        'for',
+        'raise',
+        'repeat',
+        'until'
     ],
     typeKeywords: [
-        'bool',
-        'int',
-        'list',
-        'map',
-        'nat',
-        'record',
-        'string',
-        'unit',
-        'address',
-        'map',
-        'mtz',
-        'xtz'
+        'boolean',
+        'double',
+        'byte',
+        'integer',
+        'shortint',
+        'char',
+        'longint',
+        'float',
+        'string'
     ],
     operators: [
         '=',
@@ -100,7 +189,6 @@ var language = {
         ':',
         ':=',
         'and',
-        'mod',
         'or',
         '+',
         '-',
@@ -154,12 +242,11 @@ var language = {
             [/'/, 'string.invalid'],
             [/\#\d+/, 'string']
         ],
-        /* */
         comment: [
-            [/[^\(\*]+/, 'comment'],
+            [/[^\*\}]+/, 'comment'],
             //[/\(\*/,    'comment', '@push' ],    // nested comment  not allowed :-(
-            [/\*\)/, 'comment', '@pop'],
-            [/\(\*/, 'comment']
+            [/\}/, 'comment', '@pop'],
+            [/[\{]/, 'comment']
         ],
         string: [
             [/[^\\']+/, 'string'],
@@ -168,7 +255,7 @@ var language = {
         ],
         whitespace: [
             [/[ \t\r\n]+/, 'white'],
-            [/\(\*/, 'comment', '@comment'],
+            [/\{/, 'comment', '@comment'],
             [/\/\/.*$/, 'comment']
         ]
     }

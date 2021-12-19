@@ -1,7 +1,7 @@
 "use strict";
 (self["webpackChunknodecg_io_debug"] = self["webpackChunknodecg_io_debug"] || []).push([[1],{
 
-/***/ 791:
+/***/ 1484:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -25,9 +25,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "RenameAdapter": () => (/* binding */ RenameAdapter),
 /* harmony export */   "InlayHintsAdapter": () => (/* binding */ InlayHintsAdapter)
 /* harmony export */ });
-/* harmony import */ var _monaco_contribution_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(609);
-/* harmony import */ var _lib_lib_index_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(792);
-/* harmony import */ var _fillers_monaco_editor_core_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(702);
+/* harmony import */ var _monaco_contribution_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(621);
+/* harmony import */ var _lib_lib_index_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(1485);
+/* harmony import */ var _fillers_monaco_editor_core_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(1162);
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
@@ -1333,7 +1333,7 @@ var InlayHintsAdapter = /** @class */ (function (_super) {
 
 /***/ }),
 
-/***/ 792:
+/***/ 1485:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -1414,7 +1414,7 @@ libFileSet['lib.webworker.iterable.d.ts'] = true;
 
 /***/ }),
 
-/***/ 789:
+/***/ 1482:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -1424,9 +1424,9 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "getJavaScriptWorker": () => (/* binding */ getJavaScriptWorker),
 /* harmony export */   "getTypeScriptWorker": () => (/* binding */ getTypeScriptWorker)
 /* harmony export */ });
-/* harmony import */ var _workerManager_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(790);
-/* harmony import */ var _languageFeatures_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(791);
-/* harmony import */ var _fillers_monaco_editor_core_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(702);
+/* harmony import */ var _workerManager_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1483);
+/* harmony import */ var _languageFeatures_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(1484);
+/* harmony import */ var _fillers_monaco_editor_core_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(1162);
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
@@ -1488,14 +1488,14 @@ function setupMode(defaults, modeId) {
 
 /***/ }),
 
-/***/ 790:
+/***/ 1483:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "WorkerManager": () => (/* binding */ WorkerManager)
 /* harmony export */ });
-/* harmony import */ var _fillers_monaco_editor_core_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(702);
+/* harmony import */ var _fillers_monaco_editor_core_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1162);
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.

@@ -1,7 +1,7 @@
 "use strict";
 (self["webpackChunknodecg_io_debug"] = self["webpackChunknodecg_io_debug"] || []).push([[37],{
 
-/***/ 843:
+/***/ 1536:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -9,231 +9,164 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "conf": () => (/* binding */ conf),
 /* harmony export */   "language": () => (/* binding */ language)
 /* harmony export */ });
-/* harmony import */ var _fillers_monaco_editor_core_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(710);
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
-
-var EMPTY_ELEMENTS = [
-    'area',
-    'base',
-    'br',
-    'col',
-    'embed',
-    'hr',
-    'img',
-    'input',
-    'keygen',
-    'link',
-    'menuitem',
-    'meta',
-    'param',
-    'source',
-    'track',
-    'wbr'
-];
 var conf = {
-    wordPattern: /(-?\d*\.\d\w*)|([^\`\~\!\@\$\^\&\*\(\)\=\+\[\{\]\}\\\|\;\:\'\"\,\.\<\>\/\s]+)/g,
+    comments: {
+        lineComment: '--',
+        blockComment: ['--[[', ']]']
+    },
     brackets: [
-        ['<!--', '-->'],
-        ['<', '>'],
-        ['{{', '}}'],
-        ['{%', '%}'],
         ['{', '}'],
+        ['[', ']'],
         ['(', ')']
     ],
     autoClosingPairs: [
         { open: '{', close: '}' },
-        { open: '%', close: '%' },
         { open: '[', close: ']' },
         { open: '(', close: ')' },
         { open: '"', close: '"' },
         { open: "'", close: "'" }
     ],
     surroundingPairs: [
-        { open: '<', close: '>' },
+        { open: '{', close: '}' },
+        { open: '[', close: ']' },
+        { open: '(', close: ')' },
         { open: '"', close: '"' },
         { open: "'", close: "'" }
-    ],
-    onEnterRules: [
-        {
-            beforeText: new RegExp("<(?!(?:" + EMPTY_ELEMENTS.join('|') + "))(\\w[\\w\\d]*)([^/>]*(?!/)>)[^<]*$", 'i'),
-            afterText: /^<\/(\w[\w\d]*)\s*>$/i,
-            action: {
-                indentAction: _fillers_monaco_editor_core_js__WEBPACK_IMPORTED_MODULE_0__.languages.IndentAction.IndentOutdent
-            }
-        },
-        {
-            beforeText: new RegExp("<(?!(?:" + EMPTY_ELEMENTS.join('|') + "))(\\w[\\w\\d]*)([^/>]*(?!/)>)[^<]*$", 'i'),
-            action: { indentAction: _fillers_monaco_editor_core_js__WEBPACK_IMPORTED_MODULE_0__.languages.IndentAction.Indent }
-        }
     ]
 };
 var language = {
     defaultToken: '',
-    tokenPostfix: '',
-    builtinTags: [
-        'if',
+    tokenPostfix: '.lua',
+    keywords: [
+        'and',
+        'break',
+        'do',
         'else',
         'elseif',
-        'endif',
-        'render',
-        'assign',
-        'capture',
-        'endcapture',
-        'case',
-        'endcase',
-        'comment',
-        'endcomment',
-        'cycle',
-        'decrement',
+        'end',
+        'false',
         'for',
-        'endfor',
-        'include',
-        'increment',
-        'layout',
-        'raw',
-        'endraw',
-        'render',
-        'tablerow',
-        'endtablerow',
-        'unless',
-        'endunless'
+        'function',
+        'goto',
+        'if',
+        'in',
+        'local',
+        'nil',
+        'not',
+        'or',
+        'repeat',
+        'return',
+        'then',
+        'true',
+        'until',
+        'while'
     ],
-    builtinFilters: [
-        'abs',
-        'append',
-        'at_least',
-        'at_most',
-        'capitalize',
-        'ceil',
-        'compact',
-        'date',
-        'default',
-        'divided_by',
-        'downcase',
-        'escape',
-        'escape_once',
-        'first',
-        'floor',
-        'join',
-        'json',
-        'last',
-        'lstrip',
-        'map',
-        'minus',
-        'modulo',
-        'newline_to_br',
-        'plus',
-        'prepend',
-        'remove',
-        'remove_first',
-        'replace',
-        'replace_first',
-        'reverse',
-        'round',
-        'rstrip',
-        'size',
-        'slice',
-        'sort',
-        'sort_natural',
-        'split',
-        'strip',
-        'strip_html',
-        'strip_newlines',
-        'times',
-        'truncate',
-        'truncatewords',
-        'uniq',
-        'upcase',
-        'url_decode',
-        'url_encode',
-        'where'
+    brackets: [
+        { token: 'delimiter.bracket', open: '{', close: '}' },
+        { token: 'delimiter.array', open: '[', close: ']' },
+        { token: 'delimiter.parenthesis', open: '(', close: ')' }
     ],
-    constants: ['true', 'false'],
-    operators: ['==', '!=', '>', '<', '>=', '<='],
-    symbol: /[=><!]+/,
-    identifier: /[a-zA-Z_][\w]*/,
+    operators: [
+        '+',
+        '-',
+        '*',
+        '/',
+        '%',
+        '^',
+        '#',
+        '==',
+        '~=',
+        '<=',
+        '>=',
+        '<',
+        '>',
+        '=',
+        ';',
+        ':',
+        ',',
+        '.',
+        '..',
+        '...'
+    ],
+    // we include these common regular expressions
+    symbols: /[=><!~?:&|+\-*\/\^%]+/,
+    escapes: /\\(?:[abfnrtv\\"']|x[0-9A-Fa-f]{1,4}|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})/,
+    // The main tokenizer for our languages
     tokenizer: {
         root: [
-            [/\{\%\s*comment\s*\%\}/, 'comment.start.liquid', '@comment'],
-            [/\{\{/, { token: '@rematch', switchTo: '@liquidState.root' }],
-            [/\{\%/, { token: '@rematch', switchTo: '@liquidState.root' }],
-            [/(<)([\w\-]+)(\/>)/, ['delimiter.html', 'tag.html', 'delimiter.html']],
-            [/(<)([:\w]+)/, ['delimiter.html', { token: 'tag.html', next: '@otherTag' }]],
-            [/(<\/)([\w\-]+)/, ['delimiter.html', { token: 'tag.html', next: '@otherTag' }]],
-            [/</, 'delimiter.html'],
-            [/\{/, 'delimiter.html'],
-            [/[^<{]+/] // text
-        ],
-        comment: [
-            [/\{\%\s*endcomment\s*\%\}/, 'comment.end.liquid', '@pop'],
-            [/./, 'comment.content.liquid']
-        ],
-        otherTag: [
+            // identifiers and keywords
             [
-                /\{\{/,
-                {
-                    token: '@rematch',
-                    switchTo: '@liquidState.otherTag'
-                }
-            ],
-            [
-                /\{\%/,
-                {
-                    token: '@rematch',
-                    switchTo: '@liquidState.otherTag'
-                }
-            ],
-            [/\/?>/, 'delimiter.html', '@pop'],
-            [/"([^"]*)"/, 'attribute.value'],
-            [/'([^']*)'/, 'attribute.value'],
-            [/[\w\-]+/, 'attribute.name'],
-            [/=/, 'delimiter'],
-            [/[ \t\r\n]+/] // whitespace
-        ],
-        liquidState: [
-            [/\{\{/, 'delimiter.output.liquid'],
-            [/\}\}/, { token: 'delimiter.output.liquid', switchTo: '@$S2.$S3' }],
-            [/\{\%/, 'delimiter.tag.liquid'],
-            [/raw\s*\%\}/, 'delimiter.tag.liquid', '@liquidRaw'],
-            [/\%\}/, { token: 'delimiter.tag.liquid', switchTo: '@$S2.$S3' }],
-            { include: 'liquidRoot' }
-        ],
-        liquidRaw: [
-            [/^(?!\{\%\s*endraw\s*\%\}).+/],
-            [/\{\%/, 'delimiter.tag.liquid'],
-            [/@identifier/],
-            [/\%\}/, { token: 'delimiter.tag.liquid', next: '@root' }]
-        ],
-        liquidRoot: [
-            [/\d+(\.\d+)?/, 'number.liquid'],
-            [/"[^"]*"/, 'string.liquid'],
-            [/'[^']*'/, 'string.liquid'],
-            [/\s+/],
-            [
-                /@symbol/,
+                /[a-zA-Z_]\w*/,
                 {
                     cases: {
-                        '@operators': 'operator.liquid',
+                        '@keywords': { token: 'keyword.$0' },
+                        '@default': 'identifier'
+                    }
+                }
+            ],
+            // whitespace
+            { include: '@whitespace' },
+            // keys
+            [/(,)(\s*)([a-zA-Z_]\w*)(\s*)(:)(?!:)/, ['delimiter', '', 'key', '', 'delimiter']],
+            [/({)(\s*)([a-zA-Z_]\w*)(\s*)(:)(?!:)/, ['@brackets', '', 'key', '', 'delimiter']],
+            // delimiters and operators
+            [/[{}()\[\]]/, '@brackets'],
+            [
+                /@symbols/,
+                {
+                    cases: {
+                        '@operators': 'delimiter',
                         '@default': ''
                     }
                 }
             ],
-            [/\./],
+            // numbers
+            [/\d*\.\d+([eE][\-+]?\d+)?/, 'number.float'],
+            [/0[xX][0-9a-fA-F_]*[0-9a-fA-F]/, 'number.hex'],
+            [/\d+?/, 'number'],
+            // delimiter: after number because of .\d floats
+            [/[;,.]/, 'delimiter'],
+            // strings: recover on non-terminated strings
+            [/"([^"\\]|\\.)*$/, 'string.invalid'],
+            [/'([^'\\]|\\.)*$/, 'string.invalid'],
+            [/"/, 'string', '@string."'],
+            [/'/, 'string', "@string.'"]
+        ],
+        whitespace: [
+            [/[ \t\r\n]+/, ''],
+            [/--\[([=]*)\[/, 'comment', '@comment.$1'],
+            [/--.*$/, 'comment']
+        ],
+        comment: [
+            [/[^\]]+/, 'comment'],
             [
-                /@identifier/,
+                /\]([=]*)\]/,
                 {
                     cases: {
-                        '@constants': 'keyword.liquid',
-                        '@builtinFilters': 'predefined.liquid',
-                        '@builtinTags': 'predefined.liquid',
-                        '@default': 'variable.liquid'
+                        '$1==$S2': { token: 'comment', next: '@pop' },
+                        '@default': 'comment'
                     }
                 }
             ],
-            [/[^}|%]/, 'variable.liquid']
+            [/./, 'comment']
+        ],
+        string: [
+            [/[^\\"']+/, 'string'],
+            [/@escapes/, 'string.escape'],
+            [/\\./, 'string.escape.invalid'],
+            [
+                /["']/,
+                {
+                    cases: {
+                        '$#==$S2': { token: 'string', next: '@pop' },
+                        '@default': 'string'
+                    }
+                }
+            ]
         ]
     }
 };

@@ -1,7 +1,7 @@
 "use strict";
 (self["webpackChunknodecg_io_debug"] = self["webpackChunknodecg_io_debug"] || []).push([[56],{
 
-/***/ 862:
+/***/ 1555:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -9,13 +9,16 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "conf": () => (/* binding */ conf),
 /* harmony export */   "language": () => (/* binding */ language)
 /* harmony export */ });
+/* harmony import */ var _fillers_monaco_editor_core_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1172);
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
+
 var conf = {
     comments: {
-        lineComment: '//'
+        lineComment: '#',
+        blockComment: ["'''", "'''"]
     },
     brackets: [
         ['{', '}'],
@@ -26,271 +29,235 @@ var conf = {
         { open: '{', close: '}' },
         { open: '[', close: ']' },
         { open: '(', close: ')' },
-        { open: '"', close: '"', notIn: ['string', 'comment'] }
+        { open: '"', close: '"', notIn: ['string'] },
+        { open: "'", close: "'", notIn: ['string', 'comment'] }
     ],
     surroundingPairs: [
         { open: '{', close: '}' },
         { open: '[', close: ']' },
         { open: '(', close: ')' },
-        { open: '"', close: '"' }
-    ]
+        { open: '"', close: '"' },
+        { open: "'", close: "'" }
+    ],
+    onEnterRules: [
+        {
+            beforeText: new RegExp('^\\s*(?:def|class|for|if|elif|else|while|try|with|finally|except|async).*?:\\s*$'),
+            action: { indentAction: _fillers_monaco_editor_core_js__WEBPACK_IMPORTED_MODULE_0__.languages.IndentAction.Indent }
+        }
+    ],
+    folding: {
+        offSide: true,
+        markers: {
+            start: new RegExp('^\\s*#region\\b'),
+            end: new RegExp('^\\s*#endregion\\b')
+        }
+    }
 };
 var language = {
-    // Set defaultToken to invalid to see what you do not tokenize yet
+    defaultToken: '',
+    tokenPostfix: '.python',
     keywords: [
-        'namespace',
-        'open',
+        // This section is the result of running
+        // `for k in keyword.kwlist: print('  "' + k + '",')` in a Python REPL,
+        // though note that the output from Python 3 is not a strict superset of the
+        // output from Python 2.
+        'False',
+        'None',
+        'True',
+        'and',
         'as',
-        'operation',
-        'function',
-        'body',
-        'adjoint',
-        'newtype',
-        'controlled',
-        'if',
+        'assert',
+        'async',
+        'await',
+        'break',
+        'class',
+        'continue',
+        'def',
+        'del',
         'elif',
         'else',
-        'repeat',
-        'until',
-        'fixup',
-        'for',
-        'in',
-        'while',
-        'return',
-        'fail',
-        'within',
-        'apply',
-        'Adjoint',
-        'Controlled',
-        'Adj',
-        'Ctl',
-        'is',
-        'self',
-        'auto',
-        'distribute',
-        'invert',
-        'intrinsic',
-        'let',
-        'set',
-        'w/',
-        'new',
-        'not',
-        'and',
-        'or',
-        'use',
-        'borrow',
-        'using',
-        'borrowing',
-        'mutable'
-    ],
-    typeKeywords: [
-        'Unit',
-        'Int',
-        'BigInt',
-        'Double',
-        'Bool',
-        'String',
-        'Qubit',
-        'Result',
-        'Pauli',
-        'Range'
-    ],
-    invalidKeywords: [
-        'abstract',
-        'base',
-        'bool',
-        'break',
-        'byte',
-        'case',
-        'catch',
-        'char',
-        'checked',
-        'class',
-        'const',
-        'continue',
-        'decimal',
-        'default',
-        'delegate',
-        'do',
-        'double',
-        'enum',
-        'event',
-        'explicit',
-        'extern',
+        'except',
+        'exec',
         'finally',
-        'fixed',
-        'float',
-        'foreach',
-        'goto',
-        'implicit',
-        'int',
-        'interface',
-        'lock',
-        'long',
-        'null',
-        'object',
-        'operator',
-        'out',
-        'override',
-        'params',
-        'private',
-        'protected',
-        'public',
-        'readonly',
-        'ref',
-        'sbyte',
-        'sealed',
-        'short',
-        'sizeof',
-        'stackalloc',
-        'static',
-        'string',
-        'struct',
-        'switch',
-        'this',
-        'throw',
+        'for',
+        'from',
+        'global',
+        'if',
+        'import',
+        'in',
+        'is',
+        'lambda',
+        'nonlocal',
+        'not',
+        'or',
+        'pass',
+        'print',
+        'raise',
+        'return',
         'try',
-        'typeof',
-        'unit',
-        'ulong',
-        'unchecked',
-        'unsafe',
-        'ushort',
-        'virtual',
-        'void',
-        'volatile'
+        'while',
+        'with',
+        'yield',
+        'int',
+        'float',
+        'long',
+        'complex',
+        'hex',
+        'abs',
+        'all',
+        'any',
+        'apply',
+        'basestring',
+        'bin',
+        'bool',
+        'buffer',
+        'bytearray',
+        'callable',
+        'chr',
+        'classmethod',
+        'cmp',
+        'coerce',
+        'compile',
+        'complex',
+        'delattr',
+        'dict',
+        'dir',
+        'divmod',
+        'enumerate',
+        'eval',
+        'execfile',
+        'file',
+        'filter',
+        'format',
+        'frozenset',
+        'getattr',
+        'globals',
+        'hasattr',
+        'hash',
+        'help',
+        'id',
+        'input',
+        'intern',
+        'isinstance',
+        'issubclass',
+        'iter',
+        'len',
+        'locals',
+        'list',
+        'map',
+        'max',
+        'memoryview',
+        'min',
+        'next',
+        'object',
+        'oct',
+        'open',
+        'ord',
+        'pow',
+        'print',
+        'property',
+        'reversed',
+        'range',
+        'raw_input',
+        'reduce',
+        'reload',
+        'repr',
+        'reversed',
+        'round',
+        'self',
+        'set',
+        'setattr',
+        'slice',
+        'sorted',
+        'staticmethod',
+        'str',
+        'sum',
+        'super',
+        'tuple',
+        'type',
+        'unichr',
+        'unicode',
+        'vars',
+        'xrange',
+        'zip',
+        '__dict__',
+        '__methods__',
+        '__members__',
+        '__class__',
+        '__bases__',
+        '__name__',
+        '__mro__',
+        '__subclasses__',
+        '__init__',
+        '__import__'
     ],
-    constants: ['true', 'false', 'PauliI', 'PauliX', 'PauliY', 'PauliZ', 'One', 'Zero'],
-    builtin: [
-        'X',
-        'Y',
-        'Z',
-        'H',
-        'HY',
-        'S',
-        'T',
-        'SWAP',
-        'CNOT',
-        'CCNOT',
-        'MultiX',
-        'R',
-        'RFrac',
-        'Rx',
-        'Ry',
-        'Rz',
-        'R1',
-        'R1Frac',
-        'Exp',
-        'ExpFrac',
-        'Measure',
-        'M',
-        'MultiM',
-        'Message',
-        'Length',
-        'Assert',
-        'AssertProb',
-        'AssertEqual'
+    brackets: [
+        { open: '{', close: '}', token: 'delimiter.curly' },
+        { open: '[', close: ']', token: 'delimiter.bracket' },
+        { open: '(', close: ')', token: 'delimiter.parenthesis' }
     ],
-    operators: [
-        'and=',
-        '<-',
-        '->',
-        '*',
-        '*=',
-        '@',
-        '!',
-        '^',
-        '^=',
-        ':',
-        '::',
-        '..',
-        '==',
-        '...',
-        '=',
-        '=>',
-        '>',
-        '>=',
-        '<',
-        '<=',
-        '-',
-        '-=',
-        '!=',
-        'or=',
-        '%',
-        '%=',
-        '|',
-        '+',
-        '+=',
-        '?',
-        '/',
-        '/=',
-        '&&&',
-        '&&&=',
-        '^^^',
-        '^^^=',
-        '>>>',
-        '>>>=',
-        '<<<',
-        '<<<=',
-        '|||',
-        '|||=',
-        '~~~',
-        '_',
-        'w/',
-        'w/='
-    ],
-    namespaceFollows: ['namespace', 'open'],
-    symbols: /[=><!~?:&|+\-*\/\^%@._]+/,
-    escapes: /\\[\s\S]/,
-    // The main tokenizer for our languages
     tokenizer: {
         root: [
-            // identifiers and keywords
+            { include: '@whitespace' },
+            { include: '@numbers' },
+            { include: '@strings' },
+            [/[,:;]/, 'delimiter'],
+            [/[{}\[\]()]/, '@brackets'],
+            [/@[a-zA-Z_]\w*/, 'tag'],
             [
-                /[a-zA-Z_$][\w$]*/,
+                /[a-zA-Z_]\w*/,
                 {
                     cases: {
-                        '@namespaceFollows': {
-                            token: 'keyword.$0',
-                            next: '@namespace'
-                        },
-                        '@typeKeywords': 'type',
                         '@keywords': 'keyword',
-                        '@constants': 'constant',
-                        '@builtin': 'keyword',
-                        '@invalidKeywords': 'invalid',
                         '@default': 'identifier'
                     }
                 }
-            ],
-            // whitespace
-            { include: '@whitespace' },
-            // delimiters and operators
-            [/[{}()\[\]]/, '@brackets'],
-            [/@symbols/, { cases: { '@operators': 'operator', '@default': '' } }],
-            // numbers
-            [/\d*\.\d+([eE][\-+]?\d+)?/, 'number.float'],
-            [/\d+/, 'number'],
-            // delimiter: after number because of .\d floats
-            [/[;,.]/, 'delimiter'],
-            // strings
-            //[/"([^"\\]|\\.)*$/, 'string.invalid' ],  // non-teminated string
-            [/"/, { token: 'string.quote', bracket: '@open', next: '@string' }]
+            ]
         ],
-        string: [
-            [/[^\\"]+/, 'string'],
-            [/@escapes/, 'string.escape'],
-            [/"/, { token: 'string.quote', bracket: '@close', next: '@pop' }]
-        ],
-        namespace: [
-            { include: '@whitespace' },
-            [/[A-Za-z]\w*/, 'namespace'],
-            [/[\.=]/, 'delimiter'],
-            ['', '', '@pop']
-        ],
+        // Deal with white space, including single and multi-line comments
         whitespace: [
-            [/[ \t\r\n]+/, 'white'],
-            [/(\/\/).*/, 'comment']
+            [/\s+/, 'white'],
+            [/(^#.*$)/, 'comment'],
+            [/'''/, 'string', '@endDocString'],
+            [/"""/, 'string', '@endDblDocString']
+        ],
+        endDocString: [
+            [/[^']+/, 'string'],
+            [/\\'/, 'string'],
+            [/'''/, 'string', '@popall'],
+            [/'/, 'string']
+        ],
+        endDblDocString: [
+            [/[^"]+/, 'string'],
+            [/\\"/, 'string'],
+            [/"""/, 'string', '@popall'],
+            [/"/, 'string']
+        ],
+        // Recognize hex, negatives, decimals, imaginaries, longs, and scientific notation
+        numbers: [
+            [/-?0x([abcdef]|[ABCDEF]|\d)+[lL]?/, 'number.hex'],
+            [/-?(\d*\.)?\d+([eE][+\-]?\d+)?[jJ]?[lL]?/, 'number']
+        ],
+        // Recognize strings, including those broken across lines with \ (but not without)
+        strings: [
+            [/'$/, 'string.escape', '@popall'],
+            [/'/, 'string.escape', '@stringBody'],
+            [/"$/, 'string.escape', '@popall'],
+            [/"/, 'string.escape', '@dblStringBody']
+        ],
+        stringBody: [
+            [/[^\\']+$/, 'string', '@popall'],
+            [/[^\\']+/, 'string'],
+            [/\\./, 'string'],
+            [/'/, 'string.escape', '@popall'],
+            [/\\$/, 'string']
+        ],
+        dblStringBody: [
+            [/[^\\"]+$/, 'string', '@popall'],
+            [/[^\\"]+/, 'string'],
+            [/\\./, 'string'],
+            [/"/, 'string.escape', '@popall'],
+            [/\\$/, 'string']
         ]
     }
 };

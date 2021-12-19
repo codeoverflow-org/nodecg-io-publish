@@ -1,7 +1,7 @@
 "use strict";
 (self["webpackChunknodecg_io_dashboard"] = self["webpackChunknodecg_io_dashboard"] || []).push([[3],{
 
-/***/ 851:
+/***/ 1535:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -1978,16 +1978,16 @@ var Is;
 
 /***/ }),
 
-/***/ 848:
+/***/ 1532:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "setupMode": () => (/* binding */ setupMode)
 /* harmony export */ });
-/* harmony import */ var _workerManager_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(849);
-/* harmony import */ var _languageFeatures_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(850);
-/* harmony import */ var _fillers_monaco_editor_core_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(705);
+/* harmony import */ var _workerManager_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1533);
+/* harmony import */ var _languageFeatures_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(1534);
+/* harmony import */ var _fillers_monaco_editor_core_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(1165);
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
@@ -2060,7 +2060,7 @@ function disposeAll(disposables) {
 
 /***/ }),
 
-/***/ 850:
+/***/ 1534:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -2077,8 +2077,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "FoldingRangeAdapter": () => (/* binding */ FoldingRangeAdapter),
 /* harmony export */   "SelectionRangeAdapter": () => (/* binding */ SelectionRangeAdapter)
 /* harmony export */ });
-/* harmony import */ var _deps_vscode_languageserver_types_main_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(851);
-/* harmony import */ var _fillers_monaco_editor_core_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(705);
+/* harmony import */ var _deps_vscode_languageserver_types_main_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1535);
+/* harmony import */ var _fillers_monaco_editor_core_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(1165);
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
@@ -2696,14 +2696,14 @@ var SelectionRangeAdapter = /** @class */ (function () {
 
 /***/ }),
 
-/***/ 849:
+/***/ 1533:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "WorkerManager": () => (/* binding */ WorkerManager)
 /* harmony export */ });
-/* harmony import */ var _fillers_monaco_editor_core_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(705);
+/* harmony import */ var _fillers_monaco_editor_core_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1165);
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.

@@ -1,7 +1,7 @@
 "use strict";
 (self["webpackChunknodecg_io_dashboard"] = self["webpackChunknodecg_io_dashboard"] || []).push([[57],{
 
-/***/ 908:
+/***/ 1601:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -15,7 +15,7 @@ __webpack_require__.r(__webpack_exports__);
  *--------------------------------------------------------------------------------------------*/
 var conf = {
     comments: {
-        lineComment: '#'
+        lineComment: '//'
     },
     brackets: [
         ['{', '}'],
@@ -26,7 +26,7 @@ var conf = {
         { open: '{', close: '}' },
         { open: '[', close: ']' },
         { open: '(', close: ')' },
-        { open: '"', close: '"' }
+        { open: '"', close: '"', notIn: ['string', 'comment'] }
     ],
     surroundingPairs: [
         { open: '{', close: '}' },
@@ -36,220 +36,261 @@ var conf = {
     ]
 };
 var language = {
-    defaultToken: '',
-    tokenPostfix: '.r',
-    roxygen: [
-        '@alias',
-        '@aliases',
-        '@assignee',
-        '@author',
-        '@backref',
-        '@callGraph',
-        '@callGraphDepth',
-        '@callGraphPrimitives',
-        '@concept',
-        '@describeIn',
-        '@description',
-        '@details',
-        '@docType',
-        '@encoding',
-        '@evalNamespace',
-        '@evalRd',
-        '@example',
-        '@examples',
-        '@export',
-        '@exportClass',
-        '@exportMethod',
-        '@exportPattern',
-        '@family',
-        '@field',
-        '@formals',
-        '@format',
-        '@import',
-        '@importClassesFrom',
-        '@importFrom',
-        '@importMethodsFrom',
-        '@include',
-        '@inherit',
-        '@inheritDotParams',
-        '@inheritParams',
-        '@inheritSection',
-        '@keywords',
-        '@md',
-        '@method',
-        '@name',
-        '@noMd',
-        '@noRd',
-        '@note',
-        '@param',
-        '@rawNamespace',
-        '@rawRd',
-        '@rdname',
-        '@references',
-        '@return',
-        '@S3method',
-        '@section',
-        '@seealso',
-        '@setClass',
-        '@slot',
-        '@source',
-        '@template',
-        '@templateVar',
-        '@title',
-        '@TODO',
-        '@usage',
-        '@useDynLib'
-    ],
-    constants: [
-        'NULL',
-        'FALSE',
-        'TRUE',
-        'NA',
-        'Inf',
-        'NaN',
-        'NA_integer_',
-        'NA_real_',
-        'NA_complex_',
-        'NA_character_',
-        'T',
-        'F',
-        'LETTERS',
-        'letters',
-        'month.abb',
-        'month.name',
-        'pi',
-        'R.version.string'
-    ],
+    // Set defaultToken to invalid to see what you do not tokenize yet
     keywords: [
-        'break',
-        'next',
-        'return',
+        'namespace',
+        'open',
+        'as',
+        'operation',
+        'function',
+        'body',
+        'adjoint',
+        'newtype',
+        'controlled',
         'if',
+        'elif',
         'else',
+        'repeat',
+        'until',
+        'fixup',
         'for',
         'in',
-        'repeat',
         'while',
-        'array',
-        'category',
-        'character',
-        'complex',
+        'return',
+        'fail',
+        'within',
+        'apply',
+        'Adjoint',
+        'Controlled',
+        'Adj',
+        'Ctl',
+        'is',
+        'self',
+        'auto',
+        'distribute',
+        'invert',
+        'intrinsic',
+        'let',
+        'set',
+        'w/',
+        'new',
+        'not',
+        'and',
+        'or',
+        'use',
+        'borrow',
+        'using',
+        'borrowing',
+        'mutable'
+    ],
+    typeKeywords: [
+        'Unit',
+        'Int',
+        'BigInt',
+        'Double',
+        'Bool',
+        'String',
+        'Qubit',
+        'Result',
+        'Pauli',
+        'Range'
+    ],
+    invalidKeywords: [
+        'abstract',
+        'base',
+        'bool',
+        'break',
+        'byte',
+        'case',
+        'catch',
+        'char',
+        'checked',
+        'class',
+        'const',
+        'continue',
+        'decimal',
+        'default',
+        'delegate',
+        'do',
         'double',
-        'function',
-        'integer',
-        'list',
-        'logical',
-        'matrix',
-        'numeric',
-        'vector',
-        'data.frame',
-        'factor',
-        'library',
-        'require',
-        'attach',
-        'detach',
-        'source'
+        'enum',
+        'event',
+        'explicit',
+        'extern',
+        'finally',
+        'fixed',
+        'float',
+        'foreach',
+        'goto',
+        'implicit',
+        'int',
+        'interface',
+        'lock',
+        'long',
+        'null',
+        'object',
+        'operator',
+        'out',
+        'override',
+        'params',
+        'private',
+        'protected',
+        'public',
+        'readonly',
+        'ref',
+        'sbyte',
+        'sealed',
+        'short',
+        'sizeof',
+        'stackalloc',
+        'static',
+        'string',
+        'struct',
+        'switch',
+        'this',
+        'throw',
+        'try',
+        'typeof',
+        'unit',
+        'ulong',
+        'unchecked',
+        'unsafe',
+        'ushort',
+        'virtual',
+        'void',
+        'volatile'
     ],
-    special: ['\\n', '\\r', '\\t', '\\b', '\\a', '\\f', '\\v', "\\'", '\\"', '\\\\'],
-    brackets: [
-        { open: '{', close: '}', token: 'delimiter.curly' },
-        { open: '[', close: ']', token: 'delimiter.bracket' },
-        { open: '(', close: ')', token: 'delimiter.parenthesis' }
+    constants: ['true', 'false', 'PauliI', 'PauliX', 'PauliY', 'PauliZ', 'One', 'Zero'],
+    builtin: [
+        'X',
+        'Y',
+        'Z',
+        'H',
+        'HY',
+        'S',
+        'T',
+        'SWAP',
+        'CNOT',
+        'CCNOT',
+        'MultiX',
+        'R',
+        'RFrac',
+        'Rx',
+        'Ry',
+        'Rz',
+        'R1',
+        'R1Frac',
+        'Exp',
+        'ExpFrac',
+        'Measure',
+        'M',
+        'MultiM',
+        'Message',
+        'Length',
+        'Assert',
+        'AssertProb',
+        'AssertEqual'
     ],
+    operators: [
+        'and=',
+        '<-',
+        '->',
+        '*',
+        '*=',
+        '@',
+        '!',
+        '^',
+        '^=',
+        ':',
+        '::',
+        '..',
+        '==',
+        '...',
+        '=',
+        '=>',
+        '>',
+        '>=',
+        '<',
+        '<=',
+        '-',
+        '-=',
+        '!=',
+        'or=',
+        '%',
+        '%=',
+        '|',
+        '+',
+        '+=',
+        '?',
+        '/',
+        '/=',
+        '&&&',
+        '&&&=',
+        '^^^',
+        '^^^=',
+        '>>>',
+        '>>>=',
+        '<<<',
+        '<<<=',
+        '|||',
+        '|||=',
+        '~~~',
+        '_',
+        'w/',
+        'w/='
+    ],
+    namespaceFollows: ['namespace', 'open'],
+    symbols: /[=><!~?:&|+\-*\/\^%@._]+/,
+    escapes: /\\[\s\S]/,
+    // The main tokenizer for our languages
     tokenizer: {
         root: [
-            { include: '@numbers' },
-            { include: '@strings' },
-            [/[{}\[\]()]/, '@brackets'],
-            { include: '@operators' },
-            [/#'$/, 'comment.doc'],
-            [/#'/, 'comment.doc', '@roxygen'],
-            [/(^#.*$)/, 'comment'],
-            [/\s+/, 'white'],
-            [/[,:;]/, 'delimiter'],
-            [/@[a-zA-Z]\w*/, 'tag'],
+            // identifiers and keywords
             [
-                /[a-zA-Z]\w*/,
+                /[a-zA-Z_$][\w$]*/,
                 {
                     cases: {
+                        '@namespaceFollows': {
+                            token: 'keyword.$0',
+                            next: '@namespace'
+                        },
+                        '@typeKeywords': 'type',
                         '@keywords': 'keyword',
                         '@constants': 'constant',
+                        '@builtin': 'keyword',
+                        '@invalidKeywords': 'invalid',
                         '@default': 'identifier'
                     }
                 }
-            ]
-        ],
-        // Recognize Roxygen comments
-        roxygen: [
-            [
-                /@\w+/,
-                {
-                    cases: {
-                        '@roxygen': 'tag',
-                        '@eos': { token: 'comment.doc', next: '@pop' },
-                        '@default': 'comment.doc'
-                    }
-                }
             ],
-            [
-                /\s+/,
-                {
-                    cases: {
-                        '@eos': { token: 'comment.doc', next: '@pop' },
-                        '@default': 'comment.doc'
-                    }
-                }
-            ],
-            [/.*/, { token: 'comment.doc', next: '@pop' }]
+            // whitespace
+            { include: '@whitespace' },
+            // delimiters and operators
+            [/[{}()\[\]]/, '@brackets'],
+            [/@symbols/, { cases: { '@operators': 'operator', '@default': '' } }],
+            // numbers
+            [/\d*\.\d+([eE][\-+]?\d+)?/, 'number.float'],
+            [/\d+/, 'number'],
+            // delimiter: after number because of .\d floats
+            [/[;,.]/, 'delimiter'],
+            // strings
+            //[/"([^"\\]|\\.)*$/, 'string.invalid' ],  // non-teminated string
+            [/"/, { token: 'string.quote', bracket: '@open', next: '@string' }]
         ],
-        // Recognize positives, negatives, decimals, imaginaries, and scientific notation
-        numbers: [
-            [/0[xX][0-9a-fA-F]+/, 'number.hex'],
-            [/-?(\d*\.)?\d+([eE][+\-]?\d+)?/, 'number']
+        string: [
+            [/[^\\"]+/, 'string'],
+            [/@escapes/, 'string.escape'],
+            [/"/, { token: 'string.quote', bracket: '@close', next: '@pop' }]
         ],
-        // Recognize operators
-        operators: [
-            [/<{1,2}-/, 'operator'],
-            [/->{1,2}/, 'operator'],
-            [/%[^%\s]+%/, 'operator'],
-            [/\*\*/, 'operator'],
-            [/%%/, 'operator'],
-            [/&&/, 'operator'],
-            [/\|\|/, 'operator'],
-            [/<</, 'operator'],
-            [/>>/, 'operator'],
-            [/[-+=&|!<>^~*/:$]/, 'operator']
+        namespace: [
+            { include: '@whitespace' },
+            [/[A-Za-z]\w*/, 'namespace'],
+            [/[\.=]/, 'delimiter'],
+            ['', '', '@pop']
         ],
-        // Recognize strings, including those broken across lines
-        strings: [
-            [/'/, 'string.escape', '@stringBody'],
-            [/"/, 'string.escape', '@dblStringBody']
-        ],
-        stringBody: [
-            [
-                /\\./,
-                {
-                    cases: {
-                        '@special': 'string',
-                        '@default': 'error-token'
-                    }
-                }
-            ],
-            [/'/, 'string.escape', '@popall'],
-            [/./, 'string']
-        ],
-        dblStringBody: [
-            [
-                /\\./,
-                {
-                    cases: {
-                        '@special': 'string',
-                        '@default': 'error-token'
-                    }
-                }
-            ],
-            [/"/, 'string.escape', '@popall'],
-            [/./, 'string']
+        whitespace: [
+            [/[ \t\r\n]+/, 'white'],
+            [/(\/\/).*/, 'comment']
         ]
     }
 };

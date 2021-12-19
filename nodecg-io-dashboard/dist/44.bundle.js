@@ -1,7 +1,7 @@
 "use strict";
 (self["webpackChunknodecg_io_dashboard"] = self["webpackChunknodecg_io_dashboard"] || []).push([[44],{
 
-/***/ 895:
+/***/ 1588:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -14,249 +14,182 @@ __webpack_require__.r(__webpack_exports__);
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
 var conf = {
-    // the default separators except `@$`
-    wordPattern: /(-?\d*\.\d\w*)|([^\`\~\!\#\%\^\&\*\(\)\-\=\+\[\{\]\}\\\|\;\:\'\"\,\.\<\>\/\?\s]+)/g,
     comments: {
         lineComment: '//',
-        blockComment: ['{', '}']
+        blockComment: ['/*', '*/']
     },
     brackets: [
         ['{', '}'],
         ['[', ']'],
-        ['(', ')'],
-        ['<', '>']
+        ['(', ')']
     ],
     autoClosingPairs: [
         { open: '{', close: '}' },
         { open: '[', close: ']' },
         { open: '(', close: ')' },
-        { open: '<', close: '>' },
+        { open: '"', close: '"' },
         { open: "'", close: "'" }
     ],
     surroundingPairs: [
         { open: '{', close: '}' },
         { open: '[', close: ']' },
         { open: '(', close: ')' },
-        { open: '<', close: '>' },
+        { open: '"', close: '"' },
         { open: "'", close: "'" }
-    ],
-    folding: {
-        markers: {
-            start: new RegExp("^\\s*\\{\\$REGION(\\s\\'.*\\')?\\}"),
-            end: new RegExp('^\\s*\\{\\$ENDREGION\\}')
-        }
-    }
+    ]
 };
 var language = {
     defaultToken: '',
-    tokenPostfix: '.pascal',
-    ignoreCase: true,
-    brackets: [
-        { open: '{', close: '}', token: 'delimiter.curly' },
-        { open: '[', close: ']', token: 'delimiter.square' },
-        { open: '(', close: ')', token: 'delimiter.parenthesis' },
-        { open: '<', close: '>', token: 'delimiter.angle' }
-    ],
+    tokenPostfix: '.objective-c',
     keywords: [
-        'absolute',
-        'abstract',
-        'all',
-        'and_then',
-        'array',
-        'as',
-        'asm',
-        'attribute',
-        'begin',
-        'bindable',
+        '#import',
+        '#include',
+        '#define',
+        '#else',
+        '#endif',
+        '#if',
+        '#ifdef',
+        '#ifndef',
+        '#ident',
+        '#undef',
+        '@class',
+        '@defs',
+        '@dynamic',
+        '@encode',
+        '@end',
+        '@implementation',
+        '@interface',
+        '@package',
+        '@private',
+        '@protected',
+        '@property',
+        '@protocol',
+        '@public',
+        '@selector',
+        '@synthesize',
+        '__declspec',
+        'assign',
+        'auto',
+        'BOOL',
+        'break',
+        'bycopy',
+        'byref',
         'case',
-        'class',
+        'char',
+        'Class',
         'const',
-        'contains',
+        'copy',
+        'continue',
         'default',
-        'div',
+        'do',
+        'double',
         'else',
-        'end',
-        'except',
-        'exports',
-        'external',
-        'far',
-        'file',
-        'finalization',
-        'finally',
-        'forward',
-        'generic',
+        'enum',
+        'extern',
+        'FALSE',
+        'false',
+        'float',
+        'for',
         'goto',
         'if',
-        'implements',
-        'import',
         'in',
-        'index',
-        'inherited',
-        'initialization',
-        'interrupt',
-        'is',
-        'label',
-        'library',
-        'mod',
-        'module',
-        'name',
-        'near',
-        'not',
-        'object',
-        'of',
-        'on',
-        'only',
-        'operator',
-        'or_else',
-        'otherwise',
-        'override',
-        'package',
-        'packed',
-        'pow',
+        'int',
+        'id',
+        'inout',
+        'IMP',
+        'long',
+        'nil',
+        'nonatomic',
+        'NULL',
+        'oneway',
+        'out',
         'private',
-        'program',
-        'protected',
         'public',
-        'published',
-        'interface',
-        'implementation',
-        'qualified',
-        'read',
-        'record',
-        'resident',
-        'requires',
-        'resourcestring',
-        'restricted',
-        'segment',
-        'set',
-        'shl',
-        'shr',
-        'specialize',
-        'stored',
-        'strict',
-        'then',
-        'threadvar',
-        'to',
-        'try',
-        'type',
-        'unit',
-        'uses',
-        'var',
-        'view',
-        'virtual',
-        'dynamic',
-        'overload',
-        'reintroduce',
-        'with',
-        'write',
-        'xor',
+        'protected',
+        'readwrite',
+        'readonly',
+        'register',
+        'return',
+        'SEL',
+        'self',
+        'short',
+        'signed',
+        'sizeof',
+        'static',
+        'struct',
+        'super',
+        'switch',
+        'typedef',
+        'TRUE',
         'true',
-        'false',
-        'procedure',
-        'function',
-        'constructor',
-        'destructor',
-        'property',
-        'break',
-        'continue',
-        'exit',
-        'abort',
-        'while',
-        'do',
-        'for',
-        'raise',
-        'repeat',
-        'until'
+        'union',
+        'unsigned',
+        'volatile',
+        'void',
+        'while'
     ],
-    typeKeywords: [
-        'boolean',
-        'double',
-        'byte',
-        'integer',
-        'shortint',
-        'char',
-        'longint',
-        'float',
-        'string'
-    ],
-    operators: [
-        '=',
-        '>',
-        '<',
-        '<=',
-        '>=',
-        '<>',
-        ':',
-        ':=',
-        'and',
-        'or',
-        '+',
-        '-',
-        '*',
-        '/',
-        '@',
-        '&',
-        '^',
-        '%'
-    ],
-    // we include these common regular expressions
-    symbols: /[=><:@\^&|+\-*\/\^%]+/,
-    // The main tokenizer for our languages
+    decpart: /\d(_?\d)*/,
+    decimal: /0|@decpart/,
     tokenizer: {
         root: [
-            // identifiers and keywords
+            { include: '@comments' },
+            { include: '@whitespace' },
+            { include: '@numbers' },
+            { include: '@strings' },
+            [/[,:;]/, 'delimiter'],
+            [/[{}\[\]()<>]/, '@brackets'],
             [
-                /[a-zA-Z_][\w]*/,
+                /[a-zA-Z@#]\w*/,
                 {
                     cases: {
-                        '@keywords': { token: 'keyword.$0' },
+                        '@keywords': 'keyword',
                         '@default': 'identifier'
                     }
                 }
             ],
-            // whitespace
-            { include: '@whitespace' },
-            // delimiters and operators
-            [/[{}()\[\]]/, '@brackets'],
-            [/[<>](?!@symbols)/, '@brackets'],
-            [
-                /@symbols/,
-                {
-                    cases: {
-                        '@operators': 'delimiter',
-                        '@default': ''
-                    }
-                }
-            ],
-            // numbers
-            [/\d*\.\d+([eE][\-+]?\d+)?/, 'number.float'],
-            [/\$[0-9a-fA-F]{1,16}/, 'number.hex'],
-            [/\d+/, 'number'],
-            // delimiter: after number because of .\d floats
-            [/[;,.]/, 'delimiter'],
-            // strings
-            [/'([^'\\]|\\.)*$/, 'string.invalid'],
-            [/'/, 'string', '@string'],
-            // characters
-            [/'[^\\']'/, 'string'],
-            [/'/, 'string.invalid'],
-            [/\#\d+/, 'string']
+            [/[<>=\\+\\-\\*\\/\\^\\|\\~,]|and\\b|or\\b|not\\b]/, 'operator']
+        ],
+        whitespace: [[/\s+/, 'white']],
+        comments: [
+            ['\\/\\*', 'comment', '@comment'],
+            ['\\/\\/+.*', 'comment']
         ],
         comment: [
-            [/[^\*\}]+/, 'comment'],
-            //[/\(\*/,    'comment', '@push' ],    // nested comment  not allowed :-(
-            [/\}/, 'comment', '@pop'],
-            [/[\{]/, 'comment']
+            ['\\*\\/', 'comment', '@pop'],
+            ['.', 'comment']
         ],
-        string: [
+        numbers: [
+            [/0[xX][0-9a-fA-F]*(_?[0-9a-fA-F])*/, 'number.hex'],
+            [
+                /@decimal((\.@decpart)?([eE][\-+]?@decpart)?)[fF]*/,
+                {
+                    cases: {
+                        '(\\d)*': 'number',
+                        $0: 'number.float'
+                    }
+                }
+            ]
+        ],
+        // Recognize strings, including those broken across lines with \ (but not without)
+        strings: [
+            [/'$/, 'string.escape', '@popall'],
+            [/'/, 'string.escape', '@stringBody'],
+            [/"$/, 'string.escape', '@popall'],
+            [/"/, 'string.escape', '@dblStringBody']
+        ],
+        stringBody: [
+            [/[^\\']+$/, 'string', '@popall'],
             [/[^\\']+/, 'string'],
-            [/\\./, 'string.escape.invalid'],
-            [/'/, { token: 'string.quote', bracket: '@close', next: '@pop' }]
+            [/\\./, 'string'],
+            [/'/, 'string.escape', '@popall'],
+            [/\\$/, 'string']
         ],
-        whitespace: [
-            [/[ \t\r\n]+/, 'white'],
-            [/\{/, 'comment', '@comment'],
-            [/\/\/.*$/, 'comment']
+        dblStringBody: [
+            [/[^\\"]+$/, 'string', '@popall'],
+            [/[^\\"]+/, 'string'],
+            [/\\./, 'string'],
+            [/"/, 'string.escape', '@popall'],
+            [/\\$/, 'string']
         ]
     }
 };

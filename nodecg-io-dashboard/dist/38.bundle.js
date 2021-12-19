@@ -1,7 +1,7 @@
 "use strict";
 (self["webpackChunknodecg_io_dashboard"] = self["webpackChunknodecg_io_dashboard"] || []).push([[38],{
 
-/***/ 889:
+/***/ 1582:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -9,214 +9,231 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "conf": () => (/* binding */ conf),
 /* harmony export */   "language": () => (/* binding */ language)
 /* harmony export */ });
+/* harmony import */ var _fillers_monaco_editor_core_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(1173);
 /*---------------------------------------------------------------------------------------------
  *  Copyright (c) Microsoft Corporation. All rights reserved.
  *  Licensed under the MIT License. See License.txt in the project root for license information.
  *--------------------------------------------------------------------------------------------*/
+
+var EMPTY_ELEMENTS = [
+    'area',
+    'base',
+    'br',
+    'col',
+    'embed',
+    'hr',
+    'img',
+    'input',
+    'keygen',
+    'link',
+    'menuitem',
+    'meta',
+    'param',
+    'source',
+    'track',
+    'wbr'
+];
 var conf = {
-    comments: {
-        blockComment: ['(*', '*)']
-    },
+    wordPattern: /(-?\d*\.\d\w*)|([^\`\~\!\@\$\^\&\*\(\)\=\+\[\{\]\}\\\|\;\:\'\"\,\.\<\>\/\s]+)/g,
     brackets: [
+        ['<!--', '-->'],
+        ['<', '>'],
+        ['{{', '}}'],
+        ['{%', '%}'],
         ['{', '}'],
-        ['[', ']'],
         ['(', ')']
     ],
     autoClosingPairs: [
-        { open: '[', close: ']' },
         { open: '{', close: '}' },
+        { open: '%', close: '%' },
+        { open: '[', close: ']' },
         { open: '(', close: ')' },
-        { open: '(*', close: '*)' },
-        { open: '<*', close: '*>' },
-        { open: "'", close: "'", notIn: ['string', 'comment'] },
-        { open: '"', close: '"', notIn: ['string', 'comment'] }
+        { open: '"', close: '"' },
+        { open: "'", close: "'" }
+    ],
+    surroundingPairs: [
+        { open: '<', close: '>' },
+        { open: '"', close: '"' },
+        { open: "'", close: "'" }
+    ],
+    onEnterRules: [
+        {
+            beforeText: new RegExp("<(?!(?:" + EMPTY_ELEMENTS.join('|') + "))(\\w[\\w\\d]*)([^/>]*(?!/)>)[^<]*$", 'i'),
+            afterText: /^<\/(\w[\w\d]*)\s*>$/i,
+            action: {
+                indentAction: _fillers_monaco_editor_core_js__WEBPACK_IMPORTED_MODULE_0__.languages.IndentAction.IndentOutdent
+            }
+        },
+        {
+            beforeText: new RegExp("<(?!(?:" + EMPTY_ELEMENTS.join('|') + "))(\\w[\\w\\d]*)([^/>]*(?!/)>)[^<]*$", 'i'),
+            action: { indentAction: _fillers_monaco_editor_core_js__WEBPACK_IMPORTED_MODULE_0__.languages.IndentAction.Indent }
+        }
     ]
 };
 var language = {
     defaultToken: '',
-    tokenPostfix: '.m3',
-    brackets: [
-        { token: 'delimiter.curly', open: '{', close: '}' },
-        { token: 'delimiter.parenthesis', open: '(', close: ')' },
-        { token: 'delimiter.square', open: '[', close: ']' }
+    tokenPostfix: '',
+    builtinTags: [
+        'if',
+        'else',
+        'elseif',
+        'endif',
+        'render',
+        'assign',
+        'capture',
+        'endcapture',
+        'case',
+        'endcase',
+        'comment',
+        'endcomment',
+        'cycle',
+        'decrement',
+        'for',
+        'endfor',
+        'include',
+        'increment',
+        'layout',
+        'raw',
+        'endraw',
+        'render',
+        'tablerow',
+        'endtablerow',
+        'unless',
+        'endunless'
     ],
-    keywords: [
-        'AND',
-        'ANY',
-        'ARRAY',
-        'AS',
-        'BEGIN',
-        'BITS',
-        'BRANDED',
-        'BY',
-        'CASE',
-        'CONST',
-        'DIV',
-        'DO',
-        'ELSE',
-        'ELSIF',
-        'END',
-        'EVAL',
-        'EXCEPT',
-        'EXCEPTION',
-        'EXIT',
-        'EXPORTS',
-        'FINALLY',
-        'FOR',
-        'FROM',
-        'GENERIC',
-        'IF',
-        'IMPORT',
-        'IN',
-        'INTERFACE',
-        'LOCK',
-        'LOOP',
-        'METHODS',
-        'MOD',
-        'MODULE',
-        'NOT',
-        'OBJECT',
-        'OF',
-        'OR',
-        'OVERRIDES',
-        'PROCEDURE',
-        'RAISE',
-        'RAISES',
-        'READONLY',
-        'RECORD',
-        'REF',
-        'REPEAT',
-        'RETURN',
-        'REVEAL',
-        'SET',
-        'THEN',
-        'TO',
-        'TRY',
-        'TYPE',
-        'TYPECASE',
-        'UNSAFE',
-        'UNTIL',
-        'UNTRACED',
-        'VALUE',
-        'VAR',
-        'WHILE',
-        'WITH'
+    builtinFilters: [
+        'abs',
+        'append',
+        'at_least',
+        'at_most',
+        'capitalize',
+        'ceil',
+        'compact',
+        'date',
+        'default',
+        'divided_by',
+        'downcase',
+        'escape',
+        'escape_once',
+        'first',
+        'floor',
+        'join',
+        'json',
+        'last',
+        'lstrip',
+        'map',
+        'minus',
+        'modulo',
+        'newline_to_br',
+        'plus',
+        'prepend',
+        'remove',
+        'remove_first',
+        'replace',
+        'replace_first',
+        'reverse',
+        'round',
+        'rstrip',
+        'size',
+        'slice',
+        'sort',
+        'sort_natural',
+        'split',
+        'strip',
+        'strip_html',
+        'strip_newlines',
+        'times',
+        'truncate',
+        'truncatewords',
+        'uniq',
+        'upcase',
+        'url_decode',
+        'url_encode',
+        'where'
     ],
-    reservedConstNames: [
-        'ABS',
-        'ADR',
-        'ADRSIZE',
-        'BITSIZE',
-        'BYTESIZE',
-        'CEILING',
-        'DEC',
-        'DISPOSE',
-        'FALSE',
-        'FIRST',
-        'FLOAT',
-        'FLOOR',
-        'INC',
-        'ISTYPE',
-        'LAST',
-        'LOOPHOLE',
-        'MAX',
-        'MIN',
-        'NARROW',
-        'NEW',
-        'NIL',
-        'NUMBER',
-        'ORD',
-        'ROUND',
-        'SUBARRAY',
-        'TRUE',
-        'TRUNC',
-        'TYPECODE',
-        'VAL'
-    ],
-    reservedTypeNames: [
-        'ADDRESS',
-        'ANY',
-        'BOOLEAN',
-        'CARDINAL',
-        'CHAR',
-        'EXTENDED',
-        'INTEGER',
-        'LONGCARD',
-        'LONGINT',
-        'LONGREAL',
-        'MUTEX',
-        'NULL',
-        'REAL',
-        'REFANY',
-        'ROOT',
-        'TEXT'
-    ],
-    operators: ['+', '-', '*', '/', '&', '^', '.'],
-    relations: ['=', '#', '<', '<=', '>', '>=', '<:', ':'],
-    delimiters: ['|', '..', '=>', ',', ';', ':='],
-    symbols: /[>=<#.,:;+\-*/&^]+/,
-    escapes: /\\(?:[\\fnrt"']|[0-7]{3})/,
+    constants: ['true', 'false'],
+    operators: ['==', '!=', '>', '<', '>=', '<='],
+    symbol: /[=><!]+/,
+    identifier: /[a-zA-Z_][\w]*/,
     tokenizer: {
         root: [
-            // Identifiers and keywords
-            [/_\w*/, 'invalid'],
-            [
-                /[a-zA-Z][a-zA-Z0-9_]*/,
-                {
-                    cases: {
-                        '@keywords': { token: 'keyword.$0' },
-                        '@reservedConstNames': { token: 'constant.reserved.$0' },
-                        '@reservedTypeNames': { token: 'type.reserved.$0' },
-                        '@default': 'identifier'
-                    }
-                }
-            ],
-            // Whitespace
-            { include: '@whitespace' },
-            [/[{}()\[\]]/, '@brackets'],
-            // Integer- and real literals
-            [/[0-9]+\.[0-9]+(?:[DdEeXx][\+\-]?[0-9]+)?/, 'number.float'],
-            [/[0-9]+(?:\_[0-9a-fA-F]+)?L?/, 'number'],
-            // Operators, relations, and delimiters
-            [
-                /@symbols/,
-                {
-                    cases: {
-                        '@operators': 'operators',
-                        '@relations': 'operators',
-                        '@delimiters': 'delimiter',
-                        '@default': 'invalid'
-                    }
-                }
-            ],
-            // Character literals
-            [/'[^\\']'/, 'string.char'],
-            [/(')(@escapes)(')/, ['string.char', 'string.escape', 'string.char']],
-            [/'/, 'invalid'],
-            // Text literals
-            [/"([^"\\]|\\.)*$/, 'invalid'],
-            [/"/, 'string.text', '@text']
-        ],
-        text: [
-            [/[^\\"]+/, 'string.text'],
-            [/@escapes/, 'string.escape'],
-            [/\\./, 'invalid'],
-            [/"/, 'string.text', '@pop']
+            [/\{\%\s*comment\s*\%\}/, 'comment.start.liquid', '@comment'],
+            [/\{\{/, { token: '@rematch', switchTo: '@liquidState.root' }],
+            [/\{\%/, { token: '@rematch', switchTo: '@liquidState.root' }],
+            [/(<)([\w\-]+)(\/>)/, ['delimiter.html', 'tag.html', 'delimiter.html']],
+            [/(<)([:\w]+)/, ['delimiter.html', { token: 'tag.html', next: '@otherTag' }]],
+            [/(<\/)([\w\-]+)/, ['delimiter.html', { token: 'tag.html', next: '@otherTag' }]],
+            [/</, 'delimiter.html'],
+            [/\{/, 'delimiter.html'],
+            [/[^<{]+/] // text
         ],
         comment: [
-            [/\(\*/, 'comment', '@push'],
-            [/\*\)/, 'comment', '@pop'],
-            [/./, 'comment']
+            [/\{\%\s*endcomment\s*\%\}/, 'comment.end.liquid', '@pop'],
+            [/./, 'comment.content.liquid']
         ],
-        pragma: [
-            [/<\*/, 'keyword.pragma', '@push'],
-            [/\*>/, 'keyword.pragma', '@pop'],
-            [/./, 'keyword.pragma']
+        otherTag: [
+            [
+                /\{\{/,
+                {
+                    token: '@rematch',
+                    switchTo: '@liquidState.otherTag'
+                }
+            ],
+            [
+                /\{\%/,
+                {
+                    token: '@rematch',
+                    switchTo: '@liquidState.otherTag'
+                }
+            ],
+            [/\/?>/, 'delimiter.html', '@pop'],
+            [/"([^"]*)"/, 'attribute.value'],
+            [/'([^']*)'/, 'attribute.value'],
+            [/[\w\-]+/, 'attribute.name'],
+            [/=/, 'delimiter'],
+            [/[ \t\r\n]+/] // whitespace
         ],
-        whitespace: [
-            [/[ \t\r\n]+/, 'white'],
-            [/\(\*/, 'comment', '@comment'],
-            [/<\*/, 'keyword.pragma', '@pragma']
+        liquidState: [
+            [/\{\{/, 'delimiter.output.liquid'],
+            [/\}\}/, { token: 'delimiter.output.liquid', switchTo: '@$S2.$S3' }],
+            [/\{\%/, 'delimiter.tag.liquid'],
+            [/raw\s*\%\}/, 'delimiter.tag.liquid', '@liquidRaw'],
+            [/\%\}/, { token: 'delimiter.tag.liquid', switchTo: '@$S2.$S3' }],
+            { include: 'liquidRoot' }
+        ],
+        liquidRaw: [
+            [/^(?!\{\%\s*endraw\s*\%\}).+/],
+            [/\{\%/, 'delimiter.tag.liquid'],
+            [/@identifier/],
+            [/\%\}/, { token: 'delimiter.tag.liquid', next: '@root' }]
+        ],
+        liquidRoot: [
+            [/\d+(\.\d+)?/, 'number.liquid'],
+            [/"[^"]*"/, 'string.liquid'],
+            [/'[^']*'/, 'string.liquid'],
+            [/\s+/],
+            [
+                /@symbol/,
+                {
+                    cases: {
+                        '@operators': 'operator.liquid',
+                        '@default': ''
+                    }
+                }
+            ],
+            [/\./],
+            [
+                /@identifier/,
+                {
+                    cases: {
+                        '@constants': 'keyword.liquid',
+                        '@builtinFilters': 'predefined.liquid',
+                        '@builtinTags': 'predefined.liquid',
+                        '@default': 'variable.liquid'
+                    }
+                }
+            ],
+            [/[^}|%]/, 'variable.liquid']
         ]
     }
 };

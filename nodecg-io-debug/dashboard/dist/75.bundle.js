@@ -1,7 +1,7 @@
 "use strict";
 (self["webpackChunknodecg_io_debug"] = self["webpackChunknodecg_io_debug"] || []).push([[75],{
 
-/***/ 881:
+/***/ 1574:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -9,9 +9,8 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "conf": () => (/* binding */ conf),
 /* harmony export */   "language": () => (/* binding */ language)
 /* harmony export */ });
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
+/*!---------------------------------------------------------------------------------------------
+ *  Copyright (C) David Owens II, owensd.io. All rights reserved.
  *--------------------------------------------------------------------------------------------*/
 var conf = {
     comments: {
@@ -21,563 +20,246 @@ var conf = {
     brackets: [
         ['{', '}'],
         ['[', ']'],
-        ['(', ')'],
-        ['begin', 'end'],
-        ['case', 'endcase'],
-        ['casex', 'endcase'],
-        ['casez', 'endcase'],
-        ['checker', 'endchecker'],
-        ['class', 'endclass'],
-        ['clocking', 'endclocking'],
-        ['config', 'endconfig'],
-        ['function', 'endfunction'],
-        ['generate', 'endgenerate'],
-        ['group', 'endgroup'],
-        ['interface', 'endinterface'],
-        ['module', 'endmodule'],
-        ['package', 'endpackage'],
-        ['primitive', 'endprimitive'],
-        ['program', 'endprogram'],
-        ['property', 'endproperty'],
-        ['specify', 'endspecify'],
-        ['sequence', 'endsequence'],
-        ['table', 'endtable'],
-        ['task', 'endtask']
+        ['(', ')']
     ],
     autoClosingPairs: [
-        { open: '[', close: ']' },
         { open: '{', close: '}' },
+        { open: '[', close: ']' },
         { open: '(', close: ')' },
-        { open: "'", close: "'", notIn: ['string', 'comment'] },
-        { open: '"', close: '"', notIn: ['string'] }
+        { open: '"', close: '"' },
+        { open: "'", close: "'" },
+        { open: '`', close: '`' }
     ],
     surroundingPairs: [
         { open: '{', close: '}' },
         { open: '[', close: ']' },
         { open: '(', close: ')' },
         { open: '"', close: '"' },
-        { open: "'", close: "'" }
-    ],
-    folding: {
-        offSide: false,
-        markers: {
-            start: new RegExp('^(?:\\s*|.*(?!\\/[\\/\\*])[^\\w])(?:begin|case(x|z)?|class|clocking|config|covergroup|function|generate|interface|module|package|primitive|property|program|sequence|specify|table|task)\\b'),
-            end: new RegExp('^(?:\\s*|.*(?!\\/[\\/\\*])[^\\w])(?:end|endcase|endclass|endclocking|endconfig|endgroup|endfunction|endgenerate|endinterface|endmodule|endpackage|endprimitive|endproperty|endprogram|endsequence|endspecify|endtable|endtask)\\b')
-        }
-    }
+        { open: "'", close: "'" },
+        { open: '`', close: '`' }
+    ]
 };
 var language = {
     defaultToken: '',
-    tokenPostfix: '.sv',
-    brackets: [
-        { token: 'delimiter.curly', open: '{', close: '}' },
-        { token: 'delimiter.parenthesis', open: '(', close: ')' },
-        { token: 'delimiter.square', open: '[', close: ']' },
-        { token: 'delimiter.angle', open: '<', close: '>' }
+    tokenPostfix: '.swift',
+    // TODO(owensd): Support the full range of unicode valid identifiers.
+    identifier: /[a-zA-Z_][\w$]*/,
+    // TODO(owensd): Support the @availability macro properly.
+    attributes: [
+        '@autoclosure',
+        '@noescape',
+        '@noreturn',
+        '@NSApplicationMain',
+        '@NSCopying',
+        '@NSManaged',
+        '@objc',
+        '@UIApplicationMain',
+        '@noreturn',
+        '@availability',
+        '@IBAction',
+        '@IBDesignable',
+        '@IBInspectable',
+        '@IBOutlet'
     ],
+    accessmodifiers: ['public', 'private', 'fileprivate', 'internal'],
     keywords: [
-        'accept_on',
-        'alias',
-        'always',
-        'always_comb',
-        'always_ff',
-        'always_latch',
-        'and',
-        'assert',
-        'assign',
-        'assume',
-        'automatic',
-        'before',
-        'begin',
-        'bind',
-        'bins',
-        'binsof',
-        'bit',
+        '__COLUMN__',
+        '__FILE__',
+        '__FUNCTION__',
+        '__LINE__',
+        'as',
+        'as!',
+        'as?',
+        'associativity',
         'break',
-        'buf',
-        'bufif0',
-        'bufif1',
-        'byte',
         'case',
-        'casex',
-        'casez',
-        'cell',
-        'chandle',
-        'checker',
+        'catch',
         'class',
-        'clocking',
-        'cmos',
-        'config',
-        'const',
-        'constraint',
-        'context',
         'continue',
-        'cover',
-        'covergroup',
-        'coverpoint',
-        'cross',
-        'deassign',
+        'convenience',
         'default',
-        'defparam',
-        'design',
-        'disable',
-        'dist',
+        'deinit',
+        'didSet',
         'do',
-        'edge',
+        'dynamic',
+        'dynamicType',
         'else',
-        'end',
-        'endcase',
-        'endchecker',
-        'endclass',
-        'endclocking',
-        'endconfig',
-        'endfunction',
-        'endgenerate',
-        'endgroup',
-        'endinterface',
-        'endmodule',
-        'endpackage',
-        'endprimitive',
-        'endprogram',
-        'endproperty',
-        'endspecify',
-        'endsequence',
-        'endtable',
-        'endtask',
         'enum',
-        'event',
-        'eventually',
-        'expect',
-        'export',
-        'extends',
-        'extern',
+        'extension',
+        'fallthrough',
+        'fileprivate',
         'final',
-        'first_match',
         'for',
-        'force',
-        'foreach',
-        'forever',
-        'fork',
-        'forkjoin',
-        'function',
-        'generate',
-        'genvar',
-        'global',
-        'highz0',
-        'highz1',
+        'func',
+        'get',
+        'guard',
         'if',
-        'iff',
-        'ifnone',
-        'ignore_bins',
-        'illegal_bins',
-        'implements',
-        'implies',
         'import',
-        'incdir',
-        'include',
-        'initial',
+        'in',
+        'infix',
+        'init',
         'inout',
-        'input',
-        'inside',
-        'instance',
-        'int',
-        'integer',
-        'interconnect',
-        'interface',
-        'intersect',
-        'join',
-        'join_any',
-        'join_none',
-        'large',
+        'internal',
+        'is',
+        'lazy',
+        'left',
         'let',
-        'liblist',
-        'library',
-        'local',
-        'localparam',
-        'logic',
-        'longint',
-        'macromodule',
-        'matches',
-        'medium',
-        'modport',
-        'module',
-        'nand',
-        'negedge',
-        'nettype',
-        'new',
-        'nexttime',
-        'nmos',
-        'nor',
-        'noshowcancelled',
-        'not',
-        'notif0',
-        'notif1',
-        'null',
-        'or',
-        'output',
-        'package',
-        'packed',
-        'parameter',
-        'pmos',
-        'posedge',
-        'primitive',
-        'priority',
-        'program',
-        'property',
-        'protected',
-        'pull0',
-        'pull1',
-        'pulldown',
-        'pullup',
-        'pulsestyle_ondetect',
-        'pulsestyle_onevent',
-        'pure',
-        'rand',
-        'randc',
-        'randcase',
-        'randsequence',
-        'rcmos',
-        'real',
-        'realtime',
-        'ref',
-        'reg',
-        'reject_on',
-        'release',
+        'mutating',
+        'nil',
+        'none',
+        'nonmutating',
+        'operator',
+        'optional',
+        'override',
+        'postfix',
+        'precedence',
+        'prefix',
+        'private',
+        'protocol',
+        'Protocol',
+        'public',
         'repeat',
-        'restrict',
+        'required',
         'return',
-        'rnmos',
-        'rpmos',
-        'rtran',
-        'rtranif0',
-        'rtranif1',
-        's_always',
-        's_eventually',
-        's_nexttime',
-        's_until',
-        's_until_with',
-        'scalared',
-        'sequence',
-        'shortint',
-        'shortreal',
-        'showcancelled',
-        'signed',
-        'small',
-        'soft',
-        'solve',
-        'specify',
-        'specparam',
+        'right',
+        'self',
+        'Self',
+        'set',
         'static',
-        'string',
-        'strong',
-        'strong0',
-        'strong1',
         'struct',
+        'subscript',
         'super',
-        'supply0',
-        'supply1',
-        'sync_accept_on',
-        'sync_reject_on',
-        'table',
-        'tagged',
-        'task',
-        'this',
-        'throughout',
-        'time',
-        'timeprecision',
-        'timeunit',
-        'tran',
-        'tranif0',
-        'tranif1',
-        'tri',
-        'tri0',
-        'tri1',
-        'triand',
-        'trior',
-        'trireg',
-        'type',
-        'typedef',
-        'union',
-        'unique',
-        'unique0',
-        'unsigned',
-        'until',
-        'until_with',
-        'untyped',
-        'use',
-        'uwire',
+        'switch',
+        'throw',
+        'throws',
+        'try',
+        'try!',
+        'Type',
+        'typealias',
+        'unowned',
         'var',
-        'vectored',
-        'virtual',
-        'void',
-        'wait',
-        'wait_order',
-        'wand',
         'weak',
-        'weak0',
-        'weak1',
+        'where',
         'while',
-        'wildcard',
-        'wire',
-        'with',
-        'within',
-        'wor',
-        'xnor',
-        'xor'
+        'willSet',
+        'FALSE',
+        'TRUE'
     ],
-    builtin_gates: [
-        'and',
-        'nand',
-        'nor',
-        'or',
-        'xor',
-        'xnor',
-        'buf',
-        'not',
-        'bufif0',
-        'bufif1',
-        'notif1',
-        'notif0',
-        'cmos',
-        'nmos',
-        'pmos',
-        'rcmos',
-        'rnmos',
-        'rpmos',
-        'tran',
-        'tranif1',
-        'tranif0',
-        'rtran',
-        'rtranif1',
-        'rtranif0'
-    ],
-    operators: [
-        // assignment operators
-        '=',
-        '+=',
-        '-=',
-        '*=',
-        '/=',
-        '%=',
-        '&=',
-        '|=',
-        '^=',
-        '<<=',
-        '>>+',
-        '<<<=',
-        '>>>=',
-        // conditional expression
-        '?',
-        ':',
-        // Unary operators
-        '+',
-        '-',
-        '!',
-        '~',
-        '&',
-        '~&',
-        '|',
-        '~|',
-        '^',
-        '~^',
-        '^~',
-        //binary operators
-        '+',
-        '-',
-        '*',
-        '/',
-        '%',
-        '==',
-        '!=',
-        '===',
-        '!==',
-        '==?',
-        '!=?',
-        '&&',
-        '||',
-        '**',
-        '<',
-        '<=',
-        '>',
-        '>=',
-        '&',
-        '|',
-        '^',
-        '>>',
-        '<<',
-        '>>>',
-        '<<<',
-        // increment or decrement operator
-        '++',
-        '--',
-        //binary logical operator
-        '->',
-        '<->',
-        // binary set membership operator
-        'inside',
-        // binary distrubution operator
-        'dist',
-        '::',
-        '+:',
-        '-:',
-        '*>',
-        '&&&',
-        '|->',
-        '|=>',
-        '#=#'
-    ],
-    // we include these common regular expressions
-    symbols: /[=><!~?:&|+\-*\/\^%#]+/,
-    escapes: /%%|\\(?:[antvf\\"']|x[0-9A-Fa-f]{1,2}|[0-7]{1,3})/,
-    identifier: /(?:[a-zA-Z_][a-zA-Z0-9_$\.]*|\\\S+ )/,
-    systemcall: /[$][a-zA-Z0-9_]+/,
-    timeunits: /s|ms|us|ns|ps|fs/,
-    // The main tokenizer for our languages
+    symbols: /[=(){}\[\].,:;@#\_&\-<>`?!+*\\\/]/,
+    // Moved . to operatorstart so it can be a delimiter
+    operatorstart: /[\/=\-+!*%<>&|^~?\u00A1-\u00A7\u00A9\u00AB\u00AC\u00AE\u00B0-\u00B1\u00B6\u00BB\u00BF\u00D7\u00F7\u2016-\u2017\u2020-\u2027\u2030-\u203E\u2041-\u2053\u2055-\u205E\u2190-\u23FF\u2500-\u2775\u2794-\u2BFF\u2E00-\u2E7F\u3001-\u3003\u3008-\u3030]/,
+    operatorend: /[\u0300-\u036F\u1DC0-\u1DFF\u20D0-\u20FF\uFE00-\uFE0F\uFE20-\uFE2F\uE0100-\uE01EF]/,
+    operators: /(@operatorstart)((@operatorstart)|(@operatorend))*/,
+    // TODO(owensd): These are borrowed from C#; need to validate correctness for Swift.
+    escapes: /\\(?:[abfnrtv\\"']|x[0-9A-Fa-f]{1,4}|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})/,
     tokenizer: {
         root: [
-            // module instances
-            [
-                /^(\s*)(@identifier)/,
-                [
-                    '',
-                    {
-                        cases: {
-                            '@builtin_gates': {
-                                token: 'keyword.$2',
-                                next: '@module_instance'
-                            },
-                            table: {
-                                token: 'keyword.$2',
-                                next: '@table'
-                            },
-                            '@keywords': { token: 'keyword.$2' },
-                            '@default': {
-                                token: 'identifier',
-                                next: '@module_instance'
-                            }
-                        }
-                    }
-                ]
-            ],
-            // include statements
-            [/^\s*`include/, { token: 'keyword.directive.include', next: '@include' }],
-            // Preprocessor directives
-            [/^\s*`\s*\w+/, 'keyword'],
-            // identifiers and keywords
-            { include: '@identifier_or_keyword' },
-            // whitespace and comments
             { include: '@whitespace' },
-            // (* attributes *).
-            [/\(\*.*\*\)/, 'annotation'],
-            // Systemcall
-            [/@systemcall/, 'variable.predefined'],
-            // delimiters and operators
+            { include: '@comment' },
+            { include: '@attribute' },
+            { include: '@literal' },
+            { include: '@keyword' },
+            { include: '@invokedmethod' },
+            { include: '@symbol' }
+        ],
+        whitespace: [
+            [/\s+/, 'white'],
+            [/"""/, 'string.quote', '@endDblDocString']
+        ],
+        endDblDocString: [
+            [/[^"]+/, 'string'],
+            [/\\"/, 'string'],
+            [/"""/, 'string.quote', '@popall'],
+            [/"/, 'string']
+        ],
+        symbol: [
             [/[{}()\[\]]/, '@brackets'],
             [/[<>](?!@symbols)/, '@brackets'],
+            [/[.]/, 'delimiter'],
+            [/@operators/, 'operator'],
+            [/@symbols/, 'operator']
+        ],
+        comment: [
+            [/\/\/\/.*$/, 'comment.doc'],
+            [/\/\*\*/, 'comment.doc', '@commentdocbody'],
+            [/\/\/.*$/, 'comment'],
+            [/\/\*/, 'comment', '@commentbody']
+        ],
+        commentdocbody: [
+            [/\/\*/, 'comment', '@commentbody'],
+            [/\*\//, 'comment.doc', '@pop'],
+            [/\:[a-zA-Z]+\:/, 'comment.doc.param'],
+            [/./, 'comment.doc']
+        ],
+        commentbody: [
+            [/\/\*/, 'comment', '@commentbody'],
+            [/\*\//, 'comment', '@pop'],
+            [/./, 'comment']
+        ],
+        attribute: [
             [
-                /@symbols/,
+                /@@@identifier/,
                 {
                     cases: {
-                        '@operators': 'delimiter',
+                        '@attributes': 'keyword.control',
                         '@default': ''
                     }
                 }
-            ],
-            // numbers
-            { include: '@numbers' },
-            // delimiter: after number because of .\d floats
-            [/[;,.]/, 'delimiter'],
-            // strings
-            { include: '@strings' }
+            ]
         ],
-        identifier_or_keyword: [
+        literal: [
+            [/"/, { token: 'string.quote', next: '@stringlit' }],
+            [/0[b]([01]_?)+/, 'number.binary'],
+            [/0[o]([0-7]_?)+/, 'number.octal'],
+            [/0[x]([0-9a-fA-F]_?)+([pP][\-+](\d_?)+)?/, 'number.hex'],
+            [/(\d_?)*\.(\d_?)+([eE][\-+]?(\d_?)+)?/, 'number.float'],
+            [/(\d_?)+/, 'number']
+        ],
+        stringlit: [
+            [/\\\(/, { token: 'operator', next: '@interpolatedexpression' }],
+            [/@escapes/, 'string'],
+            [/\\./, 'string.escape.invalid'],
+            [/"/, { token: 'string.quote', next: '@pop' }],
+            [/./, 'string']
+        ],
+        interpolatedexpression: [
+            [/\(/, { token: 'operator', next: '@interpolatedexpression' }],
+            [/\)/, { token: 'operator', next: '@pop' }],
+            { include: '@literal' },
+            { include: '@keyword' },
+            { include: '@symbol' }
+        ],
+        keyword: [
+            [/`/, { token: 'operator', next: '@escapedkeyword' }],
             [
                 /@identifier/,
                 {
                     cases: {
-                        '@keywords': { token: 'keyword.$0' },
+                        '@keywords': 'keyword',
+                        '[A-Z][a-zA-Z0-9$]*': 'type.identifier',
                         '@default': 'identifier'
                     }
                 }
             ]
         ],
-        numbers: [
-            [/\d+?[\d_]*(?:\.[\d_]+)?[eE][\-+]?\d+/, 'number.float'],
-            [/\d+?[\d_]*\.[\d_]+(?:\s*@timeunits)?/, 'number.float'],
-            [/(?:\d+?[\d_]*\s*)?'[sS]?[dD]\s*[0-9xXzZ?]+?[0-9xXzZ?_]*/, 'number'],
-            [/(?:\d+?[\d_]*\s*)?'[sS]?[bB]\s*[0-1xXzZ?]+?[0-1xXzZ?_]*/, 'number.binary'],
-            [/(?:\d+?[\d_]*\s*)?'[sS]?[oO]\s*[0-7xXzZ?]+?[0-7xXzZ?_]*/, 'number.octal'],
-            [/(?:\d+?[\d_]*\s*)?'[sS]?[hH]\s*[0-9a-fA-FxXzZ?]+?[0-9a-fA-FxXzZ?_]*/, 'number.hex'],
-            [/1step/, 'number'],
-            [/[\dxXzZ]+?[\dxXzZ_]*(?:\s*@timeunits)?/, 'number'],
-            [/'[01xXzZ]+/, 'number']
+        escapedkeyword: [
+            [/`/, { token: 'operator', next: '@pop' }],
+            [/./, 'identifier']
         ],
-        module_instance: [
-            { include: '@whitespace' },
-            [/(#?)(\()/, ['', { token: '@brackets', next: '@port_connection' }]],
-            [/@identifier\s*[;={}\[\],]/, { token: '@rematch', next: '@pop' }],
-            [/@symbols|[;={}\[\],]/, { token: '@rematch', next: '@pop' }],
-            [/@identifier/, 'type'],
-            [/;/, 'delimiter', '@pop']
-        ],
-        port_connection: [
-            { include: '@identifier_or_keyword' },
-            { include: '@whitespace' },
-            [/@systemcall/, 'variable.predefined'],
-            { include: '@numbers' },
-            { include: '@strings' },
-            [/[,]/, 'delimiter'],
-            [/\(/, '@brackets', '@port_connection'],
-            [/\)/, '@brackets', '@pop']
-        ],
-        whitespace: [
-            [/[ \t\r\n]+/, ''],
-            [/\/\*/, 'comment', '@comment'],
-            [/\/\/.*$/, 'comment']
-        ],
-        comment: [
-            [/[^\/*]+/, 'comment'],
-            [/\*\//, 'comment', '@pop'],
-            [/[\/*]/, 'comment']
-        ],
-        strings: [
-            [/"([^"\\]|\\.)*$/, 'string.invalid'],
-            [/"/, 'string', '@string']
-        ],
-        string: [
-            [/[^\\"]+/, 'string'],
-            [/@escapes/, 'string.escape'],
-            [/\\./, 'string.escape.invalid'],
-            [/"/, 'string', '@pop']
-        ],
-        include: [
+        //		symbol: [
+        //			[ /@symbols/, 'operator' ],
+        //			[ /@operators/, 'operator' ]
+        //		],
+        invokedmethod: [
             [
-                /(\s*)(")([\w*\/*]*)(.\w*)(")/,
-                [
-                    '',
-                    'string.include.identifier',
-                    'string.include.identifier',
-                    'string.include.identifier',
-                    { token: 'string.include.identifier', next: '@pop' }
-                ]
-            ],
-            [
-                /(\s*)(<)([\w*\/*]*)(.\w*)(>)/,
-                [
-                    '',
-                    'string.include.identifier',
-                    'string.include.identifier',
-                    'string.include.identifier',
-                    { token: 'string.include.identifier', next: '@pop' }
-                ]
+                /([.])(@identifier)/,
+                {
+                    cases: {
+                        $2: ['delimeter', 'type.identifier'],
+                        '@default': ''
+                    }
+                }
             ]
-        ],
-        table: [
-            { include: '@whitespace' },
-            [/[()]/, '@brackets'],
-            [/[:;]/, 'delimiter'],
-            [/[01\-*?xXbBrRfFpPnN]/, 'variable.predefined'],
-            ['endtable', 'keyword.endtable', '@pop']
         ]
     }
 };

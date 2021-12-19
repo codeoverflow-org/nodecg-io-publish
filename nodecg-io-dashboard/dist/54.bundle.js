@@ -1,7 +1,7 @@
 "use strict";
 (self["webpackChunknodecg_io_dashboard"] = self["webpackChunknodecg_io_dashboard"] || []).push([[54],{
 
-/***/ 905:
+/***/ 1598:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -9,406 +9,415 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "conf": () => (/* binding */ conf),
 /* harmony export */   "language": () => (/* binding */ language)
 /* harmony export */ });
-/*---------------------------------------------------------------------------------------------
- *  Copyright (c) Microsoft Corporation. All rights reserved.
- *  Licensed under the MIT License. See License.txt in the project root for license information.
- *--------------------------------------------------------------------------------------------*/
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT License.
+var namedLiterals = ['true', 'false'];
 var conf = {
     comments: {
-        lineComment: '//'
+        lineComment: '//',
+        blockComment: ['/*', '*/']
     },
     brackets: [
         ['{', '}'],
         ['[', ']'],
-        ['(', ')']
+        ['(', ')'],
+        ['<', '>']
+    ],
+    surroundingPairs: [
+        { open: '{', close: '}' },
+        { open: '[', close: ']' },
+        { open: '(', close: ')' },
+        { open: '<', close: '>' },
+        { open: '"', close: '"' },
+        { open: "'", close: "'" }
     ],
     autoClosingPairs: [
-        { open: '"', close: '"', notIn: ['string', 'comment'] },
-        { open: "'", close: "'", notIn: ['string', 'comment'] },
-        { open: '{', close: '}', notIn: ['string', 'comment'] },
-        { open: '[', close: ']', notIn: ['string', 'comment'] },
-        { open: '(', close: ')', notIn: ['string', 'comment'] }
+        { open: '{', close: '}' },
+        { open: '[', close: ']' },
+        { open: '(', close: ')' },
+        { open: '<', close: '>' },
+        { open: '"', close: '"', notIn: ['string'] },
+        { open: "'", close: "'", notIn: ['string'] }
     ],
-    folding: {
-        offSide: true
+    autoCloseBefore: ".,=}])>' \n\t",
+    indentationRules: {
+        increaseIndentPattern: new RegExp('^((?!\\/\\/).)*(\\{[^}"\'`]*|\\([^)"\'`]*|\\[[^\\]"\'`]*)$'),
+        decreaseIndentPattern: new RegExp('^((?!.*?\\/\\*).*\\*/)?\\s*[\\}\\]].*$')
     }
 };
 var language = {
     defaultToken: '',
-    tokenPostfix: '.pug',
-    ignoreCase: true,
+    tokenPostfix: '.proto',
     brackets: [
-        { token: 'delimiter.curly', open: '{', close: '}' },
-        { token: 'delimiter.array', open: '[', close: ']' },
-        { token: 'delimiter.parenthesis', open: '(', close: ')' }
+        { open: '{', close: '}', token: 'delimiter.curly' },
+        { open: '[', close: ']', token: 'delimiter.square' },
+        { open: '(', close: ')', token: 'delimiter.parenthesis' },
+        { open: '<', close: '>', token: 'delimiter.angle' }
     ],
+    symbols: /[=><!~?:&|+\-*/^%]+/,
     keywords: [
-        'append',
-        'block',
-        'case',
-        'default',
-        'doctype',
-        'each',
-        'else',
-        'extends',
-        'for',
-        'if',
-        'in',
-        'include',
-        'mixin',
-        'typeof',
-        'unless',
-        'var',
-        'when'
-    ],
-    tags: [
-        'a',
-        'abbr',
-        'acronym',
-        'address',
-        'area',
-        'article',
-        'aside',
-        'audio',
-        'b',
-        'base',
-        'basefont',
-        'bdi',
-        'bdo',
-        'blockquote',
-        'body',
-        'br',
-        'button',
-        'canvas',
-        'caption',
-        'center',
-        'cite',
-        'code',
-        'col',
-        'colgroup',
-        'command',
-        'datalist',
-        'dd',
-        'del',
-        'details',
-        'dfn',
-        'div',
-        'dl',
-        'dt',
-        'em',
-        'embed',
-        'fieldset',
-        'figcaption',
-        'figure',
-        'font',
-        'footer',
-        'form',
-        'frame',
-        'frameset',
-        'h1',
-        'h2',
-        'h3',
-        'h4',
-        'h5',
-        'h6',
-        'head',
-        'header',
-        'hgroup',
-        'hr',
-        'html',
-        'i',
-        'iframe',
-        'img',
-        'input',
-        'ins',
-        'keygen',
-        'kbd',
-        'label',
-        'li',
-        'link',
-        'map',
-        'mark',
-        'menu',
-        'meta',
-        'meter',
-        'nav',
-        'noframes',
-        'noscript',
-        'object',
-        'ol',
-        'optgroup',
+        'syntax',
+        'import',
+        'weak',
+        'public',
+        'package',
         'option',
-        'output',
-        'p',
-        'param',
-        'pre',
-        'progress',
-        'q',
-        'rp',
-        'rt',
-        'ruby',
-        's',
-        'samp',
-        'script',
-        'section',
-        'select',
-        'small',
-        'source',
-        'span',
-        'strike',
-        'strong',
-        'style',
-        'sub',
-        'summary',
-        'sup',
-        'table',
-        'tbody',
-        'td',
-        'textarea',
-        'tfoot',
-        'th',
-        'thead',
-        'time',
-        'title',
-        'tr',
-        'tracks',
-        'tt',
-        'u',
-        'ul',
-        'video',
-        'wbr'
+        'repeated',
+        'oneof',
+        'map',
+        'reserved',
+        'to',
+        'max',
+        'enum',
+        'message',
+        'service',
+        'rpc',
+        'stream',
+        'returns',
+        'package',
+        'optional',
+        'true',
+        'false'
     ],
-    // we include these common regular expressions
-    symbols: /[\+\-\*\%\&\|\!\=\/\.\,\:]+/,
-    escapes: /\\(?:[abfnrtv\\"']|x[0-9A-Fa-f]{1,4}|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})/,
+    builtinTypes: [
+        'double',
+        'float',
+        'int32',
+        'int64',
+        'uint32',
+        'uint64',
+        'sint32',
+        'sint64',
+        'fixed32',
+        'fixed64',
+        'sfixed32',
+        'sfixed64',
+        'bool',
+        'string',
+        'bytes'
+    ],
+    operators: ['=', '+', '-'],
+    namedLiterals: namedLiterals,
+    escapes: "\\\\(u{[0-9A-Fa-f]+}|n|r|t|\\\\|'|\\${)",
+    identifier: /[a-zA-Z]\w*/,
+    fullIdentifier: /@identifier(?:\s*\.\s*@identifier)*/,
+    optionName: /(?:@identifier|\(\s*@fullIdentifier\s*\))(?:\s*\.\s*@identifier)*/,
+    messageName: /@identifier/,
+    enumName: /@identifier/,
+    messageType: /\.?\s*(?:@identifier\s*\.\s*)*@messageName/,
+    enumType: /\.?\s*(?:@identifier\s*\.\s*)*@enumName/,
+    floatLit: /[0-9]+\s*\.\s*[0-9]*(?:@exponent)?|[0-9]+@exponent|\.[0-9]+(?:@exponent)?/,
+    exponent: /[eE]\s*[+-]?\s*[0-9]+/,
+    boolLit: /true\b|false\b/,
+    decimalLit: /[1-9][0-9]*/,
+    octalLit: /0[0-7]*/,
+    hexLit: /0[xX][0-9a-fA-F]+/,
+    type: /double|float|int32|int64|uint32|uint64|sint32|sint64|fixed32|fixed64|sfixed32|sfixed64|bool|string|bytes|@messageType|@enumType/,
+    keyType: /int32|int64|uint32|uint64|sint32|sint64|fixed32|fixed64|sfixed32|sfixed64|bool|string/,
     tokenizer: {
         root: [
-            // Tag or a keyword at start
-            [
-                /^(\s*)([a-zA-Z_-][\w-]*)/,
-                {
-                    cases: {
-                        '$2@tags': {
-                            cases: {
-                                '@eos': ['', 'tag'],
-                                '@default': ['', { token: 'tag', next: '@tag.$1' }]
-                            }
-                        },
-                        '$2@keywords': ['', { token: 'keyword.$2' }],
-                        '@default': ['', '']
-                    }
-                }
-            ],
-            // id
-            [
-                /^(\s*)(#[a-zA-Z_-][\w-]*)/,
-                {
-                    cases: {
-                        '@eos': ['', 'tag.id'],
-                        '@default': ['', { token: 'tag.id', next: '@tag.$1' }]
-                    }
-                }
-            ],
-            // class
-            [
-                /^(\s*)(\.[a-zA-Z_-][\w-]*)/,
-                {
-                    cases: {
-                        '@eos': ['', 'tag.class'],
-                        '@default': ['', { token: 'tag.class', next: '@tag.$1' }]
-                    }
-                }
-            ],
-            // plain text with pipe
-            [/^(\s*)(\|.*)$/, ''],
             { include: '@whitespace' },
-            // keywords
+            [/syntax/, 'keyword'],
+            [/=/, 'operators'],
+            [/;/, 'delimiter'],
             [
-                /[a-zA-Z_$][\w$]*/,
-                {
-                    cases: {
-                        '@keywords': { token: 'keyword.$0' },
-                        '@default': ''
-                    }
-                }
+                /(")(proto3)(")/,
+                ['string.quote', 'string', { token: 'string.quote', switchTo: '@topLevel.proto3' }]
             ],
-            // delimiters and operators
-            [/[{}()\[\]]/, '@brackets'],
-            [/@symbols/, 'delimiter'],
-            // numbers
-            [/\d+\.\d+([eE][\-+]?\d+)?/, 'number.float'],
-            [/\d+/, 'number'],
-            // strings:
-            [/"/, 'string', '@string."'],
-            [/'/, 'string', "@string.'"]
+            [
+                /(")(proto2)(")/,
+                ['string.quote', 'string', { token: 'string.quote', switchTo: '@topLevel.proto2' }]
+            ]
         ],
-        tag: [
-            [/(\.)(\s*$)/, [{ token: 'delimiter', next: '@blockText.$S2.' }, '']],
-            [/\s+/, { token: '', next: '@simpleText' }],
-            // id
+        topLevel: [
+            // whitespace
+            { include: '@whitespace' },
+            { include: '@constant' },
+            [/=/, 'operators'],
+            [/[;.]/, 'delimiter'],
             [
-                /#[a-zA-Z_-][\w-]*/,
+                /@fullIdentifier/,
                 {
                     cases: {
-                        '@eos': { token: 'tag.id', next: '@pop' },
-                        '@default': 'tag.id'
-                    }
-                }
-            ],
-            // class
-            [
-                /\.[a-zA-Z_-][\w-]*/,
-                {
-                    cases: {
-                        '@eos': { token: 'tag.class', next: '@pop' },
-                        '@default': 'tag.class'
-                    }
-                }
-            ],
-            // attributes
-            [/\(/, { token: 'delimiter.parenthesis', next: '@attributeList' }]
-        ],
-        simpleText: [
-            [/[^#]+$/, { token: '', next: '@popall' }],
-            [/[^#]+/, { token: '' }],
-            // interpolation
-            [
-                /(#{)([^}]*)(})/,
-                {
-                    cases: {
-                        '@eos': [
-                            'interpolation.delimiter',
-                            'interpolation',
-                            {
-                                token: 'interpolation.delimiter',
-                                next: '@popall'
+                        option: { token: 'keyword', next: '@option.$S2' },
+                        enum: { token: 'keyword', next: '@enumDecl.$S2' },
+                        message: { token: 'keyword', next: '@messageDecl.$S2' },
+                        service: { token: 'keyword', next: '@serviceDecl.$S2' },
+                        extend: {
+                            cases: {
+                                '$S2==proto2': { token: 'keyword', next: '@extendDecl.$S2' }
                             }
-                        ],
-                        '@default': ['interpolation.delimiter', 'interpolation', 'interpolation.delimiter']
-                    }
-                }
-            ],
-            [/#$/, { token: '', next: '@popall' }],
-            [/#/, '']
-        ],
-        attributeList: [
-            [/\s+/, ''],
-            [
-                /(\w+)(\s*=\s*)("|')/,
-                ['attribute.name', 'delimiter', { token: 'attribute.value', next: '@value.$3' }]
-            ],
-            [/\w+/, 'attribute.name'],
-            [
-                /,/,
-                {
-                    cases: {
-                        '@eos': {
-                            token: 'attribute.delimiter',
-                            next: '@popall'
                         },
-                        '@default': 'attribute.delimiter'
+                        '@keywords': 'keyword',
+                        '@default': 'identifier'
                     }
                 }
-            ],
-            [/\)$/, { token: 'delimiter.parenthesis', next: '@popall' }],
-            [/\)/, { token: 'delimiter.parenthesis', next: '@pop' }]
+            ]
         ],
-        whitespace: [
-            [/^(\s*)(\/\/.*)$/, { token: 'comment', next: '@blockText.$1.comment' }],
-            [/[ \t\r\n]+/, ''],
-            [/<!--/, { token: 'comment', next: '@comment' }]
+        enumDecl: [
+            { include: '@whitespace' },
+            [/@identifier/, 'type.identifier'],
+            [/{/, { token: '@brackets', bracket: '@open', switchTo: '@enumBody.$S2' }]
         ],
-        blockText: [
+        enumBody: [
+            { include: '@whitespace' },
+            { include: '@constant' },
+            [/=/, 'operators'],
+            [/;/, 'delimiter'],
+            [/option\b/, 'keyword', '@option.$S2'],
+            [/@identifier/, 'identifier'],
+            [/\[/, { token: '@brackets', bracket: '@open', next: '@options.$S2' }],
+            [/}/, { token: '@brackets', bracket: '@close', next: '@pop' }]
+        ],
+        messageDecl: [
+            { include: '@whitespace' },
+            [/@identifier/, 'type.identifier'],
+            [/{/, { token: '@brackets', bracket: '@open', switchTo: '@messageBody.$S2' }]
+        ],
+        messageBody: [
+            { include: '@whitespace' },
+            { include: '@constant' },
+            [/=/, 'operators'],
+            [/;/, 'delimiter'],
             [
-                /^\s+.*$/,
+                '(map)(s*)(<)',
+                ['keyword', 'white', { token: '@brackets', bracket: '@open', next: '@map.$S2' }]
+            ],
+            [
+                /@identifier/,
                 {
                     cases: {
-                        '($S2\\s+.*$)': { token: '$S3' },
-                        '@default': { token: '@rematch', next: '@popall' }
+                        option: { token: 'keyword', next: '@option.$S2' },
+                        enum: { token: 'keyword', next: '@enumDecl.$S2' },
+                        message: { token: 'keyword', next: '@messageDecl.$S2' },
+                        oneof: { token: 'keyword', next: '@oneofDecl.$S2' },
+                        extensions: {
+                            cases: {
+                                '$S2==proto2': { token: 'keyword', next: '@reserved.$S2' }
+                            }
+                        },
+                        reserved: { token: 'keyword', next: '@reserved.$S2' },
+                        '(?:repeated|optional)': { token: 'keyword', next: '@field.$S2' },
+                        required: {
+                            cases: {
+                                '$S2==proto2': { token: 'keyword', next: '@field.$S2' }
+                            }
+                        },
+                        '$S2==proto3': { token: '@rematch', next: '@field.$S2' }
                     }
                 }
             ],
-            [/./, { token: '@rematch', next: '@popall' }]
+            [/\[/, { token: '@brackets', bracket: '@open', next: '@options.$S2' }],
+            [/}/, { token: '@brackets', bracket: '@close', next: '@pop' }]
+        ],
+        extendDecl: [
+            { include: '@whitespace' },
+            [/@identifier/, 'type.identifier'],
+            [/{/, { token: '@brackets', bracket: '@open', switchTo: '@extendBody.$S2' }]
+        ],
+        extendBody: [
+            { include: '@whitespace' },
+            { include: '@constant' },
+            [/;/, 'delimiter'],
+            [/(?:repeated|optional|required)/, 'keyword', '@field.$S2'],
+            [/\[/, { token: '@brackets', bracket: '@open', next: '@options.$S2' }],
+            [/}/, { token: '@brackets', bracket: '@close', next: '@pop' }]
+        ],
+        options: [
+            { include: '@whitespace' },
+            { include: '@constant' },
+            [/;/, 'delimiter'],
+            [/@optionName/, 'annotation'],
+            [/[()]/, 'annotation.brackets'],
+            [/=/, 'operator'],
+            [/\]/, { token: '@brackets', bracket: '@close', next: '@pop' }]
+        ],
+        option: [
+            { include: '@whitespace' },
+            [/@optionName/, 'annotation'],
+            [/[()]/, 'annotation.brackets'],
+            [/=/, 'operator', '@pop']
+        ],
+        oneofDecl: [
+            { include: '@whitespace' },
+            [/@identifier/, 'identifier'],
+            [/{/, { token: '@brackets', bracket: '@open', switchTo: '@oneofBody.$S2' }]
+        ],
+        oneofBody: [
+            { include: '@whitespace' },
+            { include: '@constant' },
+            [/;/, 'delimiter'],
+            [/(@identifier)(\s*)(=)/, ['identifier', 'white', 'delimiter']],
+            [
+                /@fullIdentifier|\./,
+                {
+                    cases: {
+                        '@builtinTypes': 'keyword',
+                        '@default': 'type.identifier'
+                    }
+                }
+            ],
+            [/\[/, { token: '@brackets', bracket: '@open', next: '@options.$S2' }],
+            [/}/, { token: '@brackets', bracket: '@close', next: '@pop' }]
+        ],
+        reserved: [
+            { include: '@whitespace' },
+            [/,/, 'delimiter'],
+            [/;/, 'delimiter', '@pop'],
+            { include: '@constant' },
+            [/to\b|max\b/, 'keyword']
+        ],
+        map: [
+            { include: '@whitespace' },
+            [
+                /@fullIdentifier|\./,
+                {
+                    cases: {
+                        '@builtinTypes': 'keyword',
+                        '@default': 'type.identifier'
+                    }
+                }
+            ],
+            [/,/, 'delimiter'],
+            [/>/, { token: '@brackets', bracket: '@close', switchTo: 'identifier' }]
+        ],
+        field: [
+            { include: '@whitespace' },
+            [
+                'group',
+                {
+                    cases: {
+                        '$S2==proto2': { token: 'keyword', switchTo: '@groupDecl.$S2' }
+                    }
+                }
+            ],
+            [/(@identifier)(\s*)(=)/, ['identifier', 'white', { token: 'delimiter', next: '@pop' }]],
+            [
+                /@fullIdentifier|\./,
+                {
+                    cases: {
+                        '@builtinTypes': 'keyword',
+                        '@default': 'type.identifier'
+                    }
+                }
+            ]
+        ],
+        groupDecl: [
+            { include: '@whitespace' },
+            [/@identifier/, 'identifier'],
+            ['=', 'operator'],
+            [/{/, { token: '@brackets', bracket: '@open', switchTo: '@messageBody.$S2' }],
+            { include: '@constant' }
+        ],
+        type: [
+            { include: '@whitespace' },
+            [/@identifier/, 'type.identifier', '@pop'],
+            [/./, 'delimiter']
+        ],
+        identifier: [{ include: '@whitespace' }, [/@identifier/, 'identifier', '@pop']],
+        serviceDecl: [
+            { include: '@whitespace' },
+            [/@identifier/, 'identifier'],
+            [/{/, { token: '@brackets', bracket: '@open', switchTo: '@serviceBody.$S2' }]
+        ],
+        serviceBody: [
+            { include: '@whitespace' },
+            { include: '@constant' },
+            [/;/, 'delimiter'],
+            [/option\b/, 'keyword', '@option.$S2'],
+            [/rpc\b/, 'keyword', '@rpc.$S2'],
+            [/\[/, { token: '@brackets', bracket: '@open', next: '@options.$S2' }],
+            [/}/, { token: '@brackets', bracket: '@close', next: '@pop' }]
+        ],
+        rpc: [
+            { include: '@whitespace' },
+            [/@identifier/, 'identifier'],
+            [/\(/, { token: '@brackets', bracket: '@open', switchTo: '@request.$S2' }],
+            [/{/, { token: '@brackets', bracket: '@open', next: '@methodOptions.$S2' }],
+            [/;/, 'delimiter', '@pop']
+        ],
+        request: [
+            { include: '@whitespace' },
+            [
+                /@messageType/,
+                {
+                    cases: {
+                        stream: { token: 'keyword', next: '@type.$S2' },
+                        '@default': 'type.identifier'
+                    }
+                }
+            ],
+            [/\)/, { token: '@brackets', bracket: '@close', switchTo: '@returns.$S2' }]
+        ],
+        returns: [
+            { include: '@whitespace' },
+            [/returns\b/, 'keyword'],
+            [/\(/, { token: '@brackets', bracket: '@open', switchTo: '@response.$S2' }]
+        ],
+        response: [
+            { include: '@whitespace' },
+            [
+                /@messageType/,
+                {
+                    cases: {
+                        stream: { token: 'keyword', next: '@type.$S2' },
+                        '@default': 'type.identifier'
+                    }
+                }
+            ],
+            [/\)/, { token: '@brackets', bracket: '@close', switchTo: '@rpc.$S2' }]
+        ],
+        methodOptions: [
+            { include: '@whitespace' },
+            { include: '@constant' },
+            [/;/, 'delimiter'],
+            ['option', 'keyword'],
+            [/@optionName/, 'annotation'],
+            [/[()]/, 'annotation.brackets'],
+            [/=/, 'operator'],
+            [/}/, { token: '@brackets', bracket: '@close', next: '@pop' }]
         ],
         comment: [
-            [/[^<\-]+/, 'comment.content'],
-            [/-->/, { token: 'comment', next: '@pop' }],
-            [/<!--/, 'comment.content.invalid'],
-            [/[<\-]/, 'comment.content']
+            [/[^\/*]+/, 'comment'],
+            [/\/\*/, 'comment', '@push'],
+            ['\\*/', 'comment', '@pop'],
+            [/[\/*]/, 'comment']
         ],
         string: [
-            [
-                /[^\\"'#]+/,
-                {
-                    cases: {
-                        '@eos': { token: 'string', next: '@popall' },
-                        '@default': 'string'
-                    }
-                }
-            ],
-            [
-                /@escapes/,
-                {
-                    cases: {
-                        '@eos': { token: 'string.escape', next: '@popall' },
-                        '@default': 'string.escape'
-                    }
-                }
-            ],
-            [
-                /\\./,
-                {
-                    cases: {
-                        '@eos': {
-                            token: 'string.escape.invalid',
-                            next: '@popall'
-                        },
-                        '@default': 'string.escape.invalid'
-                    }
-                }
-            ],
-            // interpolation
-            [/(#{)([^}]*)(})/, ['interpolation.delimiter', 'interpolation', 'interpolation.delimiter']],
-            [/#/, 'string'],
-            [
-                /["']/,
-                {
-                    cases: {
-                        '$#==$S2': { token: 'string', next: '@pop' },
-                        '@default': { token: 'string' }
-                    }
-                }
-            ]
+            [/[^\\"]+/, 'string'],
+            [/@escapes/, 'string.escape'],
+            [/\\./, 'string.escape.invalid'],
+            [/"/, { token: 'string.quote', bracket: '@close', next: '@pop' }]
         ],
-        // Almost identical to above, except for escapes and the output token
-        value: [
-            [
-                /[^\\"']+/,
-                {
-                    cases: {
-                        '@eos': { token: 'attribute.value', next: '@popall' },
-                        '@default': 'attribute.value'
-                    }
-                }
-            ],
-            [
-                /\\./,
-                {
-                    cases: {
-                        '@eos': { token: 'attribute.value', next: '@popall' },
-                        '@default': 'attribute.value'
-                    }
-                }
-            ],
-            [
-                /["']/,
-                {
-                    cases: {
-                        '$#==$S2': { token: 'attribute.value', next: '@pop' },
-                        '@default': { token: 'attribute.value' }
-                    }
-                }
-            ]
+        stringSingle: [
+            [/[^\\']+/, 'string'],
+            [/@escapes/, 'string.escape'],
+            [/\\./, 'string.escape.invalid'],
+            [/'/, { token: 'string.quote', bracket: '@close', next: '@pop' }]
+        ],
+        constant: [
+            ['@boolLit', 'keyword.constant'],
+            ['@hexLit', 'number.hex'],
+            ['@octalLit', 'number.octal'],
+            ['@decimalLit', 'number'],
+            ['@floatLit', 'number.float'],
+            [/("([^"\\]|\\.)*|'([^'\\]|\\.)*)$/, 'string.invalid'],
+            [/"/, { token: 'string.quote', bracket: '@open', next: '@string' }],
+            [/'/, { token: 'string.quote', bracket: '@open', next: '@stringSingle' }],
+            [/{/, { token: '@brackets', bracket: '@open', next: '@prototext' }],
+            [/identifier/, 'identifier']
+        ],
+        whitespace: [
+            [/[ \t\r\n]+/, 'white'],
+            [/\/\*/, 'comment', '@comment'],
+            [/\/\/.*$/, 'comment']
+        ],
+        prototext: [
+            { include: '@whitespace' },
+            { include: '@constant' },
+            [/@identifier/, 'identifier'],
+            [/[:;]/, 'delimiter'],
+            [/}/, { token: '@brackets', bracket: '@close', next: '@pop' }]
         ]
     }
 };

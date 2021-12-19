@@ -1,7 +1,7 @@
 "use strict";
 (self["webpackChunknodecg_io_debug"] = self["webpackChunknodecg_io_debug"] || []).push([[9],{
 
-/***/ 815:
+/***/ 1508:
 /***/ ((__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
 
 __webpack_require__.r(__webpack_exports__);
@@ -9,111 +9,104 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */   "conf": () => (/* binding */ conf),
 /* harmony export */   "language": () => (/* binding */ language)
 /* harmony export */ });
-// Copyright (c) Microsoft Corporation.
-// Licensed under the MIT License.
-var bounded = function (text) { return "\\b" + text + "\\b"; };
-var identifierStart = '[_a-zA-Z]';
-var identifierContinue = '[_a-zA-Z0-9]';
-var identifier = bounded("" + identifierStart + identifierContinue + "*");
-var keywords = [
-    'targetScope',
-    'resource',
-    'module',
-    'param',
-    'var',
-    'output',
-    'for',
-    'in',
-    'if',
-    'existing'
-];
-var namedLiterals = ['true', 'false', 'null'];
-var nonCommentWs = "[ \\t\\r\\n]";
-var numericLiteral = "[0-9]+";
+/*---------------------------------------------------------------------------------------------
+ *  Copyright (c) Microsoft Corporation. All rights reserved.
+ *  Licensed under the MIT License. See License.txt in the project root for license information.
+ *--------------------------------------------------------------------------------------------*/
 var conf = {
     comments: {
-        lineComment: '//',
-        blockComment: ['/*', '*/']
+        lineComment: 'REM'
     },
     brackets: [
         ['{', '}'],
         ['[', ']'],
         ['(', ')']
     ],
-    surroundingPairs: [
-        { open: '{', close: '}' },
-        { open: '[', close: ']' },
-        { open: '(', close: ')' },
-        { open: "'", close: "'" },
-        { open: "'''", close: "'''" }
-    ],
     autoClosingPairs: [
         { open: '{', close: '}' },
         { open: '[', close: ']' },
         { open: '(', close: ')' },
-        { open: "'", close: "'", notIn: ['string', 'comment'] },
-        { open: "'''", close: "'''", notIn: ['string', 'comment'] }
+        { open: '"', close: '"' }
     ],
-    autoCloseBefore: ":.,=}])' \n\t",
-    indentationRules: {
-        increaseIndentPattern: new RegExp('^((?!\\/\\/).)*(\\{[^}"\'`]*|\\([^)"\'`]*|\\[[^\\]"\'`]*)$'),
-        decreaseIndentPattern: new RegExp('^((?!.*?\\/\\*).*\\*/)?\\s*[\\}\\]].*$')
+    surroundingPairs: [
+        { open: '[', close: ']' },
+        { open: '(', close: ')' },
+        { open: '"', close: '"' }
+    ],
+    folding: {
+        markers: {
+            start: new RegExp('^\\s*(::\\s*|REM\\s+)#region'),
+            end: new RegExp('^\\s*(::\\s*|REM\\s+)#endregion')
+        }
     }
 };
 var language = {
     defaultToken: '',
-    tokenPostfix: '.bicep',
+    ignoreCase: true,
+    tokenPostfix: '.bat',
     brackets: [
-        { open: '{', close: '}', token: 'delimiter.curly' },
-        { open: '[', close: ']', token: 'delimiter.square' },
-        { open: '(', close: ')', token: 'delimiter.parenthesis' }
+        { token: 'delimiter.bracket', open: '{', close: '}' },
+        { token: 'delimiter.parenthesis', open: '(', close: ')' },
+        { token: 'delimiter.square', open: '[', close: ']' }
     ],
-    symbols: /[=><!~?:&|+\-*/^%]+/,
-    keywords: keywords,
-    namedLiterals: namedLiterals,
-    escapes: "\\\\(u{[0-9A-Fa-f]+}|n|r|t|\\\\|'|\\${)",
+    keywords: /call|defined|echo|errorlevel|exist|for|goto|if|pause|set|shift|start|title|not|pushd|popd/,
+    // we include these common regular expressions
+    symbols: /[=><!~?&|+\-*\/\^;\.,]+/,
+    escapes: /\\(?:[abfnrtv\\"']|x[0-9A-Fa-f]{1,4}|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})/,
+    // The main tokenizer for our languages
     tokenizer: {
-        root: [{ include: '@expression' }, { include: '@whitespace' }],
-        stringVerbatim: [
-            { regex: "(|'|'')[^']", action: { token: 'string' } },
-            { regex: "'''", action: { token: 'string.quote', next: '@pop' } }
+        root: [
+            [/^(\s*)(rem(?:\s.*|))$/, ['', 'comment']],
+            [/(\@?)(@keywords)(?!\w)/, [{ token: 'keyword' }, { token: 'keyword.$2' }]],
+            // whitespace
+            [/[ \t\r\n]+/, ''],
+            // blocks
+            [/setlocal(?!\w)/, 'keyword.tag-setlocal'],
+            [/endlocal(?!\w)/, 'keyword.tag-setlocal'],
+            // words
+            [/[a-zA-Z_]\w*/, ''],
+            // labels
+            [/:\w*/, 'metatag'],
+            // variables
+            [/%[^%]+%/, 'variable'],
+            [/%%[\w]+(?!\w)/, 'variable'],
+            // punctuations
+            [/[{}()\[\]]/, '@brackets'],
+            [/@symbols/, 'delimiter'],
+            // numbers
+            [/\d*\.\d+([eE][\-+]?\d+)?/, 'number.float'],
+            [/0[xX][0-9a-fA-F_]*[0-9a-fA-F]/, 'number.hex'],
+            [/\d+/, 'number'],
+            // punctuation: after number because of .\d floats
+            [/[;,.]/, 'delimiter'],
+            // strings:
+            [/"/, 'string', '@string."'],
+            [/'/, 'string', "@string.'"]
         ],
-        stringLiteral: [
-            { regex: "\\${", action: { token: 'delimiter.bracket', next: '@bracketCounting' } },
-            { regex: "[^\\\\'$]+", action: { token: 'string' } },
-            { regex: '@escapes', action: { token: 'string.escape' } },
-            { regex: "\\\\.", action: { token: 'string.escape.invalid' } },
-            { regex: "'", action: { token: 'string', next: '@pop' } }
-        ],
-        bracketCounting: [
-            { regex: "{", action: { token: 'delimiter.bracket', next: '@bracketCounting' } },
-            { regex: "}", action: { token: 'delimiter.bracket', next: '@pop' } },
-            { include: 'expression' }
-        ],
-        comment: [
-            { regex: "[^\\*]+", action: { token: 'comment' } },
-            { regex: "\\*\\/", action: { token: 'comment', next: '@pop' } },
-            { regex: "[\\/*]", action: { token: 'comment' } }
-        ],
-        whitespace: [
-            { regex: nonCommentWs },
-            { regex: "\\/\\*", action: { token: 'comment', next: '@comment' } },
-            { regex: "\\/\\/.*$", action: { token: 'comment' } }
-        ],
-        expression: [
-            { regex: "'''", action: { token: 'string.quote', next: '@stringVerbatim' } },
-            { regex: "'", action: { token: 'string.quote', next: '@stringLiteral' } },
-            { regex: numericLiteral, action: { token: 'number' } },
-            {
-                regex: identifier,
-                action: {
+        string: [
+            [
+                /[^\\"'%]+/,
+                {
                     cases: {
-                        '@keywords': { token: 'keyword' },
-                        '@namedLiterals': { token: 'keyword' },
-                        '@default': { token: 'identifier' }
+                        '@eos': { token: 'string', next: '@popall' },
+                        '@default': 'string'
                     }
                 }
-            }
+            ],
+            [/@escapes/, 'string.escape'],
+            [/\\./, 'string.escape.invalid'],
+            [/%[\w ]+%/, 'variable'],
+            [/%%[\w]+(?!\w)/, 'variable'],
+            [
+                /["']/,
+                {
+                    cases: {
+                        '$#==$S2': { token: 'string', next: '@pop' },
+                        '@default': 'string'
+                    }
+                }
+            ],
+            [/$/, 'string', '@popall']
         ]
     }
 };
