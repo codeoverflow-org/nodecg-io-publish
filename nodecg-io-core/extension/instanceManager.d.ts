@@ -28,7 +28,7 @@ export declare class InstanceManager extends EventEmitter {
     getServiceInstances(): ObjectMap<ServiceInstance<unknown, unknown>>;
     /**
      * Creates a service instance of the passed service.
-     * @param serviceType the type of the service of which a instance should be created
+     * @param serviceType the type of the service of which an instance should be created
      * @param instanceName how the instance should be named
      * @return void if everything went fine and a string describing the issue if not
      */
@@ -41,7 +41,7 @@ export declare class InstanceManager extends EventEmitter {
     deleteServiceInstance(instanceName: string): boolean;
     /**
      * Updates the config of a service instance.
-     * Before actually setting the new config, it validates it against the json schema of the service and
+     * Before actually setting the new config, it validates it against the JSON schema of the service and
      * the validate function of the service.
      * @param instanceName the name of the service instance of which the config should be set.
      * @param config the actual config that will be given to the service instance.

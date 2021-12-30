@@ -6,7 +6,7 @@ const crypto = (0, tslib_1.__importStar)(require("crypto-js"));
 const result_1 = require("./utils/result");
 /**
  * Decrypts the passed encrypted data using the passed password.
- * If the password is wrong an error will be returned.
+ * If the password is wrong, an error will be returned.
  *
  * @param cipherText the ciphertext that needs to be decrypted.
  * @param password the password for the encrypted data.
@@ -74,7 +74,7 @@ class PersistenceManager {
         }
         if (this.encryptedData.value.cipherText === undefined) {
             // No encrypted data has been saved, probably because this is the first startup.
-            // Therefore nothing needs to be decrypted and we write a empty config to disk.
+            // Therefore nothing needs to be decrypted, and we write an empty config to disk.
             this.nodecg.log.info("No saved configuration found, creating a empty one.");
             this.password = password;
             this.save();
@@ -119,7 +119,7 @@ class PersistenceManager {
             // Re-set config of this instance.
             // We can skip the validation here because the config was already validated when it was initially set,
             // before getting saved to disk.
-            // This results in faster loading when the validation takes time, e.g. makes HTTP requests.
+            // This results in faster loading when the validation takes time, e.g., makes HTTP requests.
             return this.instances
                 .updateInstanceConfig(instanceName, instance.config, false)
                 .then(async (result) => {
@@ -141,10 +141,10 @@ class PersistenceManager {
             deps.forEach((svcDep) => {
                 // Re-setting bundle service dependencies.
                 // We can ignore the case of undefined, because the default is that the bundle doesn't get any service
-                // which is modeled by undefined. We are assuming that there was nobody setting it to something different.
+                // which is modelled by undefined. We are assuming that there was nobody setting it to something different.
                 if (svcDep.serviceInstance !== undefined) {
                     const inst = this.instances.getServiceInstance(svcDep.serviceInstance);
-                    // Don't do anything if the service instance doesn't exist anymore (probably deleted)
+                    // Don't do anything if the service instance doesn't exist any more (probably deleted)
                     if (inst !== undefined) {
                         this.bundles.setServiceDependency(bundleName, svcDep.serviceInstance, inst);
                     }
@@ -198,7 +198,7 @@ class PersistenceManager {
         this.save();
     }
     /**
-     * Checks whether automatic login is setup and enabled. If yes it will do it using {@link PersistenceManager.setupAutomaticLogin}.
+     * Checks whether automatic login is set up and enabled. If yes, it will do it using {@link PersistenceManager.setupAutomaticLogin}.
      */
     checkAutomaticLogin() {
         var _a;
@@ -209,7 +209,7 @@ class PersistenceManager {
         const enabled = this.nodecg.bundleConfig.automaticLogin.enabled;
         const password = this.nodecg.bundleConfig.automaticLogin.password;
         if (enabled === false) {
-            // We inform the user that automatic login is setup but not activated because having the ability
+            // We inform the user that automatic login is set up but not activated because having the ability
             // to disable it by setting the enabled flag to false is meant for temporary cases.
             // If automatic login is permanently not used the user should remove the password from the config
             // to regain the advantages of data-at-rest encryption which are slashed when the password is also stored on disk.
@@ -219,16 +219,16 @@ class PersistenceManager {
         this.setupAutomaticLogin(password);
     }
     /**
-     * Setups everything needed to automatically login using the provided password after nodecg has loaded.
+     * Setups everything needed to automatically log in using the provided password after NodeCG has loaded.
      */
     setupAutomaticLogin(password) {
         // We need to do the login after all bundles have been loaded because when loading these might add bundle dependencies
         // or even register services which we need to load nodecg-io.
-        // There is no official way to wait for nodecg to be done loading so we use more or less a hack to find that out:
-        // When we declare the replicant here we will trigger a change event with a empty array.
-        // Once nodecg is done loading all bundles it'll assign a array of bundles that were loaded to this replicant
-        // So if we want to wait for nodecg to be loaded we can watch for changes on this replicant and
-        // if we get a non-empty array it means that nodecg has finished loading.
+        // There is no official way to wait for NodeCG to be done loading, so we use more or less a hack to find that out:
+        // When we declare the replicant here we will trigger a change event with an empty array.
+        // Once NodeCG is done loading all bundles it'll assign an array of bundles that were loaded to this replicant
+        // So if we want to wait for NodeCG to be loaded we can watch for changes on this replicant and
+        // if we get a non-empty array it means that NodeCG has finished loading.
         this.nodecg.Replicant("bundles", "nodecg").on("change", async (bundles) => {
             if (bundles.length > 0) {
                 try {
@@ -245,7 +245,6 @@ class PersistenceManager {
                     const logMesssage = `Failed to automatically login: ${err}`;
                     if (this.isLoaded()) {
                         // load() threw an error but nodecg-io is currently loaded nonetheless.
-                        // Propably because the a already open dashboard automatically logged in after reconnecting.
                         // Anyway, nodecg-io is loaded which is what we wanted
                         this.nodecg.log.warn(logMesssage);
                     }

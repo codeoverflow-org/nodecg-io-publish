@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.MessageManager = void 0;
 const result_1 = require("./utils/result");
 /**
- * MessageManager manages communication with the gui and handles NodeCG messages to control the framework.
+ * MessageManager manages communication with the GUI and handles NodeCG messages to control the framework.
  * Also adds a small wrapper around the actual functions them to make some things easier.
  */
 class MessageManager {

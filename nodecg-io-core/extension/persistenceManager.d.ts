@@ -18,7 +18,7 @@ export interface PersistentData {
     bundleDependencies: ObjectMap<ServiceDependency<unknown>[]>;
 }
 /**
- * Models all the data that needs to be persistent in a encrypted manner.
+ * Models all the data that needs to be persistent in an encrypted manner.
  */
 export interface EncryptedData {
     /**
@@ -28,7 +28,7 @@ export interface EncryptedData {
 }
 /**
  * Decrypts the passed encrypted data using the passed password.
- * If the password is wrong an error will be returned.
+ * If the password is wrong, an error will be returned.
  *
  * @param cipherText the ciphertext that needs to be decrypted.
  * @param password the password for the encrypted data.
@@ -91,11 +91,11 @@ export declare class PersistenceManager {
      */
     private saveAfterServiceInstancesLoaded;
     /**
-     * Checks whether automatic login is setup and enabled. If yes it will do it using {@link PersistenceManager.setupAutomaticLogin}.
+     * Checks whether automatic login is set up and enabled. If yes, it will do it using {@link PersistenceManager.setupAutomaticLogin}.
      */
     private checkAutomaticLogin;
     /**
-     * Setups everything needed to automatically login using the provided password after nodecg has loaded.
+     * Setups everything needed to automatically log in using the provided password after NodeCG has loaded.
      */
     private setupAutomaticLogin;
 }

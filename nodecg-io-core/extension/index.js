@@ -14,7 +14,7 @@ module.exports = (nodecg) => {
     const persistenceManager = new persistenceManager_1.PersistenceManager(nodecg, serviceManager, instanceManager, bundleManager);
     new messageManager_1.MessageManager(nodecg, serviceManager, instanceManager, bundleManager, persistenceManager).registerMessageHandlers();
     registerExitHandlers(nodecg, bundleManager, instanceManager, serviceManager, persistenceManager);
-    // We use a extra object instead of returning a object containing all the managers and so on, because
+    // We use an extra object instead of returning an object containing all the managers and so on, because
     // any loaded bundle would be able to call any (public or private) of the managers which is not intended.
     return {
         registerService(service) {
@@ -35,7 +35,7 @@ module.exports = (nodecg) => {
 function onExit(nodecg, bundleManager, instanceManager, serviceManager, persistenceManager) {
     var _a, _b, _c;
     // Save everything
-    // This is especially important if some services update some configs (e.g. updated tokens) and they haven't been saved yet.
+    // This is especially important if some services update some configs (e.g., updated tokens) and they haven't been saved yet.
     persistenceManager.save();
     // Unset all service instances in all bundles
     const bundles = bundleManager.getBundleDependencies();

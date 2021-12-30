@@ -11,7 +11,7 @@ exports.createAuthProvider = createAuthProvider;
  * Gets the token info for the passed config.
  */
 async function getTokenInfo(cfg) {
-    return await (0, auth_1.getTokenInfo)(normalizeToken(cfg));
+    return (0, auth_1.getTokenInfo)(normalizeToken(cfg));
 }
 exports.getTokenInfo = getTokenInfo;
 /**

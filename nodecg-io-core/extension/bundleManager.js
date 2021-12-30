@@ -64,7 +64,7 @@ class BundleManager extends events_1.EventEmitter {
         if (bundle === undefined) {
             return (0, result_1.error)(`Bundle "${bundleName}" couldn't be found.`);
         }
-        // Get the service dependency that manages dependance for this service type
+        // Get the service dependency that manages dependence for this service type
         const svcDependency = bundle.find((svcDep) => svcDep.serviceType === instance.serviceType);
         if (svcDependency === undefined) {
             return (0, result_1.error)(`Bundle "${bundleName} doesn't depend on the "${instance.serviceType}" service.`);
@@ -91,7 +91,7 @@ class BundleManager extends events_1.EventEmitter {
         const svcDependency = bundle === null || bundle === void 0 ? void 0 : bundle.find((svcDep) => svcDep.serviceType === serviceType);
         if (svcDependency !== undefined) {
             const oldInstance = svcDependency.serviceInstance;
-            // Unset service instance and let the bundle know that it hasn't access to this service anymore.
+            // Unset service instance and let the bundle know that it hasn't access to this service any more.
             svcDependency.serviceInstance = undefined;
             svcDependency.provider.updateClient(undefined);
             this.emit("change");

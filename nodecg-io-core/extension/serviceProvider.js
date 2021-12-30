@@ -10,7 +10,7 @@ const events_1 = require("events");
 class ServiceProvider {
     constructor() {
         this.em = new events_1.EventEmitter();
-        // Make service client non enumerable, that way it won't be serialized, which would cause problems.
+        // Make service client non-enumerable, that way it won't be serialized, which would cause problems.
         Object.defineProperty(this, "currentClient", {
             enumerable: false,
             writable: true,
@@ -25,23 +25,23 @@ class ServiceProvider {
         return this.currentClient;
     }
     /**
-     * Registers a callback that gets fired everytime the available client gets updated and is available,
-     * meaning the bundle has an assigned service instance and it didn't produce an error while creating the client.
-     * @param {(client: C) => void} handler a handler that gets called everytime the client gets available.
+     * Registers a callback that gets fired every time the available client gets updated and is available,
+     * meaning the bundle has an assigned service instance, and it didn't produce an error while creating the client.
+     * @param {(client: C) => void} handler a handler that gets called every time the client gets available.
      */
     onAvailable(handler) {
         this.em.on("set", handler);
     }
     /**
-     * Registers a callback that is everytime called when there is no assigned service instance anymore or it tried
+     * Registers a callback that is every time called when there is no assigned service instance any more, or it tried
      * to create a service client and failed.
-     * @param {() => void} handler a handler that gets called everytime the client gets unavailable.
+     * @param {() => void} handler a handler that gets called every time the client gets unavailable.
      */
     onUnavailable(handler) {
         this.em.on("unset", handler);
     }
     /**
-     * Updates the client and calls all registered handlers of {@link onAvailable} and {@link onUnavailable} depending
+     * Updates the client and calls all registered handlers of {@link onAvailable} and {@link onUnavailable} depending on
      * whether the passed client parameter was undefined or not.
      * This is only intended to be called by the framework and not by a bundle.
      * @param client the new client
@@ -54,8 +54,8 @@ class ServiceProvider {
 exports.ServiceProvider = ServiceProvider;
 /**
  * Allows for bundles to require services.
- * @param {NodeCG} nodecg the nodecg instance of your bundle. Is used to get the bundle name of the calling bundle.
- * @param {string} serviceType the type of service you want to require, e.g. "twitch" or "spotify".
+ * @param {NodeCG} nodecg the NodeCG instance of your bundle. Is used to get the bundle name of the calling bundle.
+ * @param {string} serviceType the type of service you want to require, e.g., "twitch" or "spotify".
  * @return {ServiceClientWrapper<C> | undefined} a service client wrapper for access to the service client
  *                                               or undefined if the core wasn't loaded or the service type doesn't exist.
  */
