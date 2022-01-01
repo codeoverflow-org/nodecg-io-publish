@@ -1225,7 +1225,7 @@
       this._workerId = -1;
       this._handler = handler;
       this._lastSentReq = 0;
-      this._pendingReplies = Object.create(null);
+      this._pendingReplies = /* @__PURE__ */ Object.create(null);
       this._pendingEmitters = /* @__PURE__ */ new Map();
       this._pendingEvents = /* @__PURE__ */ new Map();
     }
@@ -5258,7 +5258,7 @@
   var KeyCodeStrMap = class {
     constructor() {
       this._keyCodeToStr = [];
-      this._strToKeyCode = Object.create(null);
+      this._strToKeyCode = /* @__PURE__ */ Object.create(null);
     }
     define(keyCode, str) {
       this._keyCodeToStr[keyCode] = str;
@@ -5277,8 +5277,8 @@
   var EVENT_KEY_CODE_MAP = new Array(230);
   var NATIVE_WINDOWS_KEY_CODE_TO_KEY_CODE = {};
   var scanCodeIntToStr = [];
-  var scanCodeStrToInt = Object.create(null);
-  var scanCodeLowerCaseStrToInt = Object.create(null);
+  var scanCodeStrToInt = /* @__PURE__ */ Object.create(null);
+  var scanCodeLowerCaseStrToInt = /* @__PURE__ */ Object.create(null);
   var IMMUTABLE_CODE_TO_KEY_CODE = [];
   var IMMUTABLE_KEY_CODE_TO_CODE = [];
   for (let i = 0; i <= 193; i++) {
@@ -6713,12 +6713,12 @@
   var EditorSimpleWorker = class {
     constructor(host, foreignModuleFactory) {
       this._host = host;
-      this._models = Object.create(null);
+      this._models = /* @__PURE__ */ Object.create(null);
       this._foreignModuleFactory = foreignModuleFactory;
       this._foreignModule = null;
     }
     dispose() {
-      this._models = Object.create(null);
+      this._models = /* @__PURE__ */ Object.create(null);
     }
     _getModel(uri) {
       return this._models[uri];
@@ -6882,10 +6882,10 @@
       return __awaiter(this, void 0, void 0, function* () {
         let model = this._getModel(modelUrl);
         if (!model) {
-          return Object.create(null);
+          return /* @__PURE__ */ Object.create(null);
         }
         const wordDefRegExp = new RegExp(wordDef, wordDefFlags);
-        const result = Object.create(null);
+        const result = /* @__PURE__ */ Object.create(null);
         for (let line = range.startLineNumber; line < range.endLineNumber; line++) {
           let words = model.getLineWords(line, wordDefRegExp);
           for (const word of words) {
@@ -7598,7 +7598,7 @@
       case "array":
         return node.children.map(getNodeValue);
       case "object":
-        var obj = Object.create(null);
+        var obj = /* @__PURE__ */ Object.create(null);
         for (var _i = 0, _a2 = node.children; _i < _a2.length; _i++) {
           var prop = _a2[_i];
           var valueNode = prop.children[1];
@@ -8442,7 +8442,7 @@
   }();
   var ChangeAnnotations = function() {
     function ChangeAnnotations2(annotations) {
-      this._annotations = annotations === void 0 ? Object.create(null) : annotations;
+      this._annotations = annotations === void 0 ? /* @__PURE__ */ Object.create(null) : annotations;
       this._counter = 0;
       this._size = 0;
     }
@@ -8483,7 +8483,7 @@
   var WorkspaceChange = function() {
     function WorkspaceChange2(workspaceEdit) {
       var _this = this;
-      this._textEditChanges = Object.create(null);
+      this._textEditChanges = /* @__PURE__ */ Object.create(null);
       if (workspaceEdit !== void 0) {
         this._workspaceEdit = workspaceEdit;
         if (workspaceEdit.documentChanges) {
@@ -8563,7 +8563,7 @@
     };
     WorkspaceChange2.prototype.initChanges = function() {
       if (this._workspaceEdit.documentChanges === void 0 && this._workspaceEdit.changes === void 0) {
-        this._workspaceEdit.changes = Object.create(null);
+        this._workspaceEdit.changes = /* @__PURE__ */ Object.create(null);
       }
     };
     WorkspaceChange2.prototype.createFile = function(uri, optionsOrAnnotation, options) {
@@ -10275,7 +10275,7 @@
       }
     }
     function _validateObjectNode(node2, schema22, validationResult2, matchingSchemas2) {
-      var seenKeys = Object.create(null);
+      var seenKeys = /* @__PURE__ */ Object.create(null);
       var unprocessedProperties = [];
       for (var _i = 0, _a2 = node2.properties; _i < _a2.length; _i++) {
         var propertyNode = _a2[_i];
@@ -10638,7 +10638,7 @@
         return void 0;
       }
       var node = new ObjectASTNodeImpl(parent, scanner2.getTokenOffset());
-      var keysSeen = Object.create(null);
+      var keysSeen = /* @__PURE__ */ Object.create(null);
       _scanNext();
       var needsComma = false;
       while (scanner2.getToken() !== 2 && scanner2.getToken() !== 17) {
@@ -12689,7 +12689,7 @@
       if (this.cachedSchemaForResource && this.cachedSchemaForResource.resource === resource) {
         return this.cachedSchemaForResource.resolvedSchema;
       }
-      var seen = Object.create(null);
+      var seen = /* @__PURE__ */ Object.create(null);
       var schemas = [];
       var normalizedResource = normalizeResourceForMatching(resource);
       for (var _i = 0, _a2 = this.filePatternAssociations; _i < _a2.length; _i++) {

@@ -1204,7 +1204,7 @@
       this._workerId = -1;
       this._handler = handler;
       this._lastSentReq = 0;
-      this._pendingReplies = Object.create(null);
+      this._pendingReplies = /* @__PURE__ */ Object.create(null);
       this._pendingEmitters = /* @__PURE__ */ new Map();
       this._pendingEvents = /* @__PURE__ */ new Map();
     }
@@ -5237,7 +5237,7 @@
   var KeyCodeStrMap = class {
     constructor() {
       this._keyCodeToStr = [];
-      this._strToKeyCode = Object.create(null);
+      this._strToKeyCode = /* @__PURE__ */ Object.create(null);
     }
     define(keyCode, str) {
       this._keyCodeToStr[keyCode] = str;
@@ -5256,8 +5256,8 @@
   var EVENT_KEY_CODE_MAP = new Array(230);
   var NATIVE_WINDOWS_KEY_CODE_TO_KEY_CODE = {};
   var scanCodeIntToStr = [];
-  var scanCodeStrToInt = Object.create(null);
-  var scanCodeLowerCaseStrToInt = Object.create(null);
+  var scanCodeStrToInt = /* @__PURE__ */ Object.create(null);
+  var scanCodeLowerCaseStrToInt = /* @__PURE__ */ Object.create(null);
   var IMMUTABLE_CODE_TO_KEY_CODE = [];
   var IMMUTABLE_KEY_CODE_TO_CODE = [];
   for (let i = 0; i <= 193; i++) {
@@ -6692,12 +6692,12 @@
   var EditorSimpleWorker = class {
     constructor(host, foreignModuleFactory) {
       this._host = host;
-      this._models = Object.create(null);
+      this._models = /* @__PURE__ */ Object.create(null);
       this._foreignModuleFactory = foreignModuleFactory;
       this._foreignModule = null;
     }
     dispose() {
-      this._models = Object.create(null);
+      this._models = /* @__PURE__ */ Object.create(null);
     }
     _getModel(uri) {
       return this._models[uri];
@@ -6861,10 +6861,10 @@
       return __awaiter(this, void 0, void 0, function* () {
         let model = this._getModel(modelUrl);
         if (!model) {
-          return Object.create(null);
+          return /* @__PURE__ */ Object.create(null);
         }
         const wordDefRegExp = new RegExp(wordDef, wordDefFlags);
-        const result = Object.create(null);
+        const result = /* @__PURE__ */ Object.create(null);
         for (let line = range.startLineNumber; line < range.endLineNumber; line++) {
           let words = model.getLineWords(line, wordDefRegExp);
           for (const word of words) {
