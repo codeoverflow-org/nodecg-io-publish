@@ -2,17 +2,17 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const serviceManager_1 = require("./serviceManager");
 const bundleManager_1 = require("./bundleManager");
-const messageManager_1 = require("./messageManager");
 const instanceManager_1 = require("./instanceManager");
 const persistenceManager_1 = require("./persistenceManager");
 const logger_1 = require("./utils/logger");
+const dashboardApi_1 = require("./dashboardApi");
 module.exports = (nodecg) => {
     nodecg.log.info("Minzig!");
     const serviceManager = new serviceManager_1.ServiceManager(nodecg);
     const bundleManager = new bundleManager_1.BundleManager(nodecg);
     const instanceManager = new instanceManager_1.InstanceManager(nodecg, serviceManager, bundleManager);
     const persistenceManager = new persistenceManager_1.PersistenceManager(nodecg, serviceManager, instanceManager, bundleManager);
-    new messageManager_1.MessageManager(nodecg, serviceManager, instanceManager, bundleManager, persistenceManager).registerMessageHandlers();
+    new dashboardApi_1.DashboardApi(nodecg, serviceManager, instanceManager, bundleManager, persistenceManager).mountApi();
     registerExitHandlers(nodecg, bundleManager, instanceManager, serviceManager, persistenceManager);
     // We use an extra object instead of returning an object containing all the managers and so on, because
     // any loaded bundle would be able to call any (public or private) of the managers which is not intended.
