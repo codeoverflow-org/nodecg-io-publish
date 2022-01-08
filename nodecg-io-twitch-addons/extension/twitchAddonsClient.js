@@ -220,7 +220,7 @@ class TwitchAddonsClient {
         const response = await (await (0, node_fetch_1.default)(`https://api.twitch.tv/helix/users?login=${username}`, {
             headers: {
                 "Client-ID": this.clientId,
-                Authorization: `Bearer ${this.token}`,
+                "Authorization": `Bearer ${this.token}`,
             },
         })).json();
         if (response.data.length > 0) {

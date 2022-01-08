@@ -381,8 +381,8 @@ class RatBagButton extends dbusClient_1.DBusObject {
 }
 exports.RatBagButton = RatBagButton;
 RatBagButton.SPECIAL_ACTION_MAP = {
-    unknown: 0x40000000,
-    doubleclick: 0x40000001,
+    "unknown": 0x40000000,
+    "doubleclick": 0x40000001,
     "wheel left": 0x40000002,
     "wheel right": 0x40000003,
     "wheel up": 0x40000004,
