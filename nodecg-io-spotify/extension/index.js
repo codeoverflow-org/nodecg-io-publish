@@ -1,8 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const tslib_1 = require("tslib");
 const nodecg_io_core_1 = require("nodecg-io-core");
-const express = (0, tslib_1.__importStar)(require("express"));
 const SpotifyWebApi = require("spotify-web-api-node");
 const open = require("open");
 let callbackUrl = "";
@@ -60,7 +58,7 @@ class SpotifyService extends nodecg_io_core_1.ServiceBundle {
     }
     mountCallBackURL(spotifyApi, logger) {
         return new Promise((resolve) => {
-            const router = express.Router();
+            const router = this.nodecg.Router();
             router.get(callbackEndpoint, (req, res) => {
                 var _a, _b;
                 // Get auth code with is returned as url query parameter if everything was successful
