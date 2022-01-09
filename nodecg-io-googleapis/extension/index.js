@@ -14,7 +14,7 @@ class GoogleApisService extends nodecg_io_core_1.ServiceBundle {
         const auth = new googleapis_1.google.auth.OAuth2({
             clientId: config.clientID,
             clientSecret: config.clientSecret,
-            redirectUri: "http://localhost:9090/nodecg-io-googleapis/oauth2callback",
+            redirectUri: `${config.httpsRedirect ? "https" : "http"}://${this.nodecg.config.baseURL}/nodecg-io-googleapis/oauth2callback`,
         });
         await this.refreshTokens(config, auth, logger);
         const client = new googleapis_1.GoogleApis({ auth });

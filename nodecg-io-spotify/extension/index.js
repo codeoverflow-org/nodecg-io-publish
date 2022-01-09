@@ -3,12 +3,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const nodecg_io_core_1 = require("nodecg-io-core");
 const SpotifyWebApi = require("spotify-web-api-node");
 const open = require("open");
-let callbackUrl = "";
 const callbackEndpoint = "/nodecg-io-spotify/spotifycallback";
 const defaultState = "defaultState";
 const refreshInterval = 1800000;
 module.exports = (nodecg) => {
-    callbackUrl = `http://${nodecg.config.baseURL}${callbackEndpoint}`;
     new SpotifyService(nodecg, "spotify", __dirname, "../spotify-schema.json").register();
 };
 class SpotifyService extends nodecg_io_core_1.ServiceBundle {
@@ -25,7 +23,7 @@ class SpotifyService extends nodecg_io_core_1.ServiceBundle {
         const spotifyApi = new SpotifyWebApi({
             clientId: config.clientId,
             clientSecret: config.clientSecret,
-            redirectUri: callbackUrl,
+            redirectUri: `${config.httpsRedirect ? "https" : "http"}://${this.nodecg.config.baseURL}${callbackEndpoint}`,
         });
         // if we already have a refresh token is available we can use it to create a access token without the need to annoy the user
         // by opening and directly after closing a browser window.
