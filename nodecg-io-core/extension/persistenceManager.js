@@ -29,7 +29,7 @@ function decryptData(cipherText, encryptionKey, iv) {
 }
 exports.decryptData = decryptData;
 /**
- * Encrypts the passed data objedt using the passed encryption key.
+ * Encrypts the passed data object using the passed encryption key.
  *
  * @param data the data that needs to be encrypted.
  * @param encryptionKey the encryption key that should be used to encrypt the data.
@@ -307,7 +307,10 @@ class PersistenceManager {
                             // Re-encrypt the configuration using our own derived key instead of the password.
                             const newEncryptionKey = deriveEncryptionKey(password, salt);
                             const newEncryptionKeyArr = crypto_js_1.default.enc.Hex.parse(newEncryptionKey);
-                            reEncryptData(this.encryptedData.value, password, newEncryptionKeyArr);
+                            const res = reEncryptData(this.encryptedData.value, password, newEncryptionKeyArr);
+                            if (res.failed) {
+                                throw new Error(`Failed to migrate config: ${res.errorMessage}`);
+                            }
                         }
                         this.encryptedData.value.salt = salt;
                     }
@@ -317,7 +320,7 @@ class PersistenceManager {
                         this.nodecg.log.info("Automatic login successful.");
                     }
                     else {
-                        throw loadResult.errorMessage;
+                        throw new Error(loadResult.errorMessage);
                     }
                 }
                 catch (err) {

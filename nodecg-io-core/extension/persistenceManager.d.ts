@@ -50,7 +50,7 @@ export interface EncryptedData {
  */
 export declare function decryptData(cipherText: string, encryptionKey: string | crypto.lib.WordArray, iv: string | undefined): Result<PersistentData>;
 /**
- * Encrypts the passed data objedt using the passed encryption key.
+ * Encrypts the passed data object using the passed encryption key.
  *
  * @param data the data that needs to be encrypted.
  * @param encryptionKey the encryption key that should be used to encrypt the data.
