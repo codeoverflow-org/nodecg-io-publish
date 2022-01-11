@@ -18,10 +18,6 @@
         "scopes": {
             "type": "array",
             "description": "Scope URLs for all used services."
-        },
-        "httpsRedirect": {
-            "type": "boolean",
-            "description": "Should the OAuth redirect URL use the https protocol"
         }
     },
     "required": ["clientID", "clientSecret"]

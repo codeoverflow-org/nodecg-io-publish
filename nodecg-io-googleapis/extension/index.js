@@ -1,7 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
+const tslib_1 = require("tslib");
 const nodecg_io_core_1 = require("nodecg-io-core");
 const googleapis_1 = require("googleapis");
+const express = (0, tslib_1.__importStar)(require("express"));
 const opn = require("open");
 module.exports = (nodecg) => {
     new GoogleApisService(nodecg, "googleapis", __dirname, "../googleapis-schema.json").register();
@@ -14,7 +16,7 @@ class GoogleApisService extends nodecg_io_core_1.ServiceBundle {
         const auth = new googleapis_1.google.auth.OAuth2({
             clientId: config.clientID,
             clientSecret: config.clientSecret,
-            redirectUri: `${config.httpsRedirect ? "https" : "http"}://${this.nodecg.config.baseURL}/nodecg-io-googleapis/oauth2callback`,
+            redirectUri: "http://localhost:9090/nodecg-io-googleapis/oauth2callback",
         });
         await this.refreshTokens(config, auth, logger);
         const client = new googleapis_1.GoogleApis({ auth });
@@ -30,7 +32,7 @@ class GoogleApisService extends nodecg_io_core_1.ServiceBundle {
             scope: config.scopes,
         });
         return new Promise((resolve, reject) => {
-            const router = this.nodecg.Router();
+            const router = express.Router();
             router.get("/nodecg-io-googleapis/oauth2callback", async (req, res) => {
                 try {
                     const response = `<html><head><script>window.close();</script></head><body>Google Api connection successful! You may close this window now.</body></html>`;

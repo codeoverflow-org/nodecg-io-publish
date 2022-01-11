@@ -1,6 +1,7 @@
 import { NodeCG } from "nodecg-types/types/server";
 import { InstanceManager } from "./instanceManager";
 import { BundleManager } from "./bundleManager";
+import crypto from "crypto-js";
 import { Result } from "./utils/result";
 import { ObjectMap, ServiceDependency, ServiceInstance } from "./service";
 import { ServiceManager } from "./serviceManager";
@@ -25,15 +26,54 @@ export interface EncryptedData {
      * The encrypted format of the data that needs to be stored.
      */
     cipherText?: string;
+    /**
+     * The salt that is used when deriving the encryption key from the password.
+     * Only set for new format with nodecg-io >=0.3.
+     */
+    salt?: string;
+    /**
+     * The initialization vector used for encryption.
+     * Only set for new format with nodecg-io >=0.3.
+     */
+    iv?: string;
 }
 /**
- * Decrypts the passed encrypted data using the passed password.
- * If the password is wrong, an error will be returned.
+ * Decrypts the passed encrypted data using the passed encryption key.
+ * If the encryption key is wrong, an error will be returned.
+ *
+ * This function supports the <=0.2 format with the plain password as an
+ * encryption key and no iv (read from ciphertext) and the >=0.3 format with the iv and derived key.
  *
  * @param cipherText the ciphertext that needs to be decrypted.
- * @param password the password for the encrypted data.
+ * @param encryptionKey the encryption key for the encrypted data.
+ * @param iv the initialization vector for the encrypted data.
  */
-export declare function decryptData(cipherText: string, password: string): Result<PersistentData>;
+export declare function decryptData(cipherText: string, encryptionKey: string | crypto.lib.WordArray, iv: string | undefined): Result<PersistentData>;
+/**
+ * Encrypts the passed data objedt using the passed encryption key.
+ *
+ * @param data the data that needs to be encrypted.
+ * @param encryptionKey the encryption key that should be used to encrypt the data.
+ * @returns a tuple containing the encrypted data and the initialization vector as a hex string.
+ */
+export declare function encryptData(data: PersistentData, encryptionKey: crypto.lib.WordArray): [string, string];
+/**
+ * Derives a key suitable for encrypting the config from the given password.
+ *
+ * @param password the password from which the encryption key will be derived.
+ * @param salt the salt that is used for key derivation.
+ * @returns a hex encoded string of the derived key.
+ */
+export declare function deriveEncryptionKey(password: string, salt: string): string;
+/**
+ * Re-encrypts the passed data to change the password/encryption key.
+ * Currently only used to migrate from <=0.2 to >=0.3 config formats but
+ * could be used to implement a change password feature in the future.
+ * @param data the data that should be re-encrypted.
+ * @param oldSecret the previous encryption key or password.
+ * @param newSecret the new encryption key.
+ */
+export declare function reEncryptData(data: EncryptedData, oldSecret: string | crypto.lib.WordArray, newSecret: crypto.lib.WordArray): Result<void>;
 /**
  * Manages encrypted persistence of data that is held by the instance and bundle managers.
  */
@@ -42,29 +82,29 @@ export declare class PersistenceManager {
     private readonly services;
     private readonly instances;
     private readonly bundles;
-    private password;
+    private encryptionKey;
     private encryptedData;
     constructor(nodecg: NodeCG, services: ServiceManager, instances: InstanceManager, bundles: BundleManager);
     /**
-     * Checks whether the passed password is correct. Only works if already loaded and a password is already set.
-     * @param password the password which should be checked for correctness
+     * Checks whether the passed encryption key is correct. Only works if already loaded and a encryption key is already set.
+     * @param encryptionKey the encryption key which should be checked for correctness
      */
-    checkPassword(password: string): boolean;
+    checkEncryptionKey(encryptionKey: string): boolean;
     /**
-     * Returns if the locally stored configuration has been loaded and a password has been set.
+     * Returns if the locally stored configuration has been loaded and a encryption key has been set.
      */
     isLoaded(): boolean;
     /**
      * Returns whether this is the first startup aka. whether any encrypted data has been saved.
-     * If this returns true {{@link load}} will accept any password and use it to encrypt the configuration.
+     * If this returns true {@link load} will accept any encryption key and use it to encrypt the configuration.
      */
     isFirstStartup(): boolean;
     /**
-     * Decrypts and loads the locally stored configuration using the passed password.
-     * @param password the password of the encrypted config.
-     * @return success if the password was correct and loading has been successful and an error if the password is wrong.
+     * Decrypts and loads the locally stored configuration using the passed encryption key.
+     * @param encryptionKey the encryption key of the encrypted config.
+     * @return success if the encryption key was correct and loading has been successful and an error if the encryption key is wrong.
      */
-    load(password: string): Promise<Result<void>>;
+    load(encryptionKey: string): Promise<Result<void>>;
     /**
      * Loads all passed instances into the framework by creating instances of the same type and name
      * and then setting the config of the passed object.

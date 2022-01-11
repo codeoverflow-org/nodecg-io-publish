@@ -54,7 +54,7 @@ class MessageManager {
             return (0, result_1.success)(this.persist.isLoaded());
         });
         this.listen("load", async (msg) => {
-            return this.persist.load(msg.password);
+            return this.persist.load(msg.encryptionKey);
         });
         this.listen("getServices", async () => {
             // We create a shallow copy of the service before we return them because if we return a reference
@@ -83,7 +83,7 @@ class MessageManager {
     }
     listenWithAuth(messageName, cb) {
         this.listen(messageName, async (msg) => {
-            if (this.persist.checkPassword(msg.password)) {
+            if (this.persist.checkEncryptionKey(msg.encryptionKey)) {
                 return cb(msg);
             }
             else {
