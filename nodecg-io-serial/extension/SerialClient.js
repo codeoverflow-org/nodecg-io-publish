@@ -1,19 +1,24 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SerialServiceClient = void 0;
-const tslib_1 = require("tslib");
 const nodecg_io_core_1 = require("nodecg-io-core");
-const serialport_1 = (0, tslib_1.__importDefault)(require("serialport"));
-class SerialServiceClient extends serialport_1.default {
-    constructor(path, protocol, options, callback) {
-        super(path, options, callback);
-        this.parser = this.pipe(new serialport_1.default.parsers.Readline(protocol));
+const serialport_1 = require("serialport");
+class SerialServiceClient extends serialport_1.SerialPort {
+    constructor(options, protocol, // TODO: maybe rename this to parseOptions or something
+    callback) {
+        super(options, callback);
+        this.parser = this.pipe(new serialport_1.ReadlineParser(protocol));
     }
     static async createClient(config) {
         const port = await SerialServiceClient.inferPort(config.device);
         if (!port.failed) {
             return await new Promise((resolve) => {
-                const serialPort = new SerialServiceClient(port.result, config.protocol, config.connection, (e) => {
+                var _a;
+                const serialPort = new SerialServiceClient({
+                    ...config.connection,
+                    path: port.result,
+                    baudRate: (_a = config.connection.baudRate) !== null && _a !== void 0 ? _a : 9600,
+                }, config.protocol, (e) => {
                     if (e)
                         resolve((0, nodecg_io_core_1.error)(e.message));
                     else
@@ -27,7 +32,7 @@ class SerialServiceClient extends serialport_1.default {
     }
     static async inferPort(deviceInfo) {
         const result = [];
-        const devices = await serialport_1.default.list();
+        const devices = await serialport_1.SerialPort.list();
         if (deviceInfo.port) {
             result.push(deviceInfo.port);
         }
@@ -56,13 +61,13 @@ class SerialServiceClient extends serialport_1.default {
         }
     }
     static async getConnectedDevices() {
-        const list = await serialport_1.default.list();
+        const list = await serialport_1.SerialPort.list();
         return list.map((dev) => {
             return {
                 device: {
                     // If we know the manufacturer and serial number we prefer them over the port
                     // because reboots or replugging devices may change the port number.
-                    // Only use the raw port number if we have.
+                    // Only use the raw port number if we have to.
                     port: dev.manufacturer && dev.serialNumber ? undefined : dev.path,
                     manufacturer: dev.manufacturer,
                     serialNumber: dev.serialNumber,
