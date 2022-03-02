@@ -4,6 +4,7 @@ const nodecg_io_core_1 = require("nodecg-io-core");
 module.exports = function (nodecg) {
     nodecg.log.info("Sample bundle for StreamElements started");
     const streamElements = (0, nodecg_io_core_1.requireService)(nodecg, "streamelements");
+    const streamElementsReplicant = nodecg.Replicant("streamelements");
     streamElements === null || streamElements === void 0 ? void 0 : streamElements.onAvailable((client) => {
         nodecg.log.info("SE client has been updated, registering handlers now.");
         client.onCheer((data) => {
@@ -43,6 +44,7 @@ module.exports = function (nodecg) {
         client.onTest((data) => {
             nodecg.log.info(JSON.stringify(data));
         });
+        client.setupReplicant(streamElementsReplicant);
     });
     streamElements === null || streamElements === void 0 ? void 0 : streamElements.onUnavailable(() => nodecg.log.info("SE client has been unset."));
 };
