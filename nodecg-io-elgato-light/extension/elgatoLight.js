@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ElgatoLightStrip = exports.ElgatoKeyLight = exports.ElgatoLight = void 0;
 const tslib_1 = require("tslib");
-const node_fetch_1 = (0, tslib_1.__importDefault)(require("node-fetch"));
+const node_fetch_1 = tslib_1.__importDefault(require("node-fetch"));
 /**
  * Represents an elgato light. Is never directly created but has subclasses for the different light types.
  */

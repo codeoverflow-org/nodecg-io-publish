@@ -6,7 +6,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.createLoginData = void 0;
 const tslib_1 = require("tslib");
-const node_fetch_1 = (0, tslib_1.__importDefault)(require("node-fetch"));
+const node_fetch_1 = tslib_1.__importDefault(require("node-fetch"));
 const url_1 = require("url");
 // Fill the config values and create matching login data
 async function createLoginData(client, config, scopes) {

@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.DBusObject = exports.DBusClient = void 0;
 const tslib_1 = require("tslib");
-const dbus = (0, tslib_1.__importStar)(require("dbus-next"));
+const dbus = tslib_1.__importStar(require("dbus-next"));
 class DBusClient {
     constructor(config) {
         this.session = dbus.sessionBus(config);

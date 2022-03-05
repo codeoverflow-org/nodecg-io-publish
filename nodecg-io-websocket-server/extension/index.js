@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const nodecg_io_core_1 = require("nodecg-io-core");
-const WebSocket = (0, tslib_1.__importStar)(require("ws"));
+const WebSocket = tslib_1.__importStar(require("ws"));
 module.exports = (nodecg) => {
     new WSServerService(nodecg, "websocket-server", __dirname, "../ws-schema.json").register();
 };

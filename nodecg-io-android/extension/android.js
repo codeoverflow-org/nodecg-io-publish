@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PathManager = exports.FileManager = exports.WifiManager = exports.Contact = exports.ContactManager = exports.Recipient = exports.MessageThread = exports.Mms = exports.Sms = exports.AbstractMessage = exports.SmsManager = exports.Telephony = exports.TelephonyManager = exports.LightSensor = exports.MagneticSensor = exports.MotionSensor = exports.Subscription = exports.GpsSensor = exports.Activity = exports.Package = exports.PackageManager = exports.VolumeStream = exports.Android = void 0;
 const tslib_1 = require("tslib");
-const http = (0, tslib_1.__importStar)(require("http"));
+const http = tslib_1.__importStar(require("http"));
 const child_process_1 = require("child_process");
 const stringio_1 = require("@rauschma/stringio");
 const get_stream_1 = require("get-stream");
