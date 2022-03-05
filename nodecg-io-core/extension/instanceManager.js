@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.InstanceManager = void 0;
 const tslib_1 = require("tslib");
 const result_1 = require("./utils/result");
-const ajv_1 = (0, tslib_1.__importDefault)(require("ajv"));
+const ajv_1 = tslib_1.__importDefault(require("ajv"));
 const events_1 = require("events");
 const logger_1 = require("./utils/logger");
 /**

@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.WSClientServiceClient = void 0;
 const tslib_1 = require("tslib");
 const nodecg_io_core_1 = require("nodecg-io-core");
-const ws_1 = (0, tslib_1.__importDefault)(require("ws"));
+const ws_1 = tslib_1.__importDefault(require("ws"));
 class WSClientServiceClient extends ws_1.default {
     constructor(address) {
         super(address);

@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Xdotool = void 0;
 const tslib_1 = require("tslib");
-const node_fetch_1 = (0, tslib_1.__importDefault)(require("node-fetch"));
+const node_fetch_1 = tslib_1.__importDefault(require("node-fetch"));
 const child_process_1 = require("child_process");
 const stringio_1 = require("@rauschma/stringio");
 class Xdotool {

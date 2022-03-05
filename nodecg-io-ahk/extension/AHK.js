@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AHK = void 0;
 const tslib_1 = require("tslib");
-const node_fetch_1 = (0, tslib_1.__importDefault)(require("node-fetch"));
+const node_fetch_1 = tslib_1.__importDefault(require("node-fetch"));
 class AHK {
     constructor(logger, host, port) {
         this.logger = logger;

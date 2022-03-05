@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
-const midi = (0, tslib_1.__importStar)(require("easymidi"));
+const midi = tslib_1.__importStar(require("easymidi"));
 const inputs = midi.getInputs();
 const outputs = midi.getOutputs();
 // This script is executed by itself and not by nodecg.

@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Tiane = void 0;
 const tslib_1 = require("tslib");
-const ws_1 = (0, tslib_1.__importDefault)(require("ws"));
+const ws_1 = tslib_1.__importDefault(require("ws"));
 const events_1 = require("events");
 class Tiane extends events_1.EventEmitter {
     constructor(websocket) {

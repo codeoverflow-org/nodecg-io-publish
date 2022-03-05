@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const nodecg_io_core_1 = require("nodecg-io-core");
-const streamdeck = (0, tslib_1.__importStar)(require("@elgato-stream-deck/node"));
+const streamdeck = tslib_1.__importStar(require("@elgato-stream-deck/node"));
 module.exports = (nodecg) => {
     new StreamdeckServiceBundle(nodecg, "streamdeck", __dirname, "../streamdeck-schema.json").register();
 };

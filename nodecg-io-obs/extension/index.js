@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const nodecg_io_core_1 = require("nodecg-io-core");
-const obs_websocket_js_1 = (0, tslib_1.__importDefault)(require("obs-websocket-js"));
+const obs_websocket_js_1 = tslib_1.__importDefault(require("obs-websocket-js"));
 module.exports = (nodecg) => {
     new OBSService(nodecg, "obs", __dirname, "../obs-schema.json").register();
 };

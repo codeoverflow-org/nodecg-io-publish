@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const nodecg_io_core_1 = require("nodecg-io-core");
-const reddit_ts_1 = (0, tslib_1.__importDefault)(require("reddit-ts"));
+const reddit_ts_1 = tslib_1.__importDefault(require("reddit-ts"));
 module.exports = (nodecg) => {
     new RedditService(nodecg, "reddit", __dirname, "../reddit-schema.json").register();
 };

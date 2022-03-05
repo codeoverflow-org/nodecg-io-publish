@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const nodecg_io_core_1 = require("nodecg-io-core");
-const easymidi = (0, tslib_1.__importStar)(require("easymidi"));
+const easymidi = tslib_1.__importStar(require("easymidi"));
 module.exports = (nodecg) => {
     new MidiService(nodecg, "midi-output", __dirname, "../midi-output-schema.json").register();
 };
