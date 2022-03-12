@@ -230,7 +230,7 @@
         if (child && child !== Disposable.None) {
           try {
             child[__is_disposable_tracked__] = true;
-          } catch (_a4) {
+          } catch (_a3) {
           }
         }
       }
@@ -238,7 +238,7 @@
         if (disposable && disposable !== Disposable.None) {
           try {
             disposable[__is_disposable_tracked__] = true;
-          } catch (_a4) {
+          } catch (_a3) {
           }
         }
       }
@@ -369,6 +369,29 @@
   };
   Disposable.None = Object.freeze({ dispose() {
   } });
+  var SafeDisposable = class {
+    constructor() {
+      this.dispose = () => {
+      };
+      this.unset = () => {
+      };
+      this.isset = () => false;
+      trackDisposable(this);
+    }
+    set(fn) {
+      let callback = fn;
+      this.unset = () => callback = void 0;
+      this.isset = () => callback !== void 0;
+      this.dispose = () => {
+        if (callback) {
+          callback();
+          callback = void 0;
+          markAsDisposed(this);
+        }
+      };
+      return this;
+    }
+  };
 
   // ../../node_modules/monaco-editor/esm/vs/base/common/linkedList.js
   var Node = class {
@@ -489,6 +512,7 @@
   var _isWeb = false;
   var _isElectron = false;
   var _isIOS = false;
+  var _isCI = false;
   var _locale = void 0;
   var _language = LANGUAGE_DEFAULT;
   var _translationsConfigFile = void 0;
@@ -517,6 +541,7 @@
     _isLinux = nodeProcess.platform === "linux";
     _isLinuxSnap = _isLinux && !!nodeProcess.env["SNAP"] && !!nodeProcess.env["SNAP_REVISION"];
     _isElectron = isElectronProcess;
+    _isCI = !!nodeProcess.env["CI"] || !!nodeProcess.env["BUILD_ARTIFACTSTAGINGDIRECTORY"];
     _locale = LANGUAGE_DEFAULT;
     _language = LANGUAGE_DEFAULT;
     const rawNlsConfig = nodeProcess.env["VSCODE_NLS_CONFIG"];
@@ -544,7 +569,7 @@
   }
   var isWindows = _isWindows;
   var isMacintosh = _isMacintosh;
-  var isLinux = _isLinux;
+  var isWebWorker = _isWeb && typeof globals.importScripts === "function";
   var userAgent = _userAgent;
   var setTimeout0 = (() => {
     if (typeof globals.postMessage === "function" && !globals.importScripts) {
@@ -605,9 +630,25 @@
   };
 
   // ../../node_modules/monaco-editor/esm/vs/base/common/event.js
+  var _enableDisposeWithListenerWarning = false;
+  var _enableSnapshotPotentialLeakWarning = false;
   var Event;
   (function(Event2) {
     Event2.None = () => Disposable.None;
+    function _addLeakageTraceLogic(options) {
+      if (_enableSnapshotPotentialLeakWarning) {
+        const { onListenerDidAdd: origListenerDidAdd } = options;
+        const stack = Stacktrace.create();
+        let count = 0;
+        options.onListenerDidAdd = () => {
+          if (++count === 2) {
+            console.warn("snapshotted emitter LIKELY used public and SHOULD HAVE BEEN created with DisposableStore. snapshotted here");
+            stack.print();
+          }
+          origListenerDidAdd === null || origListenerDidAdd === void 0 ? void 0 : origListenerDidAdd();
+        };
+      }
+    }
     function once3(event) {
       return (listener, thisArgs = null, disposables) => {
         let didFire = false;
@@ -629,19 +670,19 @@
       };
     }
     Event2.once = once3;
-    function map(event, map2) {
-      return snapshot((listener, thisArgs = null, disposables) => event((i) => listener.call(thisArgs, map2(i)), null, disposables));
+    function map(event, map2, disposable) {
+      return snapshot((listener, thisArgs = null, disposables) => event((i) => listener.call(thisArgs, map2(i)), null, disposables), disposable);
     }
     Event2.map = map;
-    function forEach(event, each) {
+    function forEach(event, each, disposable) {
       return snapshot((listener, thisArgs = null, disposables) => event((i) => {
         each(i);
         listener.call(thisArgs, i);
-      }, null, disposables));
+      }, null, disposables), disposable);
     }
     Event2.forEach = forEach;
-    function filter(event, filter2) {
-      return snapshot((listener, thisArgs = null, disposables) => event((e) => filter2(e) && listener.call(thisArgs, e), null, disposables));
+    function filter(event, filter2, disposable) {
+      return snapshot((listener, thisArgs = null, disposables) => event((e) => filter2(e) && listener.call(thisArgs, e), null, disposables), disposable);
     }
     Event2.filter = filter;
     function signal(event) {
@@ -652,56 +693,39 @@
       return (listener, thisArgs = null, disposables) => combinedDisposable(...events.map((event) => event((e) => listener.call(thisArgs, e), null, disposables)));
     }
     Event2.any = any;
-    function reduce(event, merge, initial) {
+    function reduce(event, merge, initial, disposable) {
       let output = initial;
       return map(event, (e) => {
         output = merge(output, e);
         return output;
-      });
+      }, disposable);
     }
     Event2.reduce = reduce;
-    function snapshot(event) {
+    function snapshot(event, disposable) {
       let listener;
-      const emitter = new Emitter({
+      const options = {
         onFirstListenerAdd() {
           listener = event(emitter.fire, emitter);
         },
         onLastListenerRemove() {
           listener.dispose();
         }
-      });
+      };
+      if (!disposable) {
+        _addLeakageTraceLogic(options);
+      }
+      const emitter = new Emitter(options);
+      if (disposable) {
+        disposable.add(emitter);
+      }
       return emitter.event;
     }
-    function debouncedListener(event, listener, merge, delay = 100, leading = false) {
-      let output = void 0;
-      let handle = void 0;
-      let numDebouncedCalls = 0;
-      return event((cur) => {
-        numDebouncedCalls++;
-        output = merge(output, cur);
-        if (leading && !handle) {
-          listener(output);
-          output = void 0;
-        }
-        clearTimeout(handle);
-        handle = setTimeout(() => {
-          const _output = output;
-          output = void 0;
-          handle = void 0;
-          if (!leading || numDebouncedCalls > 1) {
-            listener(_output);
-          }
-          numDebouncedCalls = 0;
-        }, delay);
-      });
-    }
-    Event2.debouncedListener = debouncedListener;
-    function debounce(event, merge, delay = 100, leading = false, leakWarningThreshold) {
+    function debounce(event, merge, delay = 100, leading = false, leakWarningThreshold, disposable) {
       let subscription;
       let output = void 0;
       let handle = void 0;
       let numDebouncedCalls = 0;
-      const emitter = new Emitter({
+      const options = {
         leakWarningThreshold,
         onFirstListenerAdd() {
           subscription = event((cur) => {
@@ -726,11 +750,18 @@
         onLastListenerRemove() {
           subscription.dispose();
         }
-      });
+      };
+      if (!disposable) {
+        _addLeakageTraceLogic(options);
+      }
+      const emitter = new Emitter(options);
+      if (disposable) {
+        disposable.add(emitter);
+      }
       return emitter.event;
     }
     Event2.debounce = debounce;
-    function latch(event, equals2 = (a, b) => a === b) {
+    function latch(event, equals2 = (a, b) => a === b, disposable) {
       let firstCall = true;
       let cache;
       return filter(event, (value) => {
@@ -738,13 +769,13 @@
         firstCall = false;
         cache = value;
         return shouldEmit;
-      });
+      }, disposable);
     }
     Event2.latch = latch;
-    function split(event, isT) {
+    function split(event, isT, disposable) {
       return [
-        Event2.filter(event, isT),
-        Event2.filter(event, (e) => !isT(e))
+        Event2.filter(event, isT, disposable),
+        Event2.filter(event, (e) => !isT(e), disposable)
       ];
     }
     Event2.split = split;
@@ -896,7 +927,7 @@
         this._stacks.clear();
       }
     }
-    check(listenerCount) {
+    check(stack, listenerCount) {
       let threshold = _globalLeakWarningThreshold;
       if (typeof this.customThreshold === "number") {
         threshold = this.customThreshold;
@@ -907,9 +938,8 @@
       if (!this._stacks) {
         this._stacks = /* @__PURE__ */ new Map();
       }
-      const stack = new Error().stack.split("\n").slice(3).join("\n");
-      const count = this._stacks.get(stack) || 0;
-      this._stacks.set(stack, count + 1);
+      const count = this._stacks.get(stack.value) || 0;
+      this._stacks.set(stack.value, count + 1);
       this._warnCountdown -= 1;
       if (this._warnCountdown <= 0) {
         this._warnCountdown = threshold * 0.5;
@@ -925,44 +955,100 @@
         console.warn(topStack);
       }
       return () => {
-        const count2 = this._stacks.get(stack) || 0;
-        this._stacks.set(stack, count2 - 1);
+        const count2 = this._stacks.get(stack.value) || 0;
+        this._stacks.set(stack.value, count2 - 1);
       };
+    }
+  };
+  var Stacktrace = class {
+    constructor(value) {
+      this.value = value;
+    }
+    static create() {
+      var _a3;
+      return new Stacktrace((_a3 = new Error().stack) !== null && _a3 !== void 0 ? _a3 : "");
+    }
+    print() {
+      console.warn(this.value.split("\n").slice(2).join("\n"));
+    }
+  };
+  var Listener = class {
+    constructor(callback, callbackThis, stack) {
+      this.callback = callback;
+      this.callbackThis = callbackThis;
+      this.stack = stack;
+      this.subscription = new SafeDisposable();
+    }
+    invoke(e) {
+      this.callback.call(this.callbackThis, e);
     }
   };
   var Emitter = class {
     constructor(options) {
-      var _a4;
+      var _a3;
       this._disposed = false;
       this._options = options;
       this._leakageMon = _globalLeakWarningThreshold > 0 ? new LeakageMonitor(this._options && this._options.leakWarningThreshold) : void 0;
-      this._perfMon = ((_a4 = this._options) === null || _a4 === void 0 ? void 0 : _a4._profName) ? new EventProfiling(this._options._profName) : void 0;
+      this._perfMon = ((_a3 = this._options) === null || _a3 === void 0 ? void 0 : _a3._profName) ? new EventProfiling(this._options._profName) : void 0;
+    }
+    dispose() {
+      var _a3, _b, _c, _d;
+      if (!this._disposed) {
+        this._disposed = true;
+        if (this._listeners) {
+          if (_enableDisposeWithListenerWarning) {
+            const listeners = Array.from(this._listeners);
+            queueMicrotask(() => {
+              var _a4;
+              for (const listener of listeners) {
+                if (listener.subscription.isset()) {
+                  listener.subscription.unset();
+                  (_a4 = listener.stack) === null || _a4 === void 0 ? void 0 : _a4.print();
+                }
+              }
+            });
+          }
+          this._listeners.clear();
+        }
+        (_a3 = this._deliveryQueue) === null || _a3 === void 0 ? void 0 : _a3.clear();
+        (_c = (_b = this._options) === null || _b === void 0 ? void 0 : _b.onLastListenerRemove) === null || _c === void 0 ? void 0 : _c.call(_b);
+        (_d = this._leakageMon) === null || _d === void 0 ? void 0 : _d.dispose();
+      }
     }
     get event() {
       if (!this._event) {
-        this._event = (listener, thisArgs, disposables) => {
-          var _a4;
+        this._event = (callback, thisArgs, disposables) => {
+          var _a3, _b, _c;
           if (!this._listeners) {
             this._listeners = new LinkedList();
           }
           const firstListener = this._listeners.isEmpty();
-          if (firstListener && this._options && this._options.onFirstListenerAdd) {
+          if (firstListener && ((_a3 = this._options) === null || _a3 === void 0 ? void 0 : _a3.onFirstListenerAdd)) {
             this._options.onFirstListenerAdd(this);
           }
-          const remove = this._listeners.push(!thisArgs ? listener : [listener, thisArgs]);
-          if (firstListener && this._options && this._options.onFirstListenerDidAdd) {
+          let removeMonitor;
+          let stack;
+          if (this._leakageMon && this._listeners.size >= 30) {
+            stack = Stacktrace.create();
+            removeMonitor = this._leakageMon.check(stack, this._listeners.size + 1);
+          }
+          if (_enableDisposeWithListenerWarning) {
+            stack = stack !== null && stack !== void 0 ? stack : Stacktrace.create();
+          }
+          const listener = new Listener(callback, thisArgs, stack);
+          const removeListener = this._listeners.push(listener);
+          if (firstListener && ((_b = this._options) === null || _b === void 0 ? void 0 : _b.onFirstListenerDidAdd)) {
             this._options.onFirstListenerDidAdd(this);
           }
-          if (this._options && this._options.onListenerDidAdd) {
-            this._options.onListenerDidAdd(this, listener, thisArgs);
+          if ((_c = this._options) === null || _c === void 0 ? void 0 : _c.onListenerDidAdd) {
+            this._options.onListenerDidAdd(this, callback, thisArgs);
           }
-          const removeMonitor = (_a4 = this._leakageMon) === null || _a4 === void 0 ? void 0 : _a4.check(this._listeners.size);
-          const result = toDisposable(() => {
+          const result = listener.subscription.set(() => {
             if (removeMonitor) {
               removeMonitor();
             }
             if (!this._disposed) {
-              remove();
+              removeListener();
               if (this._options && this._options.onLastListenerRemove) {
                 const hasListeners = this._listeners && !this._listeners.isEmpty();
                 if (!hasListeners) {
@@ -982,7 +1068,7 @@
       return this._event;
     }
     fire(event) {
-      var _a4, _b2;
+      var _a3, _b;
       if (this._listeners) {
         if (!this._deliveryQueue) {
           this._deliveryQueue = new LinkedList();
@@ -990,30 +1076,16 @@
         for (let listener of this._listeners) {
           this._deliveryQueue.push([listener, event]);
         }
-        (_a4 = this._perfMon) === null || _a4 === void 0 ? void 0 : _a4.start(this._deliveryQueue.size);
+        (_a3 = this._perfMon) === null || _a3 === void 0 ? void 0 : _a3.start(this._deliveryQueue.size);
         while (this._deliveryQueue.size > 0) {
           const [listener, event2] = this._deliveryQueue.shift();
           try {
-            if (typeof listener === "function") {
-              listener.call(void 0, event2);
-            } else {
-              listener[0].call(listener[1], event2);
-            }
+            listener.invoke(event2);
           } catch (e) {
             onUnexpectedError(e);
           }
         }
-        (_b2 = this._perfMon) === null || _b2 === void 0 ? void 0 : _b2.stop();
-      }
-    }
-    dispose() {
-      var _a4, _b2, _c, _d, _e;
-      if (!this._disposed) {
-        this._disposed = true;
-        (_a4 = this._listeners) === null || _a4 === void 0 ? void 0 : _a4.clear();
-        (_b2 = this._deliveryQueue) === null || _b2 === void 0 ? void 0 : _b2.clear();
-        (_d = (_c = this._options) === null || _c === void 0 ? void 0 : _c.onLastListenerRemove) === null || _d === void 0 ? void 0 : _d.call(_c);
-        (_e = this._leakageMon) === null || _e === void 0 ? void 0 : _e.dispose();
+        (_b = this._perfMon) === null || _b === void 0 ? void 0 : _b.stop();
       }
     }
   };
@@ -1123,80 +1195,8 @@
     }
     return -1;
   }
-  function compare(a, b) {
-    if (a < b) {
-      return -1;
-    } else if (a > b) {
-      return 1;
-    } else {
-      return 0;
-    }
-  }
-  function compareSubstring(a, b, aStart = 0, aEnd = a.length, bStart = 0, bEnd = b.length) {
-    for (; aStart < aEnd && bStart < bEnd; aStart++, bStart++) {
-      let codeA = a.charCodeAt(aStart);
-      let codeB = b.charCodeAt(bStart);
-      if (codeA < codeB) {
-        return -1;
-      } else if (codeA > codeB) {
-        return 1;
-      }
-    }
-    const aLen = aEnd - aStart;
-    const bLen = bEnd - bStart;
-    if (aLen < bLen) {
-      return -1;
-    } else if (aLen > bLen) {
-      return 1;
-    }
-    return 0;
-  }
-  function compareIgnoreCase(a, b) {
-    return compareSubstringIgnoreCase(a, b, 0, a.length, 0, b.length);
-  }
-  function compareSubstringIgnoreCase(a, b, aStart = 0, aEnd = a.length, bStart = 0, bEnd = b.length) {
-    for (; aStart < aEnd && bStart < bEnd; aStart++, bStart++) {
-      let codeA = a.charCodeAt(aStart);
-      let codeB = b.charCodeAt(bStart);
-      if (codeA === codeB) {
-        continue;
-      }
-      if (codeA >= 128 || codeB >= 128) {
-        return compareSubstring(a.toLowerCase(), b.toLowerCase(), aStart, aEnd, bStart, bEnd);
-      }
-      if (isLowerAsciiLetter(codeA)) {
-        codeA -= 32;
-      }
-      if (isLowerAsciiLetter(codeB)) {
-        codeB -= 32;
-      }
-      const diff = codeA - codeB;
-      if (diff === 0) {
-        continue;
-      }
-      return diff;
-    }
-    const aLen = aEnd - aStart;
-    const bLen = bEnd - bStart;
-    if (aLen < bLen) {
-      return -1;
-    } else if (aLen > bLen) {
-      return 1;
-    }
-    return 0;
-  }
-  function isLowerAsciiLetter(code) {
-    return code >= 97 && code <= 122;
-  }
   function isUpperAsciiLetter(code) {
     return code >= 65 && code <= 90;
-  }
-  function startsWithIgnoreCase(str, candidate) {
-    const candidateLength = candidate.length;
-    if (candidate.length > str.length) {
-      return false;
-    }
-    return compareSubstringIgnoreCase(str, candidate, 0, candidateLength) === 0;
   }
   function isHighSurrogate(charCode) {
     return 55296 <= charCode && charCode <= 56319;
@@ -1216,6 +1216,10 @@
       }
     }
     return charCode;
+  }
+  var IS_BASIC_ASCII = /^[\t\n\r\x20-\x7E]*$/;
+  function isBasicASCII(str) {
+    return IS_BASIC_ASCII.test(str);
   }
   var UTF8_BOM_CHARACTER = String.fromCharCode(65279);
   var GraphemeBreakTree = class {
@@ -2305,9 +2309,9 @@
             break;
           }
           const touchingPreviousChange = originalStart === originalStop && modifiedStart === modifiedStop;
-          const score2 = (touchingPreviousChange ? 5 : 0) + this._boundaryScore(originalStart, change.originalLength, modifiedStart, change.modifiedLength);
-          if (score2 > bestScore) {
-            bestScore = score2;
+          const score = (touchingPreviousChange ? 5 : 0) + this._boundaryScore(originalStart, change.originalLength, modifiedStart, change.modifiedLength);
+          if (score > bestScore) {
+            bestScore = score;
             bestDelta = delta;
           }
         }
@@ -2361,9 +2365,9 @@
       let bestModifiedStart = 0;
       for (let i = originalStart; i < originalMax; i++) {
         for (let j = modifiedStart; j < modifiedMax; j++) {
-          const score2 = this._contiguousSequenceScore(i, j, desiredLength);
-          if (score2 > 0 && score2 > bestScore) {
-            bestScore = score2;
+          const score = this._contiguousSequenceScore(i, j, desiredLength);
+          if (score > 0 && score > bestScore) {
+            bestScore = score;
             bestOriginalStart = i;
             bestModifiedStart = j;
           }
@@ -2375,14 +2379,14 @@
       return null;
     }
     _contiguousSequenceScore(originalStart, modifiedStart, length) {
-      let score2 = 0;
+      let score = 0;
       for (let l = 0; l < length; l++) {
         if (!this.ElementsAreEqual(originalStart + l, modifiedStart + l)) {
           return 0;
         }
-        score2 += this._originalStringElements[originalStart + l].length;
+        score += this._originalStringElements[originalStart + l].length;
       }
-      return score2;
+      return score;
     }
     _OriginalIsBoundary(index) {
       if (index <= 0 || index >= this._originalElementsOrHash.length - 1) {
@@ -3666,11 +3670,11 @@
       return new Uri(scheme, authority, path, query, fragment);
     }
     static parse(value, _strict = false) {
-      const match2 = _regexp.exec(value);
-      if (!match2) {
+      const match = _regexp.exec(value);
+      if (!match) {
         return new Uri(_empty, _empty, _empty, _empty, _empty);
       }
-      return new Uri(match2[2] || _empty, percentDecode(match2[4] || _empty), percentDecode(match2[5] || _empty), percentDecode(match2[7] || _empty), percentDecode(match2[9] || _empty), _strict);
+      return new Uri(match[2] || _empty, percentDecode(match[4] || _empty), percentDecode(match[5] || _empty), percentDecode(match[7] || _empty), percentDecode(match[9] || _empty), _strict);
     }
     static file(path) {
       let authority = _empty;
@@ -3930,7 +3934,7 @@
   function decodeURIComponentGraceful(str) {
     try {
       return decodeURIComponent(str);
-    } catch (_a4) {
+    } catch (_a3) {
       if (str.length > 3) {
         return str.substr(0, 3) + decodeURIComponentGraceful(str.substr(3));
       } else {
@@ -3943,7 +3947,7 @@
     if (!str.match(_rEncodedAsHex)) {
       return str;
     }
-    return str.replace(_rEncodedAsHex, (match2) => decodeURIComponentGraceful(match2));
+    return str.replace(_rEncodedAsHex, (match) => decodeURIComponentGraceful(match));
   }
 
   // ../../node_modules/monaco-editor/esm/vs/editor/common/core/position.js
@@ -4267,6 +4271,9 @@
     }
     static spansMultipleLines(range) {
       return range.endLineNumber > range.startLineNumber;
+    }
+    toJSON() {
+      return this;
     }
   };
 
@@ -4938,7 +4945,7 @@
     const t1 = Date.now();
     const pos = column - 1 - textOffset;
     let prevRegexIndex = -1;
-    let match2 = null;
+    let match = null;
     for (let i = 1; ; i++) {
       if (Date.now() - t1 >= config.timeBudget) {
         break;
@@ -4946,20 +4953,20 @@
       const regexIndex = pos - config.windowSize * i;
       wordDefinition.lastIndex = Math.max(0, regexIndex);
       const thisMatch = _findRegexMatchEnclosingPosition(wordDefinition, text, pos, prevRegexIndex);
-      if (!thisMatch && match2) {
+      if (!thisMatch && match) {
         break;
       }
-      match2 = thisMatch;
+      match = thisMatch;
       if (regexIndex <= 0) {
         break;
       }
       prevRegexIndex = regexIndex;
     }
-    if (match2) {
+    if (match) {
       const result = {
-        word: match2[0],
-        startColumn: textOffset + 1 + match2.index,
-        endColumn: textOffset + 1 + match2.index + match2[0].length
+        word: match[0],
+        startColumn: textOffset + 1 + match.index,
+        endColumn: textOffset + 1 + match.index + match[0].length
       };
       wordDefinition.lastIndex = 0;
       return result;
@@ -4967,11 +4974,11 @@
     return null;
   }
   function _findRegexMatchEnclosingPosition(wordDefinition, text, pos, stopPos) {
-    let match2;
-    while (match2 = wordDefinition.exec(text)) {
-      const matchIndex = match2.index || 0;
+    let match;
+    while (match = wordDefinition.exec(text)) {
+      const matchIndex = match.index || 0;
       if (matchIndex <= pos && wordDefinition.lastIndex >= pos) {
-        return match2;
+        return match;
       } else if (stopPos > 0 && matchIndex > stopPos) {
         return null;
       }
@@ -5453,7 +5460,7 @@
   for (let i = 0; i <= 193; i++) {
     IMMUTABLE_CODE_TO_KEY_CODE[i] = -1;
   }
-  for (let i = 0; i <= 126; i++) {
+  for (let i = 0; i <= 127; i++) {
     IMMUTABLE_KEY_CODE_TO_CODE[i] = -1;
   }
   (function() {
@@ -5614,7 +5621,7 @@
       [0, 1, 152, "NumpadMemoryClear", 0, empty, 0, empty, empty, empty],
       [0, 1, 153, "NumpadMemoryAdd", 0, empty, 0, empty, empty, empty],
       [0, 1, 154, "NumpadMemorySubtract", 0, empty, 0, empty, empty, empty],
-      [0, 1, 155, "NumpadClear", 0, empty, 0, empty, empty, empty],
+      [0, 1, 155, "NumpadClear", 126, "Clear", 12, "VK_CLEAR", empty, empty],
       [0, 1, 156, "NumpadClearEntry", 0, empty, 0, empty, empty, empty],
       [5, 1, 0, empty, 5, "Ctrl", 17, "VK_CONTROL", empty, empty],
       [4, 1, 0, empty, 4, "Shift", 16, "VK_SHIFT", empty, empty],
@@ -5659,7 +5666,6 @@
       [109, 1, 0, empty, 109, "KeyInComposition", 229, empty, empty, empty],
       [111, 1, 0, empty, 111, "ABNT_C2", 194, "VK_ABNT_C2", empty, empty],
       [91, 1, 0, empty, 91, "OEM_8", 223, "VK_OEM_8", empty, empty],
-      [0, 1, 0, empty, 0, empty, 0, "VK_CLEAR", empty, empty],
       [0, 1, 0, empty, 0, empty, 0, "VK_KANA", empty, empty],
       [0, 1, 0, empty, 0, empty, 0, "VK_HANGUL", empty, empty],
       [0, 1, 0, empty, 0, empty, 0, "VK_JUNJA", empty, empty],
@@ -5852,1941 +5858,8 @@
     }
   };
 
-  // ../../node_modules/monaco-editor/esm/vs/editor/common/model.js
-  var OverviewRulerLane;
-  (function(OverviewRulerLane3) {
-    OverviewRulerLane3[OverviewRulerLane3["Left"] = 1] = "Left";
-    OverviewRulerLane3[OverviewRulerLane3["Center"] = 2] = "Center";
-    OverviewRulerLane3[OverviewRulerLane3["Right"] = 4] = "Right";
-    OverviewRulerLane3[OverviewRulerLane3["Full"] = 7] = "Full";
-  })(OverviewRulerLane || (OverviewRulerLane = {}));
-  var MinimapPosition;
-  (function(MinimapPosition3) {
-    MinimapPosition3[MinimapPosition3["Inline"] = 1] = "Inline";
-    MinimapPosition3[MinimapPosition3["Gutter"] = 2] = "Gutter";
-  })(MinimapPosition || (MinimapPosition = {}));
-  var InjectedTextCursorStops;
-  (function(InjectedTextCursorStops3) {
-    InjectedTextCursorStops3[InjectedTextCursorStops3["Both"] = 0] = "Both";
-    InjectedTextCursorStops3[InjectedTextCursorStops3["Right"] = 1] = "Right";
-    InjectedTextCursorStops3[InjectedTextCursorStops3["Left"] = 2] = "Left";
-    InjectedTextCursorStops3[InjectedTextCursorStops3["None"] = 3] = "None";
-  })(InjectedTextCursorStops || (InjectedTextCursorStops = {}));
-  function shouldSynchronizeModel(model) {
-    return !model.isTooLargeForSyncing() && !model.isForSimpleWidget;
-  }
-
-  // ../../node_modules/monaco-editor/esm/vs/base/common/async.js
-  var __awaiter = function(thisArg, _arguments, P, generator) {
-    function adopt(value) {
-      return value instanceof P ? value : new P(function(resolve2) {
-        resolve2(value);
-      });
-    }
-    return new (P || (P = Promise))(function(resolve2, reject) {
-      function fulfilled(value) {
-        try {
-          step(generator.next(value));
-        } catch (e) {
-          reject(e);
-        }
-      }
-      function rejected(value) {
-        try {
-          step(generator["throw"](value));
-        } catch (e) {
-          reject(e);
-        }
-      }
-      function step(result) {
-        result.done ? resolve2(result.value) : adopt(result.value).then(fulfilled, rejected);
-      }
-      step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-  };
-  var __asyncValues = function(o) {
-    if (!Symbol.asyncIterator)
-      throw new TypeError("Symbol.asyncIterator is not defined.");
-    var m = o[Symbol.asyncIterator], i;
-    return m ? m.call(o) : (o = typeof __values === "function" ? __values(o) : o[Symbol.iterator](), i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function() {
-      return this;
-    }, i);
-    function verb(n) {
-      i[n] = o[n] && function(v) {
-        return new Promise(function(resolve2, reject) {
-          v = o[n](v), settle(resolve2, reject, v.done, v.value);
-        });
-      };
-    }
-    function settle(resolve2, reject, d, v) {
-      Promise.resolve(v).then(function(v2) {
-        resolve2({ value: v2, done: d });
-      }, reject);
-    }
-  };
-  function isThenable(obj) {
-    return !!obj && typeof obj.then === "function";
-  }
-  var MicrotaskDelay = Symbol("MicrotaskDelay");
-  var runWhenIdle;
-  (function() {
-    if (typeof requestIdleCallback !== "function" || typeof cancelIdleCallback !== "function") {
-      runWhenIdle = (runner) => {
-        setTimeout0(() => {
-          if (disposed) {
-            return;
-          }
-          const end = Date.now() + 15;
-          runner(Object.freeze({
-            didTimeout: true,
-            timeRemaining() {
-              return Math.max(0, end - Date.now());
-            }
-          }));
-        });
-        let disposed = false;
-        return {
-          dispose() {
-            if (disposed) {
-              return;
-            }
-            disposed = true;
-          }
-        };
-      };
-    } else {
-      runWhenIdle = (runner, timeout) => {
-        const handle = requestIdleCallback(runner, typeof timeout === "number" ? { timeout } : void 0);
-        let disposed = false;
-        return {
-          dispose() {
-            if (disposed) {
-              return;
-            }
-            disposed = true;
-            cancelIdleCallback(handle);
-          }
-        };
-      };
-    }
-  })();
-  var Promises;
-  (function(Promises2) {
-    function settled(promises) {
-      return __awaiter(this, void 0, void 0, function* () {
-        let firstError = void 0;
-        const result = yield Promise.all(promises.map((promise) => promise.then((value) => value, (error) => {
-          if (!firstError) {
-            firstError = error;
-          }
-          return void 0;
-        })));
-        if (typeof firstError !== "undefined") {
-          throw firstError;
-        }
-        return result;
-      });
-    }
-    Promises2.settled = settled;
-    function withAsyncBody(bodyFn) {
-      return new Promise((resolve2, reject) => __awaiter(this, void 0, void 0, function* () {
-        try {
-          yield bodyFn(resolve2, reject);
-        } catch (error) {
-          reject(error);
-        }
-      }));
-    }
-    Promises2.withAsyncBody = withAsyncBody;
-  })(Promises || (Promises = {}));
-  var AsyncIterableObject = class {
-    constructor(executor) {
-      this._state = 0;
-      this._results = [];
-      this._error = null;
-      this._onStateChanged = new Emitter();
-      queueMicrotask(() => __awaiter(this, void 0, void 0, function* () {
-        const writer = {
-          emitOne: (item) => this.emitOne(item),
-          emitMany: (items) => this.emitMany(items),
-          reject: (error) => this.reject(error)
-        };
-        try {
-          yield Promise.resolve(executor(writer));
-          this.resolve();
-        } catch (err) {
-          this.reject(err);
-        } finally {
-          writer.emitOne = void 0;
-          writer.emitMany = void 0;
-          writer.reject = void 0;
-        }
-      }));
-    }
-    static fromArray(items) {
-      return new AsyncIterableObject((writer) => {
-        writer.emitMany(items);
-      });
-    }
-    static fromPromise(promise) {
-      return new AsyncIterableObject((emitter) => __awaiter(this, void 0, void 0, function* () {
-        emitter.emitMany(yield promise);
-      }));
-    }
-    static fromPromises(promises) {
-      return new AsyncIterableObject((emitter) => __awaiter(this, void 0, void 0, function* () {
-        yield Promise.all(promises.map((p) => __awaiter(this, void 0, void 0, function* () {
-          return emitter.emitOne(yield p);
-        })));
-      }));
-    }
-    static merge(iterables) {
-      return new AsyncIterableObject((emitter) => __awaiter(this, void 0, void 0, function* () {
-        yield Promise.all(iterables.map((iterable) => {
-          var iterable_1, iterable_1_1;
-          return __awaiter(this, void 0, void 0, function* () {
-            var e_1, _a4;
-            try {
-              for (iterable_1 = __asyncValues(iterable); iterable_1_1 = yield iterable_1.next(), !iterable_1_1.done; ) {
-                const item = iterable_1_1.value;
-                emitter.emitOne(item);
-              }
-            } catch (e_1_1) {
-              e_1 = { error: e_1_1 };
-            } finally {
-              try {
-                if (iterable_1_1 && !iterable_1_1.done && (_a4 = iterable_1.return))
-                  yield _a4.call(iterable_1);
-              } finally {
-                if (e_1)
-                  throw e_1.error;
-              }
-            }
-          });
-        }));
-      }));
-    }
-    [Symbol.asyncIterator]() {
-      let i = 0;
-      return {
-        next: () => __awaiter(this, void 0, void 0, function* () {
-          do {
-            if (this._state === 2) {
-              throw this._error;
-            }
-            if (i < this._results.length) {
-              return { done: false, value: this._results[i++] };
-            }
-            if (this._state === 1) {
-              return { done: true, value: void 0 };
-            }
-            yield Event.toPromise(this._onStateChanged.event);
-          } while (true);
-        })
-      };
-    }
-    static map(iterable, mapFn) {
-      return new AsyncIterableObject((emitter) => __awaiter(this, void 0, void 0, function* () {
-        var e_2, _a4;
-        try {
-          for (var iterable_2 = __asyncValues(iterable), iterable_2_1; iterable_2_1 = yield iterable_2.next(), !iterable_2_1.done; ) {
-            const item = iterable_2_1.value;
-            emitter.emitOne(mapFn(item));
-          }
-        } catch (e_2_1) {
-          e_2 = { error: e_2_1 };
-        } finally {
-          try {
-            if (iterable_2_1 && !iterable_2_1.done && (_a4 = iterable_2.return))
-              yield _a4.call(iterable_2);
-          } finally {
-            if (e_2)
-              throw e_2.error;
-          }
-        }
-      }));
-    }
-    map(mapFn) {
-      return AsyncIterableObject.map(this, mapFn);
-    }
-    static filter(iterable, filterFn) {
-      return new AsyncIterableObject((emitter) => __awaiter(this, void 0, void 0, function* () {
-        var e_3, _a4;
-        try {
-          for (var iterable_3 = __asyncValues(iterable), iterable_3_1; iterable_3_1 = yield iterable_3.next(), !iterable_3_1.done; ) {
-            const item = iterable_3_1.value;
-            if (filterFn(item)) {
-              emitter.emitOne(item);
-            }
-          }
-        } catch (e_3_1) {
-          e_3 = { error: e_3_1 };
-        } finally {
-          try {
-            if (iterable_3_1 && !iterable_3_1.done && (_a4 = iterable_3.return))
-              yield _a4.call(iterable_3);
-          } finally {
-            if (e_3)
-              throw e_3.error;
-          }
-        }
-      }));
-    }
-    filter(filterFn) {
-      return AsyncIterableObject.filter(this, filterFn);
-    }
-    static coalesce(iterable) {
-      return AsyncIterableObject.filter(iterable, (item) => !!item);
-    }
-    coalesce() {
-      return AsyncIterableObject.coalesce(this);
-    }
-    static toPromise(iterable) {
-      var iterable_4, iterable_4_1;
-      var e_4, _a4;
-      return __awaiter(this, void 0, void 0, function* () {
-        const result = [];
-        try {
-          for (iterable_4 = __asyncValues(iterable); iterable_4_1 = yield iterable_4.next(), !iterable_4_1.done; ) {
-            const item = iterable_4_1.value;
-            result.push(item);
-          }
-        } catch (e_4_1) {
-          e_4 = { error: e_4_1 };
-        } finally {
-          try {
-            if (iterable_4_1 && !iterable_4_1.done && (_a4 = iterable_4.return))
-              yield _a4.call(iterable_4);
-          } finally {
-            if (e_4)
-              throw e_4.error;
-          }
-        }
-        return result;
-      });
-    }
-    toPromise() {
-      return AsyncIterableObject.toPromise(this);
-    }
-    emitOne(value) {
-      if (this._state !== 0) {
-        return;
-      }
-      this._results.push(value);
-      this._onStateChanged.fire();
-    }
-    emitMany(values) {
-      if (this._state !== 0) {
-        return;
-      }
-      this._results = this._results.concat(values);
-      this._onStateChanged.fire();
-    }
-    resolve() {
-      if (this._state !== 0) {
-        return;
-      }
-      this._state = 1;
-      this._onStateChanged.fire();
-    }
-    reject(error) {
-      if (this._state !== 0) {
-        return;
-      }
-      this._state = 2;
-      this._error = error;
-      this._onStateChanged.fire();
-    }
-  };
-  AsyncIterableObject.EMPTY = AsyncIterableObject.fromArray([]);
-
-  // ../../node_modules/monaco-editor/esm/vs/base/common/extpath.js
-  function isEqualOrParent(base, parentCandidate, ignoreCase, separator = sep) {
-    if (base === parentCandidate) {
-      return true;
-    }
-    if (!base || !parentCandidate) {
-      return false;
-    }
-    if (parentCandidate.length > base.length) {
-      return false;
-    }
-    if (ignoreCase) {
-      const beginsWith = startsWithIgnoreCase(base, parentCandidate);
-      if (!beginsWith) {
-        return false;
-      }
-      if (parentCandidate.length === base.length) {
-        return true;
-      }
-      let sepOffset = parentCandidate.length;
-      if (parentCandidate.charAt(parentCandidate.length - 1) === separator) {
-        sepOffset--;
-      }
-      return base.charAt(sepOffset) === separator;
-    }
-    if (parentCandidate.charAt(parentCandidate.length - 1) !== separator) {
-      parentCandidate += separator;
-    }
-    return base.indexOf(parentCandidate) === 0;
-  }
-
-  // ../../node_modules/monaco-editor/esm/vs/base/common/map.js
-  var _a3;
-  var _b;
-  var StringIterator = class {
-    constructor() {
-      this._value = "";
-      this._pos = 0;
-    }
-    reset(key) {
-      this._value = key;
-      this._pos = 0;
-      return this;
-    }
-    next() {
-      this._pos += 1;
-      return this;
-    }
-    hasNext() {
-      return this._pos < this._value.length - 1;
-    }
-    cmp(a) {
-      const aCode = a.charCodeAt(0);
-      const thisCode = this._value.charCodeAt(this._pos);
-      return aCode - thisCode;
-    }
-    value() {
-      return this._value[this._pos];
-    }
-  };
-  var ConfigKeysIterator = class {
-    constructor(_caseSensitive = true) {
-      this._caseSensitive = _caseSensitive;
-    }
-    reset(key) {
-      this._value = key;
-      this._from = 0;
-      this._to = 0;
-      return this.next();
-    }
-    hasNext() {
-      return this._to < this._value.length;
-    }
-    next() {
-      this._from = this._to;
-      let justSeps = true;
-      for (; this._to < this._value.length; this._to++) {
-        const ch = this._value.charCodeAt(this._to);
-        if (ch === 46) {
-          if (justSeps) {
-            this._from++;
-          } else {
-            break;
-          }
-        } else {
-          justSeps = false;
-        }
-      }
-      return this;
-    }
-    cmp(a) {
-      return this._caseSensitive ? compareSubstring(a, this._value, 0, a.length, this._from, this._to) : compareSubstringIgnoreCase(a, this._value, 0, a.length, this._from, this._to);
-    }
-    value() {
-      return this._value.substring(this._from, this._to);
-    }
-  };
-  var PathIterator = class {
-    constructor(_splitOnBackslash = true, _caseSensitive = true) {
-      this._splitOnBackslash = _splitOnBackslash;
-      this._caseSensitive = _caseSensitive;
-    }
-    reset(key) {
-      this._from = 0;
-      this._to = 0;
-      this._value = key;
-      this._valueLen = key.length;
-      for (let pos = key.length - 1; pos >= 0; pos--, this._valueLen--) {
-        const ch = this._value.charCodeAt(pos);
-        if (!(ch === 47 || this._splitOnBackslash && ch === 92)) {
-          break;
-        }
-      }
-      return this.next();
-    }
-    hasNext() {
-      return this._to < this._valueLen;
-    }
-    next() {
-      this._from = this._to;
-      let justSeps = true;
-      for (; this._to < this._valueLen; this._to++) {
-        const ch = this._value.charCodeAt(this._to);
-        if (ch === 47 || this._splitOnBackslash && ch === 92) {
-          if (justSeps) {
-            this._from++;
-          } else {
-            break;
-          }
-        } else {
-          justSeps = false;
-        }
-      }
-      return this;
-    }
-    cmp(a) {
-      return this._caseSensitive ? compareSubstring(a, this._value, 0, a.length, this._from, this._to) : compareSubstringIgnoreCase(a, this._value, 0, a.length, this._from, this._to);
-    }
-    value() {
-      return this._value.substring(this._from, this._to);
-    }
-  };
-  var UriIterator = class {
-    constructor(_ignorePathCasing) {
-      this._ignorePathCasing = _ignorePathCasing;
-      this._states = [];
-      this._stateIdx = 0;
-    }
-    reset(key) {
-      this._value = key;
-      this._states = [];
-      if (this._value.scheme) {
-        this._states.push(1);
-      }
-      if (this._value.authority) {
-        this._states.push(2);
-      }
-      if (this._value.path) {
-        this._pathIterator = new PathIterator(false, !this._ignorePathCasing(key));
-        this._pathIterator.reset(key.path);
-        if (this._pathIterator.value()) {
-          this._states.push(3);
-        }
-      }
-      if (this._value.query) {
-        this._states.push(4);
-      }
-      if (this._value.fragment) {
-        this._states.push(5);
-      }
-      this._stateIdx = 0;
-      return this;
-    }
-    next() {
-      if (this._states[this._stateIdx] === 3 && this._pathIterator.hasNext()) {
-        this._pathIterator.next();
-      } else {
-        this._stateIdx += 1;
-      }
-      return this;
-    }
-    hasNext() {
-      return this._states[this._stateIdx] === 3 && this._pathIterator.hasNext() || this._stateIdx < this._states.length - 1;
-    }
-    cmp(a) {
-      if (this._states[this._stateIdx] === 1) {
-        return compareIgnoreCase(a, this._value.scheme);
-      } else if (this._states[this._stateIdx] === 2) {
-        return compareIgnoreCase(a, this._value.authority);
-      } else if (this._states[this._stateIdx] === 3) {
-        return this._pathIterator.cmp(a);
-      } else if (this._states[this._stateIdx] === 4) {
-        return compare(a, this._value.query);
-      } else if (this._states[this._stateIdx] === 5) {
-        return compare(a, this._value.fragment);
-      }
-      throw new Error();
-    }
-    value() {
-      if (this._states[this._stateIdx] === 1) {
-        return this._value.scheme;
-      } else if (this._states[this._stateIdx] === 2) {
-        return this._value.authority;
-      } else if (this._states[this._stateIdx] === 3) {
-        return this._pathIterator.value();
-      } else if (this._states[this._stateIdx] === 4) {
-        return this._value.query;
-      } else if (this._states[this._stateIdx] === 5) {
-        return this._value.fragment;
-      }
-      throw new Error();
-    }
-  };
-  var TernarySearchTreeNode = class {
-    constructor() {
-      this.height = 1;
-    }
-    rotateLeft() {
-      const tmp = this.right;
-      this.right = tmp.left;
-      tmp.left = this;
-      this.updateHeight();
-      tmp.updateHeight();
-      return tmp;
-    }
-    rotateRight() {
-      const tmp = this.left;
-      this.left = tmp.right;
-      tmp.right = this;
-      this.updateHeight();
-      tmp.updateHeight();
-      return tmp;
-    }
-    updateHeight() {
-      this.height = 1 + Math.max(this.heightLeft, this.heightRight);
-    }
-    balanceFactor() {
-      return this.heightRight - this.heightLeft;
-    }
-    get heightLeft() {
-      var _c, _d;
-      return (_d = (_c = this.left) === null || _c === void 0 ? void 0 : _c.height) !== null && _d !== void 0 ? _d : 0;
-    }
-    get heightRight() {
-      var _c, _d;
-      return (_d = (_c = this.right) === null || _c === void 0 ? void 0 : _c.height) !== null && _d !== void 0 ? _d : 0;
-    }
-  };
-  var TernarySearchTree = class {
-    constructor(segments) {
-      this._iter = segments;
-    }
-    static forUris(ignorePathCasing = () => false) {
-      return new TernarySearchTree(new UriIterator(ignorePathCasing));
-    }
-    static forStrings() {
-      return new TernarySearchTree(new StringIterator());
-    }
-    static forConfigKeys() {
-      return new TernarySearchTree(new ConfigKeysIterator());
-    }
-    clear() {
-      this._root = void 0;
-    }
-    set(key, element) {
-      const iter = this._iter.reset(key);
-      let node;
-      if (!this._root) {
-        this._root = new TernarySearchTreeNode();
-        this._root.segment = iter.value();
-      }
-      const stack = [];
-      node = this._root;
-      while (true) {
-        const val = iter.cmp(node.segment);
-        if (val > 0) {
-          if (!node.left) {
-            node.left = new TernarySearchTreeNode();
-            node.left.segment = iter.value();
-          }
-          stack.push([-1, node]);
-          node = node.left;
-        } else if (val < 0) {
-          if (!node.right) {
-            node.right = new TernarySearchTreeNode();
-            node.right.segment = iter.value();
-          }
-          stack.push([1, node]);
-          node = node.right;
-        } else if (iter.hasNext()) {
-          iter.next();
-          if (!node.mid) {
-            node.mid = new TernarySearchTreeNode();
-            node.mid.segment = iter.value();
-          }
-          stack.push([0, node]);
-          node = node.mid;
-        } else {
-          break;
-        }
-      }
-      const oldElement = node.value;
-      node.value = element;
-      node.key = key;
-      for (let i = stack.length - 1; i >= 0; i--) {
-        const node2 = stack[i][1];
-        node2.updateHeight();
-        const bf = node2.balanceFactor();
-        if (bf < -1 || bf > 1) {
-          const d1 = stack[i][0];
-          const d2 = stack[i + 1][0];
-          if (d1 === 1 && d2 === 1) {
-            stack[i][1] = node2.rotateLeft();
-          } else if (d1 === -1 && d2 === -1) {
-            stack[i][1] = node2.rotateRight();
-          } else if (d1 === 1 && d2 === -1) {
-            node2.right = stack[i + 1][1] = stack[i + 1][1].rotateRight();
-            stack[i][1] = node2.rotateLeft();
-          } else if (d1 === -1 && d2 === 1) {
-            node2.left = stack[i + 1][1] = stack[i + 1][1].rotateLeft();
-            stack[i][1] = node2.rotateRight();
-          } else {
-            throw new Error();
-          }
-          if (i > 0) {
-            switch (stack[i - 1][0]) {
-              case -1:
-                stack[i - 1][1].left = stack[i][1];
-                break;
-              case 1:
-                stack[i - 1][1].right = stack[i][1];
-                break;
-              case 0:
-                stack[i - 1][1].mid = stack[i][1];
-                break;
-            }
-          } else {
-            this._root = stack[0][1];
-          }
-        }
-      }
-      return oldElement;
-    }
-    get(key) {
-      var _c;
-      return (_c = this._getNode(key)) === null || _c === void 0 ? void 0 : _c.value;
-    }
-    _getNode(key) {
-      const iter = this._iter.reset(key);
-      let node = this._root;
-      while (node) {
-        const val = iter.cmp(node.segment);
-        if (val > 0) {
-          node = node.left;
-        } else if (val < 0) {
-          node = node.right;
-        } else if (iter.hasNext()) {
-          iter.next();
-          node = node.mid;
-        } else {
-          break;
-        }
-      }
-      return node;
-    }
-    has(key) {
-      const node = this._getNode(key);
-      return !((node === null || node === void 0 ? void 0 : node.value) === void 0 && (node === null || node === void 0 ? void 0 : node.mid) === void 0);
-    }
-    delete(key) {
-      return this._delete(key, false);
-    }
-    deleteSuperstr(key) {
-      return this._delete(key, true);
-    }
-    _delete(key, superStr) {
-      var _c;
-      const iter = this._iter.reset(key);
-      const stack = [];
-      let node = this._root;
-      while (node) {
-        const val = iter.cmp(node.segment);
-        if (val > 0) {
-          stack.push([-1, node]);
-          node = node.left;
-        } else if (val < 0) {
-          stack.push([1, node]);
-          node = node.right;
-        } else if (iter.hasNext()) {
-          iter.next();
-          stack.push([0, node]);
-          node = node.mid;
-        } else {
-          break;
-        }
-      }
-      if (!node) {
-        return;
-      }
-      if (superStr) {
-        node.left = void 0;
-        node.mid = void 0;
-        node.right = void 0;
-        node.height = 1;
-      } else {
-        node.key = void 0;
-        node.value = void 0;
-      }
-      if (!node.mid && !node.value) {
-        if (node.left && node.right) {
-          const min = this._min(node.right);
-          const { key: key2, value, segment } = min;
-          this._delete(min.key, false);
-          node.key = key2;
-          node.value = value;
-          node.segment = segment;
-        } else {
-          const newChild = (_c = node.left) !== null && _c !== void 0 ? _c : node.right;
-          if (stack.length > 0) {
-            const [dir, parent] = stack[stack.length - 1];
-            switch (dir) {
-              case -1:
-                parent.left = newChild;
-                break;
-              case 0:
-                parent.mid = newChild;
-                break;
-              case 1:
-                parent.right = newChild;
-                break;
-            }
-          } else {
-            this._root = newChild;
-          }
-        }
-      }
-      for (let i = stack.length - 1; i >= 0; i--) {
-        const node2 = stack[i][1];
-        node2.updateHeight();
-        const bf = node2.balanceFactor();
-        if (bf > 1) {
-          if (node2.right.balanceFactor() >= 0) {
-            stack[i][1] = node2.rotateLeft();
-          } else {
-            node2.right = node2.right.rotateRight();
-            stack[i][1] = node2.rotateLeft();
-          }
-        } else if (bf < -1) {
-          if (node2.left.balanceFactor() <= 0) {
-            stack[i][1] = node2.rotateRight();
-          } else {
-            node2.left = node2.left.rotateLeft();
-            stack[i][1] = node2.rotateRight();
-          }
-        }
-        if (i > 0) {
-          switch (stack[i - 1][0]) {
-            case -1:
-              stack[i - 1][1].left = stack[i][1];
-              break;
-            case 1:
-              stack[i - 1][1].right = stack[i][1];
-              break;
-            case 0:
-              stack[i - 1][1].mid = stack[i][1];
-              break;
-          }
-        } else {
-          this._root = stack[0][1];
-        }
-      }
-    }
-    _min(node) {
-      while (node.left) {
-        node = node.left;
-      }
-      return node;
-    }
-    findSubstr(key) {
-      const iter = this._iter.reset(key);
-      let node = this._root;
-      let candidate = void 0;
-      while (node) {
-        const val = iter.cmp(node.segment);
-        if (val > 0) {
-          node = node.left;
-        } else if (val < 0) {
-          node = node.right;
-        } else if (iter.hasNext()) {
-          iter.next();
-          candidate = node.value || candidate;
-          node = node.mid;
-        } else {
-          break;
-        }
-      }
-      return node && node.value || candidate;
-    }
-    findSuperstr(key) {
-      const iter = this._iter.reset(key);
-      let node = this._root;
-      while (node) {
-        const val = iter.cmp(node.segment);
-        if (val > 0) {
-          node = node.left;
-        } else if (val < 0) {
-          node = node.right;
-        } else if (iter.hasNext()) {
-          iter.next();
-          node = node.mid;
-        } else {
-          if (!node.mid) {
-            return void 0;
-          } else {
-            return this._entries(node.mid);
-          }
-        }
-      }
-      return void 0;
-    }
-    forEach(callback) {
-      for (const [key, value] of this) {
-        callback(value, key);
-      }
-    }
-    *[Symbol.iterator]() {
-      yield* this._entries(this._root);
-    }
-    *_entries(node) {
-      if (!node) {
-        return;
-      }
-      if (node.left) {
-        yield* this._entries(node.left);
-      }
-      if (node.value) {
-        yield [node.key, node.value];
-      }
-      if (node.mid) {
-        yield* this._entries(node.mid);
-      }
-      if (node.right) {
-        yield* this._entries(node.right);
-      }
-    }
-  };
-  var ResourceMapEntry = class {
-    constructor(uri, value) {
-      this.uri = uri;
-      this.value = value;
-    }
-  };
-  var ResourceMap = class {
-    constructor(mapOrKeyFn, toKey) {
-      this[_a3] = "ResourceMap";
-      if (mapOrKeyFn instanceof ResourceMap) {
-        this.map = new Map(mapOrKeyFn.map);
-        this.toKey = toKey !== null && toKey !== void 0 ? toKey : ResourceMap.defaultToKey;
-      } else {
-        this.map = /* @__PURE__ */ new Map();
-        this.toKey = mapOrKeyFn !== null && mapOrKeyFn !== void 0 ? mapOrKeyFn : ResourceMap.defaultToKey;
-      }
-    }
-    set(resource, value) {
-      this.map.set(this.toKey(resource), new ResourceMapEntry(resource, value));
-      return this;
-    }
-    get(resource) {
-      var _c;
-      return (_c = this.map.get(this.toKey(resource))) === null || _c === void 0 ? void 0 : _c.value;
-    }
-    has(resource) {
-      return this.map.has(this.toKey(resource));
-    }
-    get size() {
-      return this.map.size;
-    }
-    clear() {
-      this.map.clear();
-    }
-    delete(resource) {
-      return this.map.delete(this.toKey(resource));
-    }
-    forEach(clb, thisArg) {
-      if (typeof thisArg !== "undefined") {
-        clb = clb.bind(thisArg);
-      }
-      for (let [_, entry] of this.map) {
-        clb(entry.value, entry.uri, this);
-      }
-    }
-    *values() {
-      for (let entry of this.map.values()) {
-        yield entry.value;
-      }
-    }
-    *keys() {
-      for (let entry of this.map.values()) {
-        yield entry.uri;
-      }
-    }
-    *entries() {
-      for (let entry of this.map.values()) {
-        yield [entry.uri, entry.value];
-      }
-    }
-    *[(_a3 = Symbol.toStringTag, Symbol.iterator)]() {
-      for (let [, entry] of this.map) {
-        yield [entry.uri, entry.value];
-      }
-    }
-  };
-  ResourceMap.defaultToKey = (resource) => resource.toString();
-  var LinkedMap = class {
-    constructor() {
-      this[_b] = "LinkedMap";
-      this._map = /* @__PURE__ */ new Map();
-      this._head = void 0;
-      this._tail = void 0;
-      this._size = 0;
-      this._state = 0;
-    }
-    clear() {
-      this._map.clear();
-      this._head = void 0;
-      this._tail = void 0;
-      this._size = 0;
-      this._state++;
-    }
-    isEmpty() {
-      return !this._head && !this._tail;
-    }
-    get size() {
-      return this._size;
-    }
-    get first() {
-      var _c;
-      return (_c = this._head) === null || _c === void 0 ? void 0 : _c.value;
-    }
-    get last() {
-      var _c;
-      return (_c = this._tail) === null || _c === void 0 ? void 0 : _c.value;
-    }
-    has(key) {
-      return this._map.has(key);
-    }
-    get(key, touch = 0) {
-      const item = this._map.get(key);
-      if (!item) {
-        return void 0;
-      }
-      if (touch !== 0) {
-        this.touch(item, touch);
-      }
-      return item.value;
-    }
-    set(key, value, touch = 0) {
-      let item = this._map.get(key);
-      if (item) {
-        item.value = value;
-        if (touch !== 0) {
-          this.touch(item, touch);
-        }
-      } else {
-        item = { key, value, next: void 0, previous: void 0 };
-        switch (touch) {
-          case 0:
-            this.addItemLast(item);
-            break;
-          case 1:
-            this.addItemFirst(item);
-            break;
-          case 2:
-            this.addItemLast(item);
-            break;
-          default:
-            this.addItemLast(item);
-            break;
-        }
-        this._map.set(key, item);
-        this._size++;
-      }
-      return this;
-    }
-    delete(key) {
-      return !!this.remove(key);
-    }
-    remove(key) {
-      const item = this._map.get(key);
-      if (!item) {
-        return void 0;
-      }
-      this._map.delete(key);
-      this.removeItem(item);
-      this._size--;
-      return item.value;
-    }
-    shift() {
-      if (!this._head && !this._tail) {
-        return void 0;
-      }
-      if (!this._head || !this._tail) {
-        throw new Error("Invalid list");
-      }
-      const item = this._head;
-      this._map.delete(item.key);
-      this.removeItem(item);
-      this._size--;
-      return item.value;
-    }
-    forEach(callbackfn, thisArg) {
-      const state = this._state;
-      let current = this._head;
-      while (current) {
-        if (thisArg) {
-          callbackfn.bind(thisArg)(current.value, current.key, this);
-        } else {
-          callbackfn(current.value, current.key, this);
-        }
-        if (this._state !== state) {
-          throw new Error(`LinkedMap got modified during iteration.`);
-        }
-        current = current.next;
-      }
-    }
-    keys() {
-      const map = this;
-      const state = this._state;
-      let current = this._head;
-      const iterator = {
-        [Symbol.iterator]() {
-          return iterator;
-        },
-        next() {
-          if (map._state !== state) {
-            throw new Error(`LinkedMap got modified during iteration.`);
-          }
-          if (current) {
-            const result = { value: current.key, done: false };
-            current = current.next;
-            return result;
-          } else {
-            return { value: void 0, done: true };
-          }
-        }
-      };
-      return iterator;
-    }
-    values() {
-      const map = this;
-      const state = this._state;
-      let current = this._head;
-      const iterator = {
-        [Symbol.iterator]() {
-          return iterator;
-        },
-        next() {
-          if (map._state !== state) {
-            throw new Error(`LinkedMap got modified during iteration.`);
-          }
-          if (current) {
-            const result = { value: current.value, done: false };
-            current = current.next;
-            return result;
-          } else {
-            return { value: void 0, done: true };
-          }
-        }
-      };
-      return iterator;
-    }
-    entries() {
-      const map = this;
-      const state = this._state;
-      let current = this._head;
-      const iterator = {
-        [Symbol.iterator]() {
-          return iterator;
-        },
-        next() {
-          if (map._state !== state) {
-            throw new Error(`LinkedMap got modified during iteration.`);
-          }
-          if (current) {
-            const result = { value: [current.key, current.value], done: false };
-            current = current.next;
-            return result;
-          } else {
-            return { value: void 0, done: true };
-          }
-        }
-      };
-      return iterator;
-    }
-    [(_b = Symbol.toStringTag, Symbol.iterator)]() {
-      return this.entries();
-    }
-    trimOld(newSize) {
-      if (newSize >= this.size) {
-        return;
-      }
-      if (newSize === 0) {
-        this.clear();
-        return;
-      }
-      let current = this._head;
-      let currentSize = this.size;
-      while (current && currentSize > newSize) {
-        this._map.delete(current.key);
-        current = current.next;
-        currentSize--;
-      }
-      this._head = current;
-      this._size = currentSize;
-      if (current) {
-        current.previous = void 0;
-      }
-      this._state++;
-    }
-    addItemFirst(item) {
-      if (!this._head && !this._tail) {
-        this._tail = item;
-      } else if (!this._head) {
-        throw new Error("Invalid list");
-      } else {
-        item.next = this._head;
-        this._head.previous = item;
-      }
-      this._head = item;
-      this._state++;
-    }
-    addItemLast(item) {
-      if (!this._head && !this._tail) {
-        this._head = item;
-      } else if (!this._tail) {
-        throw new Error("Invalid list");
-      } else {
-        item.previous = this._tail;
-        this._tail.next = item;
-      }
-      this._tail = item;
-      this._state++;
-    }
-    removeItem(item) {
-      if (item === this._head && item === this._tail) {
-        this._head = void 0;
-        this._tail = void 0;
-      } else if (item === this._head) {
-        if (!item.next) {
-          throw new Error("Invalid list");
-        }
-        item.next.previous = void 0;
-        this._head = item.next;
-      } else if (item === this._tail) {
-        if (!item.previous) {
-          throw new Error("Invalid list");
-        }
-        item.previous.next = void 0;
-        this._tail = item.previous;
-      } else {
-        const next = item.next;
-        const previous = item.previous;
-        if (!next || !previous) {
-          throw new Error("Invalid list");
-        }
-        next.previous = previous;
-        previous.next = next;
-      }
-      item.next = void 0;
-      item.previous = void 0;
-      this._state++;
-    }
-    touch(item, touch) {
-      if (!this._head || !this._tail) {
-        throw new Error("Invalid list");
-      }
-      if (touch !== 1 && touch !== 2) {
-        return;
-      }
-      if (touch === 1) {
-        if (item === this._head) {
-          return;
-        }
-        const next = item.next;
-        const previous = item.previous;
-        if (item === this._tail) {
-          previous.next = void 0;
-          this._tail = previous;
-        } else {
-          next.previous = previous;
-          previous.next = next;
-        }
-        item.previous = void 0;
-        item.next = this._head;
-        this._head.previous = item;
-        this._head = item;
-        this._state++;
-      } else if (touch === 2) {
-        if (item === this._tail) {
-          return;
-        }
-        const next = item.next;
-        const previous = item.previous;
-        if (item === this._head) {
-          next.previous = void 0;
-          this._head = next;
-        } else {
-          next.previous = previous;
-          previous.next = next;
-        }
-        item.next = void 0;
-        item.previous = this._tail;
-        this._tail.next = item;
-        this._tail = item;
-        this._state++;
-      }
-    }
-    toJSON() {
-      const data = [];
-      this.forEach((value, key) => {
-        data.push([key, value]);
-      });
-      return data;
-    }
-    fromJSON(data) {
-      this.clear();
-      for (const [key, value] of data) {
-        this.set(key, value);
-      }
-    }
-  };
-  var LRUCache = class extends LinkedMap {
-    constructor(limit, ratio = 1) {
-      super();
-      this._limit = limit;
-      this._ratio = Math.min(Math.max(0, ratio), 1);
-    }
-    get limit() {
-      return this._limit;
-    }
-    set limit(limit) {
-      this._limit = limit;
-      this.checkTrim();
-    }
-    get(key, touch = 2) {
-      return super.get(key, touch);
-    }
-    peek(key) {
-      return super.get(key, 0);
-    }
-    set(key, value) {
-      super.set(key, value, 2);
-      this.checkTrim();
-      return this;
-    }
-    checkTrim() {
-      if (this.size > this._limit) {
-        this.trimOld(Math.round(this._limit * this._ratio));
-      }
-    }
-  };
-
-  // ../../node_modules/monaco-editor/esm/vs/base/common/glob.js
-  var GLOBSTAR = "**";
-  var GLOB_SPLIT = "/";
-  var PATH_REGEX = "[/\\\\]";
-  var NO_PATH_REGEX = "[^/\\\\]";
-  var ALL_FORWARD_SLASHES = /\//g;
-  function starsToRegExp(starCount) {
-    switch (starCount) {
-      case 0:
-        return "";
-      case 1:
-        return `${NO_PATH_REGEX}*?`;
-      default:
-        return `(?:${PATH_REGEX}|${NO_PATH_REGEX}+${PATH_REGEX}|${PATH_REGEX}${NO_PATH_REGEX}+)*?`;
-    }
-  }
-  function splitGlobAware(pattern, splitChar) {
-    if (!pattern) {
-      return [];
-    }
-    const segments = [];
-    let inBraces = false;
-    let inBrackets = false;
-    let curVal = "";
-    for (const char of pattern) {
-      switch (char) {
-        case splitChar:
-          if (!inBraces && !inBrackets) {
-            segments.push(curVal);
-            curVal = "";
-            continue;
-          }
-          break;
-        case "{":
-          inBraces = true;
-          break;
-        case "}":
-          inBraces = false;
-          break;
-        case "[":
-          inBrackets = true;
-          break;
-        case "]":
-          inBrackets = false;
-          break;
-      }
-      curVal += char;
-    }
-    if (curVal) {
-      segments.push(curVal);
-    }
-    return segments;
-  }
-  function parseRegExp(pattern) {
-    if (!pattern) {
-      return "";
-    }
-    let regEx = "";
-    const segments = splitGlobAware(pattern, GLOB_SPLIT);
-    if (segments.every((s) => s === GLOBSTAR)) {
-      regEx = ".*";
-    } else {
-      let previousSegmentWasGlobStar = false;
-      segments.forEach((segment, index) => {
-        if (segment === GLOBSTAR) {
-          if (!previousSegmentWasGlobStar) {
-            regEx += starsToRegExp(2);
-            previousSegmentWasGlobStar = true;
-          }
-          return;
-        }
-        let inBraces = false;
-        let braceVal = "";
-        let inBrackets = false;
-        let bracketVal = "";
-        for (const char of segment) {
-          if (char !== "}" && inBraces) {
-            braceVal += char;
-            continue;
-          }
-          if (inBrackets && (char !== "]" || !bracketVal)) {
-            let res;
-            if (char === "-") {
-              res = char;
-            } else if ((char === "^" || char === "!") && !bracketVal) {
-              res = "^";
-            } else if (char === GLOB_SPLIT) {
-              res = "";
-            } else {
-              res = escapeRegExpCharacters(char);
-            }
-            bracketVal += res;
-            continue;
-          }
-          switch (char) {
-            case "{":
-              inBraces = true;
-              continue;
-            case "[":
-              inBrackets = true;
-              continue;
-            case "}": {
-              const choices = splitGlobAware(braceVal, ",");
-              const braceRegExp = `(?:${choices.map((c) => parseRegExp(c)).join("|")})`;
-              regEx += braceRegExp;
-              inBraces = false;
-              braceVal = "";
-              break;
-            }
-            case "]":
-              regEx += "[" + bracketVal + "]";
-              inBrackets = false;
-              bracketVal = "";
-              break;
-            case "?":
-              regEx += NO_PATH_REGEX;
-              continue;
-            case "*":
-              regEx += starsToRegExp(1);
-              continue;
-            default:
-              regEx += escapeRegExpCharacters(char);
-          }
-        }
-        if (index < segments.length - 1 && (segments[index + 1] !== GLOBSTAR || index + 2 < segments.length)) {
-          regEx += PATH_REGEX;
-        }
-        previousSegmentWasGlobStar = false;
-      });
-    }
-    return regEx;
-  }
-  var T1 = /^\*\*\/\*\.[\w\.-]+$/;
-  var T2 = /^\*\*\/([\w\.-]+)\/?$/;
-  var T3 = /^{\*\*\/[\*\.]?[\w\.-]+\/?(,\*\*\/[\*\.]?[\w\.-]+\/?)*}$/;
-  var T3_2 = /^{\*\*\/[\*\.]?[\w\.-]+(\/(\*\*)?)?(,\*\*\/[\*\.]?[\w\.-]+(\/(\*\*)?)?)*}$/;
-  var T4 = /^\*\*((\/[\w\.-]+)+)\/?$/;
-  var T5 = /^([\w\.-]+(\/[\w\.-]+)*)\/?$/;
-  var CACHE = new LRUCache(1e4);
-  var FALSE = function() {
-    return false;
-  };
-  var NULL = function() {
-    return null;
-  };
-  function parsePattern(arg1, options) {
-    if (!arg1) {
-      return NULL;
-    }
-    let pattern;
-    if (typeof arg1 !== "string") {
-      pattern = arg1.pattern;
-    } else {
-      pattern = arg1;
-    }
-    pattern = pattern.trim();
-    const patternKey = `${pattern}_${!!options.trimForExclusions}`;
-    let parsedPattern = CACHE.get(patternKey);
-    if (parsedPattern) {
-      return wrapRelativePattern(parsedPattern, arg1);
-    }
-    let match2;
-    if (T1.test(pattern)) {
-      const base = pattern.substr(4);
-      parsedPattern = function(path, basename2) {
-        return typeof path === "string" && path.endsWith(base) ? pattern : null;
-      };
-    } else if (match2 = T2.exec(trimForExclusions(pattern, options))) {
-      parsedPattern = trivia2(match2[1], pattern);
-    } else if ((options.trimForExclusions ? T3_2 : T3).test(pattern)) {
-      parsedPattern = trivia3(pattern, options);
-    } else if (match2 = T4.exec(trimForExclusions(pattern, options))) {
-      parsedPattern = trivia4and5(match2[1].substr(1), pattern, true);
-    } else if (match2 = T5.exec(trimForExclusions(pattern, options))) {
-      parsedPattern = trivia4and5(match2[1], pattern, false);
-    } else {
-      parsedPattern = toRegExp(pattern);
-    }
-    CACHE.set(patternKey, parsedPattern);
-    return wrapRelativePattern(parsedPattern, arg1);
-  }
-  function wrapRelativePattern(parsedPattern, arg2) {
-    if (typeof arg2 === "string") {
-      return parsedPattern;
-    }
-    return function(path, basename2) {
-      if (!isEqualOrParent(path, arg2.base, !isLinux)) {
-        return null;
-      }
-      return parsedPattern(path.substr(arg2.base.length + 1), basename2);
-    };
-  }
-  function trimForExclusions(pattern, options) {
-    return options.trimForExclusions && pattern.endsWith("/**") ? pattern.substr(0, pattern.length - 2) : pattern;
-  }
-  function trivia2(base, originalPattern) {
-    const slashBase = `/${base}`;
-    const backslashBase = `\\${base}`;
-    const parsedPattern = function(path, basename2) {
-      if (typeof path !== "string") {
-        return null;
-      }
-      if (basename2) {
-        return basename2 === base ? originalPattern : null;
-      }
-      return path === base || path.endsWith(slashBase) || path.endsWith(backslashBase) ? originalPattern : null;
-    };
-    const basenames = [base];
-    parsedPattern.basenames = basenames;
-    parsedPattern.patterns = [originalPattern];
-    parsedPattern.allBasenames = basenames;
-    return parsedPattern;
-  }
-  function trivia3(pattern, options) {
-    const parsedPatterns = aggregateBasenameMatches(pattern.slice(1, -1).split(",").map((pattern2) => parsePattern(pattern2, options)).filter((pattern2) => pattern2 !== NULL), pattern);
-    const n = parsedPatterns.length;
-    if (!n) {
-      return NULL;
-    }
-    if (n === 1) {
-      return parsedPatterns[0];
-    }
-    const parsedPattern = function(path, basename2) {
-      for (let i = 0, n2 = parsedPatterns.length; i < n2; i++) {
-        if (parsedPatterns[i](path, basename2)) {
-          return pattern;
-        }
-      }
-      return null;
-    };
-    const withBasenames = parsedPatterns.find((pattern2) => !!pattern2.allBasenames);
-    if (withBasenames) {
-      parsedPattern.allBasenames = withBasenames.allBasenames;
-    }
-    const allPaths = parsedPatterns.reduce((all, current) => current.allPaths ? all.concat(current.allPaths) : all, []);
-    if (allPaths.length) {
-      parsedPattern.allPaths = allPaths;
-    }
-    return parsedPattern;
-  }
-  function trivia4and5(targetPath, pattern, matchPathEnds) {
-    const usingPosixSep = sep === posix.sep;
-    const nativePath = usingPosixSep ? targetPath : targetPath.replace(ALL_FORWARD_SLASHES, sep);
-    const nativePathEnd = sep + nativePath;
-    const targetPathEnd = posix.sep + targetPath;
-    const parsedPattern = matchPathEnds ? function(testPath, basename2) {
-      return typeof testPath === "string" && (testPath === nativePath || testPath.endsWith(nativePathEnd) || !usingPosixSep && (testPath === targetPath || testPath.endsWith(targetPathEnd))) ? pattern : null;
-    } : function(testPath, basename2) {
-      return typeof testPath === "string" && (testPath === nativePath || !usingPosixSep && testPath === targetPath) ? pattern : null;
-    };
-    parsedPattern.allPaths = [(matchPathEnds ? "*/" : "./") + targetPath];
-    return parsedPattern;
-  }
-  function toRegExp(pattern) {
-    try {
-      const regExp = new RegExp(`^${parseRegExp(pattern)}$`);
-      return function(path) {
-        regExp.lastIndex = 0;
-        return typeof path === "string" && regExp.test(path) ? pattern : null;
-      };
-    } catch (error) {
-      return NULL;
-    }
-  }
-  function match(arg1, path, hasSibling) {
-    if (!arg1 || typeof path !== "string") {
-      return false;
-    }
-    return parse(arg1)(path, void 0, hasSibling);
-  }
-  function parse(arg1, options = {}) {
-    if (!arg1) {
-      return FALSE;
-    }
-    if (typeof arg1 === "string" || isRelativePattern(arg1)) {
-      const parsedPattern = parsePattern(arg1, options);
-      if (parsedPattern === NULL) {
-        return FALSE;
-      }
-      const resultPattern = function(path, basename2) {
-        return !!parsedPattern(path, basename2);
-      };
-      if (parsedPattern.allBasenames) {
-        resultPattern.allBasenames = parsedPattern.allBasenames;
-      }
-      if (parsedPattern.allPaths) {
-        resultPattern.allPaths = parsedPattern.allPaths;
-      }
-      return resultPattern;
-    }
-    return parsedExpression(arg1, options);
-  }
-  function isRelativePattern(obj) {
-    const rp = obj;
-    if (!rp) {
-      return false;
-    }
-    return typeof rp.base === "string" && typeof rp.pattern === "string";
-  }
-  function parsedExpression(expression, options) {
-    const parsedPatterns = aggregateBasenameMatches(Object.getOwnPropertyNames(expression).map((pattern) => parseExpressionPattern(pattern, expression[pattern], options)).filter((pattern) => pattern !== NULL));
-    const n = parsedPatterns.length;
-    if (!n) {
-      return NULL;
-    }
-    if (!parsedPatterns.some((parsedPattern) => !!parsedPattern.requiresSiblings)) {
-      if (n === 1) {
-        return parsedPatterns[0];
-      }
-      const resultExpression2 = function(path, basename2) {
-        for (let i = 0, n2 = parsedPatterns.length; i < n2; i++) {
-          const result = parsedPatterns[i](path, basename2);
-          if (result) {
-            return result;
-          }
-        }
-        return null;
-      };
-      const withBasenames2 = parsedPatterns.find((pattern) => !!pattern.allBasenames);
-      if (withBasenames2) {
-        resultExpression2.allBasenames = withBasenames2.allBasenames;
-      }
-      const allPaths2 = parsedPatterns.reduce((all, current) => current.allPaths ? all.concat(current.allPaths) : all, []);
-      if (allPaths2.length) {
-        resultExpression2.allPaths = allPaths2;
-      }
-      return resultExpression2;
-    }
-    const resultExpression = function(path, base, hasSibling) {
-      let name = void 0;
-      for (let i = 0, n2 = parsedPatterns.length; i < n2; i++) {
-        const parsedPattern = parsedPatterns[i];
-        if (parsedPattern.requiresSiblings && hasSibling) {
-          if (!base) {
-            base = basename(path);
-          }
-          if (!name) {
-            name = base.substr(0, base.length - extname(path).length);
-          }
-        }
-        const result = parsedPattern(path, base, name, hasSibling);
-        if (result) {
-          return result;
-        }
-      }
-      return null;
-    };
-    const withBasenames = parsedPatterns.find((pattern) => !!pattern.allBasenames);
-    if (withBasenames) {
-      resultExpression.allBasenames = withBasenames.allBasenames;
-    }
-    const allPaths = parsedPatterns.reduce((all, current) => current.allPaths ? all.concat(current.allPaths) : all, []);
-    if (allPaths.length) {
-      resultExpression.allPaths = allPaths;
-    }
-    return resultExpression;
-  }
-  function parseExpressionPattern(pattern, value, options) {
-    if (value === false) {
-      return NULL;
-    }
-    const parsedPattern = parsePattern(pattern, options);
-    if (parsedPattern === NULL) {
-      return NULL;
-    }
-    if (typeof value === "boolean") {
-      return parsedPattern;
-    }
-    if (value) {
-      const when = value.when;
-      if (typeof when === "string") {
-        const result = (path, basename2, name, hasSibling) => {
-          if (!hasSibling || !parsedPattern(path, basename2)) {
-            return null;
-          }
-          const clausePattern = when.replace("$(basename)", name);
-          const matched = hasSibling(clausePattern);
-          return isThenable(matched) ? matched.then((m) => m ? pattern : null) : matched ? pattern : null;
-        };
-        result.requiresSiblings = true;
-        return result;
-      }
-    }
-    return parsedPattern;
-  }
-  function aggregateBasenameMatches(parsedPatterns, result) {
-    const basenamePatterns = parsedPatterns.filter((parsedPattern) => !!parsedPattern.basenames);
-    if (basenamePatterns.length < 2) {
-      return parsedPatterns;
-    }
-    const basenames = basenamePatterns.reduce((all, current) => {
-      const basenames2 = current.basenames;
-      return basenames2 ? all.concat(basenames2) : all;
-    }, []);
-    let patterns;
-    if (result) {
-      patterns = [];
-      for (let i = 0, n = basenames.length; i < n; i++) {
-        patterns.push(result);
-      }
-    } else {
-      patterns = basenamePatterns.reduce((all, current) => {
-        const patterns2 = current.patterns;
-        return patterns2 ? all.concat(patterns2) : all;
-      }, []);
-    }
-    const aggregate = function(path, basename2) {
-      if (typeof path !== "string") {
-        return null;
-      }
-      if (!basename2) {
-        let i;
-        for (i = path.length; i > 0; i--) {
-          const ch = path.charCodeAt(i - 1);
-          if (ch === 47 || ch === 92) {
-            break;
-          }
-        }
-        basename2 = path.substr(i);
-      }
-      const index = basenames.indexOf(basename2);
-      return index !== -1 ? patterns[index] : null;
-    };
-    aggregate.basenames = basenames;
-    aggregate.patterns = patterns;
-    aggregate.allBasenames = basenames;
-    const aggregatedPatterns = parsedPatterns.filter((parsedPattern) => !parsedPattern.basenames);
-    aggregatedPatterns.push(aggregate);
-    return aggregatedPatterns;
-  }
-
-  // ../../node_modules/monaco-editor/esm/vs/editor/common/languageSelector.js
-  function score(selector, candidateUri, candidateLanguage, candidateIsSynchronized) {
-    if (Array.isArray(selector)) {
-      let ret = 0;
-      for (const filter of selector) {
-        const value = score(filter, candidateUri, candidateLanguage, candidateIsSynchronized);
-        if (value === 10) {
-          return value;
-        }
-        if (value > ret) {
-          ret = value;
-        }
-      }
-      return ret;
-    } else if (typeof selector === "string") {
-      if (!candidateIsSynchronized) {
-        return 0;
-      }
-      if (selector === "*") {
-        return 5;
-      } else if (selector === candidateLanguage) {
-        return 10;
-      } else {
-        return 0;
-      }
-    } else if (selector) {
-      const { language, pattern, scheme, hasAccessToAllModels } = selector;
-      if (!candidateIsSynchronized && !hasAccessToAllModels) {
-        return 0;
-      }
-      let ret = 0;
-      if (scheme) {
-        if (scheme === candidateUri.scheme) {
-          ret = 10;
-        } else if (scheme === "*") {
-          ret = 5;
-        } else {
-          return 0;
-        }
-      }
-      if (language) {
-        if (language === candidateLanguage) {
-          ret = 10;
-        } else if (language === "*") {
-          ret = Math.max(ret, 5);
-        } else {
-          return 0;
-        }
-      }
-      if (pattern) {
-        let normalizedPattern;
-        if (typeof pattern === "string") {
-          normalizedPattern = pattern;
-        } else {
-          normalizedPattern = Object.assign(Object.assign({}, pattern), { base: normalize(pattern.base) });
-        }
-        if (normalizedPattern === candidateUri.fsPath || match(normalizedPattern, candidateUri.fsPath)) {
-          ret = 10;
-        } else {
-          return 0;
-        }
-      }
-      return ret;
-    } else {
-      return 0;
-    }
-  }
-
-  // ../../node_modules/monaco-editor/esm/vs/editor/common/languageFeatureRegistry.js
-  function isExclusive(selector) {
-    if (typeof selector === "string") {
-      return false;
-    } else if (Array.isArray(selector)) {
-      return selector.every(isExclusive);
-    } else {
-      return !!selector.exclusive;
-    }
-  }
-  var LanguageFeatureRegistry = class {
-    constructor() {
-      this._clock = 0;
-      this._entries = [];
-      this._onDidChange = new Emitter();
-    }
-    get onDidChange() {
-      return this._onDidChange.event;
-    }
-    register(selector, provider) {
-      let entry = {
-        selector,
-        provider,
-        _score: -1,
-        _time: this._clock++
-      };
-      this._entries.push(entry);
-      this._lastCandidate = void 0;
-      this._onDidChange.fire(this._entries.length);
-      return toDisposable(() => {
-        if (entry) {
-          const idx = this._entries.indexOf(entry);
-          if (idx >= 0) {
-            this._entries.splice(idx, 1);
-            this._lastCandidate = void 0;
-            this._onDidChange.fire(this._entries.length);
-            entry = void 0;
-          }
-        }
-      });
-    }
-    has(model) {
-      return this.all(model).length > 0;
-    }
-    all(model) {
-      if (!model) {
-        return [];
-      }
-      this._updateScores(model);
-      const result = [];
-      for (let entry of this._entries) {
-        if (entry._score > 0) {
-          result.push(entry.provider);
-        }
-      }
-      return result;
-    }
-    ordered(model) {
-      const result = [];
-      this._orderedForEach(model, (entry) => result.push(entry.provider));
-      return result;
-    }
-    orderedGroups(model) {
-      const result = [];
-      let lastBucket;
-      let lastBucketScore;
-      this._orderedForEach(model, (entry) => {
-        if (lastBucket && lastBucketScore === entry._score) {
-          lastBucket.push(entry.provider);
-        } else {
-          lastBucketScore = entry._score;
-          lastBucket = [entry.provider];
-          result.push(lastBucket);
-        }
-      });
-      return result;
-    }
-    _orderedForEach(model, callback) {
-      if (!model) {
-        return;
-      }
-      this._updateScores(model);
-      for (const entry of this._entries) {
-        if (entry._score > 0) {
-          callback(entry);
-        }
-      }
-    }
-    _updateScores(model) {
-      const candidate = {
-        uri: model.uri.toString(),
-        language: model.getLanguageId()
-      };
-      if (this._lastCandidate && this._lastCandidate.language === candidate.language && this._lastCandidate.uri === candidate.uri) {
-        return;
-      }
-      this._lastCandidate = candidate;
-      for (let entry of this._entries) {
-        entry._score = score(entry.selector, model.uri, model.getLanguageId(), shouldSynchronizeModel(model));
-        if (isExclusive(entry.selector) && entry._score > 0) {
-          for (let entry2 of this._entries) {
-            entry2._score = 0;
-          }
-          entry._score = 1e3;
-          break;
-        }
-      }
-      this._entries.sort(LanguageFeatureRegistry._compareByScoreAndTime);
-    }
-    static _compareByScoreAndTime(a, b) {
-      if (a._score < b._score) {
-        return 1;
-      } else if (a._score > b._score) {
-        return -1;
-      } else if (a._time < b._time) {
-        return 1;
-      } else if (a._time > b._time) {
-        return -1;
-      } else {
-        return 0;
-      }
-    }
-  };
-
   // ../../node_modules/monaco-editor/esm/vs/editor/common/tokenizationRegistry.js
-  var __awaiter2 = function(thisArg, _arguments, P, generator) {
+  var __awaiter = function(thisArg, _arguments, P, generator) {
     function adopt(value) {
       return value instanceof P ? value : new P(function(resolve2) {
         resolve2(value);
@@ -7839,8 +5912,8 @@
       });
     }
     registerFactory(languageId, factory) {
-      var _a4;
-      (_a4 = this._factories.get(languageId)) === null || _a4 === void 0 ? void 0 : _a4.dispose();
+      var _a3;
+      (_a3 = this._factories.get(languageId)) === null || _a3 === void 0 ? void 0 : _a3.dispose();
       const myData = new TokenizationSupportFactoryData(this, languageId, factory);
       this._factories.set(languageId, myData);
       return toDisposable(() => {
@@ -7853,7 +5926,7 @@
       });
     }
     getOrCreate(languageId) {
-      return __awaiter2(this, void 0, void 0, function* () {
+      return __awaiter(this, void 0, void 0, function* () {
         const tokenizationSupport = this.get(languageId);
         if (tokenizationSupport) {
           return tokenizationSupport;
@@ -7915,7 +5988,7 @@
       super.dispose();
     }
     resolve() {
-      return __awaiter2(this, void 0, void 0, function* () {
+      return __awaiter(this, void 0, void 0, function* () {
         if (!this._resolvePromise) {
           this._resolvePromise = this._create();
         }
@@ -7923,7 +5996,7 @@
       });
     }
     _create() {
-      return __awaiter2(this, void 0, void 0, function* () {
+      return __awaiter(this, void 0, void 0, function* () {
         const value = yield Promise.resolve(this._factory.createTokenizationSupport());
         this._isResolved = true;
         if (value && !this._isDisposed) {
@@ -8448,6 +6521,13 @@
   Codicon.layoutMenubar = new Codicon("layout-menubar", { fontCharacter: "\\ebf6" });
   Codicon.layoutCentered = new Codicon("layout-centered", { fontCharacter: "\\ebf7" });
   Codicon.target = new Codicon("target", { fontCharacter: "\\ebf8" });
+  Codicon.indent = new Codicon("indent", { fontCharacter: "\\ebf9" });
+  Codicon.recordSmall = new Codicon("record-small", { fontCharacter: "\\ebfa" });
+  Codicon.errorSmall = new Codicon("error-small", { fontCharacter: "\\ebfb" });
+  Codicon.arrowCircleDown = new Codicon("arrow-circle-down", { fontCharacter: "\\ebfc" });
+  Codicon.arrowCircleLeft = new Codicon("arrow-circle-left", { fontCharacter: "\\ebfd" });
+  Codicon.arrowCircleRight = new Codicon("arrow-circle-right", { fontCharacter: "\\ebfe" });
+  Codicon.arrowCircleUp = new Codicon("arrow-circle-up", { fontCharacter: "\\ebff" });
   Codicon.dialogError = new Codicon("dialog-error", Codicon.error.definition);
   Codicon.dialogWarning = new Codicon("dialog-warning", Codicon.warning.definition);
   Codicon.dialogInfo = new Codicon("dialog-info", Codicon.info.definition);
@@ -8477,11 +6557,11 @@
       if (icon instanceof Codicon) {
         return ["codicon", "codicon-" + icon.id];
       }
-      const match2 = cssIconIdRegex.exec(icon.id);
-      if (!match2) {
+      const match = cssIconIdRegex.exec(icon.id);
+      if (!match) {
         return asClassNameArray(Codicon.error);
       }
-      let [, id, modifier] = match2;
+      let [, id, modifier] = match;
       const classNames = ["codicon", "codicon-" + id];
       if (modifier) {
         classNames.push("codicon-modifier-" + modifier.substr(1));
@@ -8668,37 +6748,9 @@
   })(Command || (Command = {}));
   var InlayHintKind;
   (function(InlayHintKind3) {
-    InlayHintKind3[InlayHintKind3["Other"] = 0] = "Other";
     InlayHintKind3[InlayHintKind3["Type"] = 1] = "Type";
     InlayHintKind3[InlayHintKind3["Parameter"] = 2] = "Parameter";
   })(InlayHintKind || (InlayHintKind = {}));
-  var ReferenceProviderRegistry = new LanguageFeatureRegistry();
-  var RenameProviderRegistry = new LanguageFeatureRegistry();
-  var CompletionProviderRegistry = new LanguageFeatureRegistry();
-  var InlineCompletionsProviderRegistry = new LanguageFeatureRegistry();
-  var SignatureHelpProviderRegistry = new LanguageFeatureRegistry();
-  var HoverProviderRegistry = new LanguageFeatureRegistry();
-  var EvaluatableExpressionProviderRegistry = new LanguageFeatureRegistry();
-  var InlineValuesProviderRegistry = new LanguageFeatureRegistry();
-  var DocumentSymbolProviderRegistry = new LanguageFeatureRegistry();
-  var DocumentHighlightProviderRegistry = new LanguageFeatureRegistry();
-  var LinkedEditingRangeProviderRegistry = new LanguageFeatureRegistry();
-  var DefinitionProviderRegistry = new LanguageFeatureRegistry();
-  var DeclarationProviderRegistry = new LanguageFeatureRegistry();
-  var ImplementationProviderRegistry = new LanguageFeatureRegistry();
-  var TypeDefinitionProviderRegistry = new LanguageFeatureRegistry();
-  var CodeLensProviderRegistry = new LanguageFeatureRegistry();
-  var InlayHintsProviderRegistry = new LanguageFeatureRegistry();
-  var CodeActionProviderRegistry = new LanguageFeatureRegistry();
-  var DocumentFormattingEditProviderRegistry = new LanguageFeatureRegistry();
-  var DocumentRangeFormattingEditProviderRegistry = new LanguageFeatureRegistry();
-  var OnTypeFormattingEditProviderRegistry = new LanguageFeatureRegistry();
-  var LinkProviderRegistry = new LanguageFeatureRegistry();
-  var ColorProviderRegistry = new LanguageFeatureRegistry();
-  var SelectionRangeRegistry = new LanguageFeatureRegistry();
-  var FoldingRangeProviderRegistry = new LanguageFeatureRegistry();
-  var DocumentSemanticTokensProviderRegistry = new LanguageFeatureRegistry();
-  var DocumentRangeSemanticTokensProviderRegistry = new LanguageFeatureRegistry();
   var TokenizationRegistry2 = new TokenizationRegistry();
 
   // ../../node_modules/monaco-editor/esm/vs/editor/common/standalone/standaloneEnums.js
@@ -8943,16 +6995,15 @@
     IndentAction2[IndentAction2["IndentOutdent"] = 2] = "IndentOutdent";
     IndentAction2[IndentAction2["Outdent"] = 3] = "Outdent";
   })(IndentAction || (IndentAction = {}));
-  var InjectedTextCursorStops2;
+  var InjectedTextCursorStops;
   (function(InjectedTextCursorStops3) {
     InjectedTextCursorStops3[InjectedTextCursorStops3["Both"] = 0] = "Both";
     InjectedTextCursorStops3[InjectedTextCursorStops3["Right"] = 1] = "Right";
     InjectedTextCursorStops3[InjectedTextCursorStops3["Left"] = 2] = "Left";
     InjectedTextCursorStops3[InjectedTextCursorStops3["None"] = 3] = "None";
-  })(InjectedTextCursorStops2 || (InjectedTextCursorStops2 = {}));
+  })(InjectedTextCursorStops || (InjectedTextCursorStops = {}));
   var InlayHintKind2;
   (function(InlayHintKind3) {
-    InlayHintKind3[InlayHintKind3["Other"] = 0] = "Other";
     InlayHintKind3[InlayHintKind3["Type"] = 1] = "Type";
     InlayHintKind3[InlayHintKind3["Parameter"] = 2] = "Parameter";
   })(InlayHintKind2 || (InlayHintKind2 = {}));
@@ -9090,7 +7141,8 @@
     KeyCode2[KeyCode2["LaunchMediaPlayer"] = 123] = "LaunchMediaPlayer";
     KeyCode2[KeyCode2["LaunchMail"] = 124] = "LaunchMail";
     KeyCode2[KeyCode2["LaunchApp2"] = 125] = "LaunchApp2";
-    KeyCode2[KeyCode2["MAX_VALUE"] = 126] = "MAX_VALUE";
+    KeyCode2[KeyCode2["Clear"] = 126] = "Clear";
+    KeyCode2[KeyCode2["MAX_VALUE"] = 127] = "MAX_VALUE";
   })(KeyCode || (KeyCode = {}));
   var MarkerSeverity;
   (function(MarkerSeverity2) {
@@ -9104,11 +7156,11 @@
     MarkerTag2[MarkerTag2["Unnecessary"] = 1] = "Unnecessary";
     MarkerTag2[MarkerTag2["Deprecated"] = 2] = "Deprecated";
   })(MarkerTag || (MarkerTag = {}));
-  var MinimapPosition2;
+  var MinimapPosition;
   (function(MinimapPosition3) {
     MinimapPosition3[MinimapPosition3["Inline"] = 1] = "Inline";
     MinimapPosition3[MinimapPosition3["Gutter"] = 2] = "Gutter";
-  })(MinimapPosition2 || (MinimapPosition2 = {}));
+  })(MinimapPosition || (MinimapPosition = {}));
   var MouseTargetType;
   (function(MouseTargetType2) {
     MouseTargetType2[MouseTargetType2["UNKNOWN"] = 0] = "UNKNOWN";
@@ -9132,13 +7184,13 @@
     OverlayWidgetPositionPreference2[OverlayWidgetPositionPreference2["BOTTOM_RIGHT_CORNER"] = 1] = "BOTTOM_RIGHT_CORNER";
     OverlayWidgetPositionPreference2[OverlayWidgetPositionPreference2["TOP_CENTER"] = 2] = "TOP_CENTER";
   })(OverlayWidgetPositionPreference || (OverlayWidgetPositionPreference = {}));
-  var OverviewRulerLane2;
+  var OverviewRulerLane;
   (function(OverviewRulerLane3) {
     OverviewRulerLane3[OverviewRulerLane3["Left"] = 1] = "Left";
     OverviewRulerLane3[OverviewRulerLane3["Center"] = 2] = "Center";
     OverviewRulerLane3[OverviewRulerLane3["Right"] = 4] = "Right";
     OverviewRulerLane3[OverviewRulerLane3["Full"] = 7] = "Full";
-  })(OverviewRulerLane2 || (OverviewRulerLane2 = {}));
+  })(OverviewRulerLane || (OverviewRulerLane = {}));
   var PositionAffinity;
   (function(PositionAffinity2) {
     PositionAffinity2[PositionAffinity2["Left"] = 0] = "Left";
@@ -9298,6 +7350,27 @@
   }
   var getMapForWordSeparators = once2((input) => new WordCharacterClassifier(input));
 
+  // ../../node_modules/monaco-editor/esm/vs/editor/common/model.js
+  var OverviewRulerLane2;
+  (function(OverviewRulerLane3) {
+    OverviewRulerLane3[OverviewRulerLane3["Left"] = 1] = "Left";
+    OverviewRulerLane3[OverviewRulerLane3["Center"] = 2] = "Center";
+    OverviewRulerLane3[OverviewRulerLane3["Right"] = 4] = "Right";
+    OverviewRulerLane3[OverviewRulerLane3["Full"] = 7] = "Full";
+  })(OverviewRulerLane2 || (OverviewRulerLane2 = {}));
+  var MinimapPosition2;
+  (function(MinimapPosition3) {
+    MinimapPosition3[MinimapPosition3["Inline"] = 1] = "Inline";
+    MinimapPosition3[MinimapPosition3["Gutter"] = 2] = "Gutter";
+  })(MinimapPosition2 || (MinimapPosition2 = {}));
+  var InjectedTextCursorStops2;
+  (function(InjectedTextCursorStops3) {
+    InjectedTextCursorStops3[InjectedTextCursorStops3["Both"] = 0] = "Both";
+    InjectedTextCursorStops3[InjectedTextCursorStops3["Right"] = 1] = "Right";
+    InjectedTextCursorStops3[InjectedTextCursorStops3["Left"] = 2] = "Left";
+    InjectedTextCursorStops3[InjectedTextCursorStops3["None"] = 3] = "None";
+  })(InjectedTextCursorStops2 || (InjectedTextCursorStops2 = {}));
+
   // ../../node_modules/monaco-editor/esm/vs/editor/common/model/textModelSearch.js
   function leftIsWordBounday(wordSeparators, text, textLength, matchStartIndex, matchLength) {
     if (matchStartIndex === 0) {
@@ -9386,7 +7459,7 @@
     }
   };
 
-  // ../../node_modules/monaco-editor/esm/vs/editor/common/languages/unicodeTextModelHighlighter.js
+  // ../../node_modules/monaco-editor/esm/vs/editor/common/services/unicodeTextModelHighlighter.js
   var UnicodeTextModelHighlighter = class {
     static computeUnicodeHighlights(model, options, range) {
       const startLine = range ? range.startLineNumber : 1;
@@ -9429,7 +7502,8 @@
                 }
               }
               const str = lineContent.substring(startIndex, endIndex);
-              const highlightReason = codePointHighlighter.shouldHighlightNonBasicASCII(str);
+              const word = getWordAtText(startIndex + 1, DEFAULT_WORD_REGEXP, lineContent, 0);
+              const highlightReason = codePointHighlighter.shouldHighlightNonBasicASCII(str, word ? word.word : null);
               if (highlightReason !== 0) {
                 if (highlightReason === 3) {
                   ambiguousCharacterCount++;
@@ -9460,7 +7534,7 @@
     }
     static computeUnicodeHighlightReason(char, options) {
       const codePointHighlighter = new CodePointHighlighter(options);
-      const reason = codePointHighlighter.shouldHighlightNonBasicASCII(char);
+      const reason = codePointHighlighter.shouldHighlightNonBasicASCII(char, null);
       switch (reason) {
         case 0:
           return null;
@@ -9494,7 +7568,9 @@
       const set = /* @__PURE__ */ new Set();
       if (this.options.invisibleCharacters) {
         for (const cp of InvisibleCharacters.codePoints) {
-          set.add(cp);
+          if (!isAllowedInvisibleCharacter(String.fromCodePoint(cp))) {
+            set.add(cp);
+          }
         }
       }
       if (this.options.ambiguousCharacters) {
@@ -9507,7 +7583,7 @@
       }
       return set;
     }
-    shouldHighlightNonBasicASCII(character) {
+    shouldHighlightNonBasicASCII(character, wordContext) {
       const codePoint = character.codePointAt(0);
       if (this.allowedCodePoints.has(codePoint)) {
         return 0;
@@ -9515,9 +7591,23 @@
       if (this.options.nonBasicASCII) {
         return 1;
       }
+      let hasBasicASCIICharacters = false;
+      let hasNonConfusableNonBasicAsciiCharacter = false;
+      if (wordContext) {
+        for (let char of wordContext) {
+          const codePoint2 = char.codePointAt(0);
+          const isBasicASCII2 = isBasicASCII(char);
+          hasBasicASCIICharacters = hasBasicASCIICharacters || isBasicASCII2;
+          if (!isBasicASCII2 && !this.ambiguousCharacters.isAmbiguous(codePoint2) && !InvisibleCharacters.isInvisibleCharacter(codePoint2)) {
+            hasNonConfusableNonBasicAsciiCharacter = true;
+          }
+        }
+      }
+      if (!hasBasicASCIICharacters && hasNonConfusableNonBasicAsciiCharacter) {
+        return 0;
+      }
       if (this.options.invisibleCharacters) {
-        const isAllowedInvisibleCharacter = character === " " || character === "\n" || character === "	";
-        if (!isAllowedInvisibleCharacter && InvisibleCharacters.isInvisibleCharacter(codePoint)) {
+        if (!isAllowedInvisibleCharacter(character) && InvisibleCharacters.isInvisibleCharacter(codePoint)) {
           return 2;
         }
       }
@@ -9529,9 +7619,12 @@
       return 0;
     }
   };
+  function isAllowedInvisibleCharacter(character) {
+    return character === " " || character === "\n" || character === "	";
+  }
 
   // ../../node_modules/monaco-editor/esm/vs/editor/common/services/editorSimpleWorker.js
-  var __awaiter3 = function(thisArg, _arguments, P, generator) {
+  var __awaiter2 = function(thisArg, _arguments, P, generator) {
     function adopt(value) {
       return value instanceof P ? value : new P(function(resolve2) {
         resolve2(value);
@@ -9627,13 +7720,13 @@
     }
     _wordenize(content, wordDefinition) {
       const result = [];
-      let match2;
+      let match;
       wordDefinition.lastIndex = 0;
-      while (match2 = wordDefinition.exec(content)) {
-        if (match2[0].length === 0) {
+      while (match = wordDefinition.exec(content)) {
+        if (match[0].length === 0) {
           break;
         }
-        result.push({ start: match2.index, end: match2.index + match2[0].length });
+        result.push({ start: match.index, end: match.index + match[0].length });
       }
       return result;
     }
@@ -9748,7 +7841,7 @@
       delete this._models[strURL];
     }
     computeUnicodeHighlights(url, options, range) {
-      return __awaiter3(this, void 0, void 0, function* () {
+      return __awaiter2(this, void 0, void 0, function* () {
         const model = this._getModel(url);
         if (!model) {
           return { ranges: [], hasMore: false, ambiguousCharacterCount: 0, invisibleCharacterCount: 0, nonBasicAsciiCharacterCount: 0 };
@@ -9757,7 +7850,7 @@
       });
     }
     computeDiff(originalUrl, modifiedUrl, ignoreTrimWhitespace, maxComputationTime) {
-      return __awaiter3(this, void 0, void 0, function* () {
+      return __awaiter2(this, void 0, void 0, function* () {
         const original = this._getModel(originalUrl);
         const modified = this._getModel(modifiedUrl);
         if (!original || !modified) {
@@ -9797,7 +7890,7 @@
       return true;
     }
     computeMoreMinimalEdits(modelUrl, edits) {
-      return __awaiter3(this, void 0, void 0, function* () {
+      return __awaiter2(this, void 0, void 0, function* () {
         const model = this._getModel(modelUrl);
         if (!model) {
           return edits;
@@ -9849,7 +7942,7 @@
       });
     }
     computeLinks(modelUrl) {
-      return __awaiter3(this, void 0, void 0, function* () {
+      return __awaiter2(this, void 0, void 0, function* () {
         const model = this._getModel(modelUrl);
         if (!model) {
           return null;
@@ -9858,7 +7951,7 @@
       });
     }
     textualSuggest(modelUrls, leadingWord, wordDef, wordDefFlags) {
-      return __awaiter3(this, void 0, void 0, function* () {
+      return __awaiter2(this, void 0, void 0, function* () {
         const sw = new StopWatch(true);
         const wordDefRegExp = new RegExp(wordDef, wordDefFlags);
         const seen = /* @__PURE__ */ new Set();
@@ -9882,7 +7975,7 @@
       });
     }
     computeWordRanges(modelUrl, range, wordDef, wordDefFlags) {
-      return __awaiter3(this, void 0, void 0, function* () {
+      return __awaiter2(this, void 0, void 0, function* () {
         const model = this._getModel(modelUrl);
         if (!model) {
           return /* @__PURE__ */ Object.create(null);
@@ -9912,7 +8005,7 @@
       });
     }
     navigateValueSet(modelUrl, range, up, wordDef, wordDefFlags) {
-      return __awaiter3(this, void 0, void 0, function* () {
+      return __awaiter2(this, void 0, void 0, function* () {
         const model = this._getModel(modelUrl);
         if (!model) {
           return null;
