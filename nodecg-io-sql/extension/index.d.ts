@@ -5,5 +5,5 @@ export interface SQLConfig {
     logger: Logger;
     connection: Record<string, unknown>;
 }
-export declare type SQLClient = Knex;
+export declare type SQLClient = Knex<any, unknown[]>;
 //# sourceMappingURL=index.d.ts.map

@@ -12818,3 +12818,4 @@ ${codeFrame}` : message);
   });
   createApp(mainComponent).mount("#app");
 })();
+//# sourceMappingURL=index.js.map

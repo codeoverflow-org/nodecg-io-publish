@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.TwitchAddonsClient = void 0;
 const tslib_1 = require("tslib");
-const node_fetch_1 = (0, tslib_1.__importDefault)(require("node-fetch"));
+const node_fetch_1 = tslib_1.__importDefault(require("node-fetch"));
 const nodecg_io_twitch_auth_1 = require("nodecg-io-twitch-auth");
 class TwitchAddonsClient {
     constructor(clientId, token) {

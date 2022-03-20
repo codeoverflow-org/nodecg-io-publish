@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.PersistenceManager = exports.decryptData = void 0;
 const tslib_1 = require("tslib");
-const crypto = (0, tslib_1.__importStar)(require("crypto-js"));
+const crypto = tslib_1.__importStar(require("crypto-js"));
 const result_1 = require("./utils/result");
 /**
  * Decrypts the passed encrypted data using the passed password.

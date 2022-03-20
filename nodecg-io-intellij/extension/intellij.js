@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.HistoryLabel = exports.HistoryChange = exports.LocalHistory = exports.Plugin = exports.PluginManager = exports.Task = exports.TaskManager = exports.RunType = exports.RunConfiguration = exports.RunManager = exports.VirtualFile = exports.Project = exports.IntelliJ = void 0;
 const tslib_1 = require("tslib");
-const node_fetch_1 = (0, tslib_1.__importDefault)(require("node-fetch"));
+const node_fetch_1 = tslib_1.__importDefault(require("node-fetch"));
 class IntelliJ {
     constructor(address) {
         // Check if protocol is defined and default to http if missing
