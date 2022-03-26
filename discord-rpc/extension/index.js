@@ -5,7 +5,8 @@ module.exports = function (nodecg) {
     nodecg.log.info("Sample bundle for DiscordRpc started.");
     const discordRpc = (0, nodecg_io_core_1.requireService)(nodecg, "discord-rpc");
     discordRpc === null || discordRpc === void 0 ? void 0 : discordRpc.onAvailable((client) => {
-        nodecg.log.info("DiscordRpc service available. Username: " + client.user.username);
+        var _a;
+        nodecg.log.info("DiscordRpc service available. Username: " + ((_a = client.user) === null || _a === void 0 ? void 0 : _a.username));
     });
     discordRpc === null || discordRpc === void 0 ? void 0 : discordRpc.onUnavailable(() => {
         nodecg.log.info("DiscordRpc service unavailable.");
