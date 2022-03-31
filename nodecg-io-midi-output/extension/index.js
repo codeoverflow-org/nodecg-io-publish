@@ -24,7 +24,9 @@ class MidiService extends nodecg_io_core_1.ServiceBundle {
             if (devices.length === 0) {
                 return (0, nodecg_io_core_1.error)("No device matched the configured pattern.");
             }
-            if (devices.length > 1) {
+            // If we have a device with the exact same name we prioritize it and use that device.
+            // If we have no exact match an ambiguous pattern is not allowed.
+            if (devices.length > 1 && !devices.includes(config.device)) {
                 return (0, nodecg_io_core_1.error)("The configured pattern is ambiguous.");
             }
         }
@@ -40,11 +42,19 @@ class MidiService extends nodecg_io_core_1.ServiceBundle {
         else {
             logger.info(`Checking device name "${config.device}".`);
             let deviceName = null;
-            easymidi.getOutputs().forEach((device) => {
-                if (device.includes(config.device) && deviceName === null) {
-                    deviceName = device;
-                }
-            });
+            const allDevices = easymidi.getOutputs();
+            if (allDevices.includes(config.device)) {
+                // If we have a device with the correct name we use that device.
+                deviceName = config.device;
+            }
+            else {
+                // Otherwise we find a device which contains the pattern.
+                easymidi.getOutputs().forEach((device) => {
+                    if (device.includes(config.device) && deviceName === null) {
+                        deviceName = device;
+                    }
+                });
+            }
             logger.info(`Connecting to MIDI output device ${deviceName}.`);
             if (deviceName !== null) {
                 const client = new easymidi.Output(deviceName);
