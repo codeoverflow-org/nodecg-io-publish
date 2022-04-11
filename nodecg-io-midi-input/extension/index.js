@@ -14,7 +14,7 @@ class MidiService extends nodecg_io_core_1.ServiceBundle {
     async validateConfig(config) {
         const devices = new Array();
         // Virtual devices can always be created, easymidi will find a
-        // free name for the matching output
+        // free name for the matching input
         if (!config.virtual) {
             easymidi.getInputs().forEach((device) => {
                 if (device.includes(config.device)) {
@@ -49,7 +49,7 @@ class MidiService extends nodecg_io_core_1.ServiceBundle {
             }
             else {
                 // Otherwise we find a device which contains the pattern.
-                easymidi.getOutputs().forEach((device) => {
+                easymidi.getInputs().forEach((device) => {
                     if (device.includes(config.device) && deviceName === null) {
                         deviceName = device;
                     }
