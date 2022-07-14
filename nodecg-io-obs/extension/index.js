@@ -25,7 +25,7 @@ class OBSService extends nodecg_io_core_1.ServiceBundle {
             logger.info("Connected to OBS successfully.");
         }
         catch (e) {
-            return (0, nodecg_io_core_1.error)(e.error);
+            return (0, nodecg_io_core_1.error)(e.message);
         }
         return (0, nodecg_io_core_1.success)(client);
     }
