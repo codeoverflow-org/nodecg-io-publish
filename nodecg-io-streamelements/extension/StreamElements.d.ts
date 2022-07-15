@@ -2,6 +2,16 @@
 import { Result } from "nodecg-io-core";
 import { StreamElementsEvent } from "./StreamElementsEvent";
 import { EventEmitter } from "events";
+import { Replicant } from "nodecg-types/types/server";
+export interface StreamElementsReplicant {
+    lastSubscriber?: StreamElementsEvent;
+    lastTip?: StreamElementsEvent;
+    lastCheer?: StreamElementsEvent;
+    lastGift?: StreamElementsEvent;
+    lastFollow?: StreamElementsEvent;
+    lastRaid?: StreamElementsEvent;
+    lastHost?: StreamElementsEvent;
+}
 export declare class StreamElementsServiceClient extends EventEmitter {
     private jwtToken;
     private handleTestEvents;
@@ -26,5 +36,6 @@ export declare class StreamElementsServiceClient extends EventEmitter {
     onRaid(handler: (data: StreamElementsEvent) => void): void;
     onHost(handler: (data: StreamElementsEvent) => void): void;
     onTest(handler: (data: StreamElementsEvent) => void): void;
+    setupReplicant(rep: Replicant<StreamElementsReplicant>): void;
 }
 //# sourceMappingURL=StreamElements.d.ts.map

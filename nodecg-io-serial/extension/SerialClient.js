@@ -4,8 +4,7 @@ exports.SerialServiceClient = void 0;
 const nodecg_io_core_1 = require("nodecg-io-core");
 const serialport_1 = require("serialport");
 class SerialServiceClient extends serialport_1.SerialPort {
-    constructor(options, protocol, // TODO: maybe rename this to parseOptions or something
-    callback) {
+    constructor(options, protocol, callback) {
         super(options, callback);
         this.parser = this.pipe(new serialport_1.ReadlineParser(protocol));
     }

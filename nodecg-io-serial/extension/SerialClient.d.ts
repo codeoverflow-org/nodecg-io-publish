@@ -19,8 +19,7 @@ export interface SerialServiceConfig {
 }
 export declare class SerialServiceClient extends SerialPort {
     private parser;
-    constructor(options: SerialPortOpenOptions<AutoDetectTypes>, protocol?: ReadlineOptions, // TODO: maybe rename this to parseOptions or something
-    callback?: ErrorCallback);
+    constructor(options: SerialPortOpenOptions<AutoDetectTypes>, protocol?: ReadlineOptions, callback?: ErrorCallback);
     static createClient(config: SerialServiceConfig): Promise<Result<SerialServiceClient>>;
     static inferPort(deviceInfo: DeviceInfo): Promise<Result<string>>;
     static getConnectedDevices(): Promise<Array<SerialServiceConfig>>;
