@@ -1,5 +1,7 @@
 import { Result } from "nodecg-io-core";
-import SerialPort from "serialport";
+import { SerialPort, SerialPortOpenOptions, ReadlineOptions } from "serialport";
+import { ErrorCallback } from "@serialport/stream";
+import { AutoDetectTypes } from "@serialport/bindings-cpp";
 export interface DeviceInfo {
     port?: string;
     manufacturer?: string;
@@ -12,12 +14,12 @@ interface Protocol {
 }
 export interface SerialServiceConfig {
     device: DeviceInfo;
-    connection: SerialPort.OpenOptions;
+    connection: Partial<SerialPortOpenOptions<AutoDetectTypes>>;
     protocol: Protocol;
 }
 export declare class SerialServiceClient extends SerialPort {
     private parser;
-    constructor(path: string, protocol: Protocol, options?: SerialPort.OpenOptions, callback?: SerialPort.ErrorCallback);
+    constructor(options: SerialPortOpenOptions<AutoDetectTypes>, protocol?: ReadlineOptions, callback?: ErrorCallback);
     static createClient(config: SerialServiceConfig): Promise<Result<SerialServiceClient>>;
     static inferPort(deviceInfo: DeviceInfo): Promise<Result<string>>;
     static getConnectedDevices(): Promise<Array<SerialServiceConfig>>;

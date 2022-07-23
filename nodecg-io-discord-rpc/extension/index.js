@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const nodecg_io_core_1 = require("nodecg-io-core");
 const discordRpcAuth_1 = require("./discordRpcAuth");
-const rpc = (0, tslib_1.__importStar)(require("discord-rpc"));
+const rpc = tslib_1.__importStar(require("discord-rpc"));
 module.exports = (nodecg) => {
     new DiscordRpcService(nodecg, "discord-rpc", __dirname, "../schema.json").register();
 };

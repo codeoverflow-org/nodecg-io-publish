@@ -3,8 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const tslib_1 = require("tslib");
 const nodecg_io_core_1 = require("nodecg-io-core");
 const dbusClient_1 = require("./dbusClient");
-const dbus = (0, tslib_1.__importStar)(require("dbus-next"));
-(0, tslib_1.__exportStar)(require("./dbusClient"), exports);
+const dbus = tslib_1.__importStar(require("dbus-next"));
+tslib_1.__exportStar(require("./dbusClient"), exports);
 module.exports = (nodecg) => {
     new DBusService(nodecg, "dbus", __dirname, "../schema.json").register();
 };

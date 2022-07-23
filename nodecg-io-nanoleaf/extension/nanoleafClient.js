@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.NanoleafClient = void 0;
 const tslib_1 = require("tslib");
-const node_fetch_1 = (0, tslib_1.__importDefault)(require("node-fetch"));
+const node_fetch_1 = tslib_1.__importDefault(require("node-fetch"));
 const nanoleafQueue_1 = require("./nanoleafQueue");
 const nanoleafUtils_1 = require("./nanoleafUtils");
 class NanoleafClient {

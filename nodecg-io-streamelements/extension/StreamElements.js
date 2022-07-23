@@ -113,6 +113,18 @@ class StreamElementsServiceClient extends events_1.EventEmitter {
     onTest(handler) {
         this.on("test", handler);
     }
+    setupReplicant(rep) {
+        if (rep.value === undefined) {
+            rep.value = {};
+        }
+        this.on("subscriber", (data) => (rep.value.lastSubscriber = data));
+        this.on("tip", (data) => (rep.value.lastTip = data));
+        this.on("cheer", (data) => (rep.value.lastCheer = data));
+        this.on("gift", (data) => (rep.value.lastGift = data));
+        this.on("follow", (data) => (rep.value.lastFollow = data));
+        this.on("raid", (data) => (rep.value.lastRaid = data));
+        this.on("host", (data) => (rep.value.lastHost = data));
+    }
 }
 exports.StreamElementsServiceClient = StreamElementsServiceClient;
 //# sourceMappingURL=StreamElements.js.map

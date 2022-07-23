@@ -1,16 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const tslib_1 = require("tslib");
 const nodecg_io_core_1 = require("nodecg-io-core");
-const express = (0, tslib_1.__importStar)(require("express"));
 const SpotifyWebApi = require("spotify-web-api-node");
 const open = require("open");
-let callbackUrl = "";
 const callbackEndpoint = "/nodecg-io-spotify/spotifycallback";
 const defaultState = "defaultState";
 const refreshInterval = 1800000;
 module.exports = (nodecg) => {
-    callbackUrl = `http://${nodecg.config.baseURL}${callbackEndpoint}`;
     new SpotifyService(nodecg, "spotify", __dirname, "../spotify-schema.json").register();
 };
 class SpotifyService extends nodecg_io_core_1.ServiceBundle {
@@ -27,7 +23,7 @@ class SpotifyService extends nodecg_io_core_1.ServiceBundle {
         const spotifyApi = new SpotifyWebApi({
             clientId: config.clientId,
             clientSecret: config.clientSecret,
-            redirectUri: callbackUrl,
+            redirectUri: `${config.httpsRedirect ? "https" : "http"}://${this.nodecg.config.baseURL}${callbackEndpoint}`,
         });
         // if we already have a refresh token is available we can use it to create a access token without the need to annoy the user
         // by opening and directly after closing a browser window.
@@ -60,7 +56,7 @@ class SpotifyService extends nodecg_io_core_1.ServiceBundle {
     }
     mountCallBackURL(spotifyApi, logger) {
         return new Promise((resolve) => {
-            const router = express.Router();
+            const router = this.nodecg.Router();
             router.get(callbackEndpoint, (req, res) => {
                 var _a, _b;
                 // Get auth code with is returned as url query parameter if everything was successful

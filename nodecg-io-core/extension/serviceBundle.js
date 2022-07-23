@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ServiceBundle = void 0;
 const tslib_1 = require("tslib");
-const fs = (0, tslib_1.__importStar)(require("fs"));
-const path = (0, tslib_1.__importStar)(require("path"));
+const fs = tslib_1.__importStar(require("fs"));
+const path = tslib_1.__importStar(require("path"));
 /**
  * Class helping to create a nodecg-io service
  *
