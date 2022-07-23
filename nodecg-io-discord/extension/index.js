@@ -5,21 +5,20 @@ const discord_js_1 = require("discord.js");
 module.exports = (nodecg) => {
     new DiscordService(nodecg, "discord", __dirname, "../discord-schema.json").register();
 };
-// All except GUILD_MEMBERS and GUILD_PRESENCES.
 const defaultIntents = [
-    "DIRECT_MESSAGES",
-    "DIRECT_MESSAGE_REACTIONS",
-    "DIRECT_MESSAGE_TYPING",
-    "GUILDS",
-    "GUILD_BANS",
-    "GUILD_EMOJIS_AND_STICKERS",
-    "GUILD_INTEGRATIONS",
-    "GUILD_INVITES",
-    "GUILD_MESSAGES",
-    "GUILD_MESSAGE_REACTIONS",
-    "GUILD_MESSAGE_TYPING",
-    "GUILD_VOICE_STATES",
-    "GUILD_WEBHOOKS",
+    discord_js_1.GatewayIntentBits.DirectMessages,
+    discord_js_1.GatewayIntentBits.DirectMessageReactions,
+    discord_js_1.GatewayIntentBits.DirectMessageTyping,
+    discord_js_1.GatewayIntentBits.Guilds,
+    discord_js_1.GatewayIntentBits.GuildBans,
+    discord_js_1.GatewayIntentBits.GuildEmojisAndStickers,
+    discord_js_1.GatewayIntentBits.GuildIntegrations,
+    discord_js_1.GatewayIntentBits.GuildInvites,
+    discord_js_1.GatewayIntentBits.GuildMessages,
+    discord_js_1.GatewayIntentBits.GuildMessageReactions,
+    discord_js_1.GatewayIntentBits.GuildMessageTyping,
+    discord_js_1.GatewayIntentBits.GuildVoiceStates,
+    discord_js_1.GatewayIntentBits.GuildWebhooks,
 ];
 class DiscordService extends nodecg_io_core_1.ServiceBundle {
     async validateConfig(config) {
