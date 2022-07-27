@@ -33,6 +33,7 @@ class StreamElementsServiceClient extends events_1.EventEmitter {
             this.onTestEvent((data) => {
                 if (data.listener) {
                     this.emit("test", data);
+                    this.emit("test:" + data.listener, data);
                 }
             });
         }
@@ -112,6 +113,31 @@ class StreamElementsServiceClient extends events_1.EventEmitter {
     }
     onTest(handler) {
         this.on("test", handler);
+    }
+    onTestSubscription(handler) {
+        this.on("test:subscription-latest", handler);
+    }
+    onTestCheer(handler) {
+        this.on("test:cheer-latest", handler);
+    }
+    onTestGift(handler) {
+        this.on("test:subscriber-latest", d => {
+            if (d.data.gifted) {
+                handler(d);
+            }
+        });
+    }
+    onTestFollow(handler) {
+        this.on("test:follower-latest", handler);
+    }
+    onTestRaid(handler) {
+        this.on("test:raid-latest", handler);
+    }
+    onTestHost(handler) {
+        this.on("test:host-latest", handler);
+    }
+    onTestTip(handler) {
+        this.on("test:tip-latest", handler);
     }
     setupReplicant(rep) {
         if (rep.value === undefined) {
