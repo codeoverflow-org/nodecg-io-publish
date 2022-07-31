@@ -114,11 +114,8 @@ class StreamElementsServiceClient extends events_1.EventEmitter {
     onTest(handler) {
         this.on("test", handler);
     }
-    onTestSubscription(handler) {
-        this.on("test:subscription-latest", handler);
-    }
-    onTestCheer(handler) {
-        this.on("test:cheer-latest", handler);
+    onTestSubscriber(handler) {
+        this.on("test:subscriber-latest", handler);
     }
     onTestGift(handler) {
         this.on("test:subscriber-latest", d => {
@@ -126,6 +123,9 @@ class StreamElementsServiceClient extends events_1.EventEmitter {
                 handler(d);
             }
         });
+    }
+    onTestCheer(handler) {
+        this.on("test:cheer-latest", handler);
     }
     onTestFollow(handler) {
         this.on("test:follower-latest", handler);

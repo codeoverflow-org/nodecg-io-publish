@@ -36,9 +36,9 @@ export declare class StreamElementsServiceClient extends EventEmitter {
     onRaid(handler: (data: StreamElementsRaidEvent) => void): void;
     onHost(handler: (data: StreamElementsHostEvent) => void): void;
     onTest(handler: (data: StreamElementsEvent) => void): void;
-    onTestSubscription(handler: (data: StreamElementsTestSubscriberEvent) => void): void;
-    onTestCheer(handler: (data: StreamElementsTestCheerEvent) => void): void;
+    onTestSubscriber(handler: (data: StreamElementsTestSubscriberEvent) => void): void;
     onTestGift(handler: (data: StreamElementsTestSubscriberEvent) => void): void;
+    onTestCheer(handler: (data: StreamElementsTestCheerEvent) => void): void;
     onTestFollow(handler: (data: StreamElementsTestFollowEvent) => void): void;
     onTestRaid(handler: (data: StreamElementsTestRaidEvent) => void): void;
     onTestHost(handler: (data: StreamElementsTestHostEvent) => void): void;
