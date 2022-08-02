@@ -9,6 +9,7 @@ class StreamElementsServiceClient extends events_1.EventEmitter {
         super();
         this.jwtToken = jwtToken;
         this.handleTestEvents = handleTestEvents;
+        this.subBombDetectionMap = new Map();
     }
     createSocket() {
         this.socket = io("https://realtime.streamelements.com", { transports: ["websocket"] });
@@ -24,7 +25,7 @@ class StreamElementsServiceClient extends events_1.EventEmitter {
         this.onEvent((data) => {
             if (data.type === "subscriber") {
                 if (data.data.gifted) {
-                    this.emit("gift", data);
+                    this.handleSubGift(data.data.sender, data, (subBomb) => this.emit("subbomb", subBomb), (gift) => this.emit("gift", gift));
                 }
             }
             this.emit(data.type, data);
@@ -36,7 +37,36 @@ class StreamElementsServiceClient extends events_1.EventEmitter {
                     this.emit("test:" + data.listener, data);
                 }
             });
+            this.onTestSubscriber((data) => {
+                if (data.event.gifted) {
+                    this.handleSubGift(data.event.sender, data, (subBomb) => this.emit("test:subbomb", subBomb), (gift) => this.emit("test:gift", gift));
+                }
+            });
         }
+    }
+    handleSubGift(subGifter, gift, handlerSubBomb, handlerGift) {
+        var _a;
+        const gifter = subGifter !== null && subGifter !== void 0 ? subGifter : "anonymous";
+        const subBomb = (_a = this.subBombDetectionMap.get(gifter)) !== null && _a !== void 0 ? _a : {
+            subs: [],
+            timeout: setTimeout(() => {
+                this.subBombDetectionMap.delete(gifter);
+                // Only fire sub bomb event if more than one sub were gifted.
+                // Otherwise, this is just a single gifted sub.
+                if (subBomb.subs.length > 1) {
+                    const subBombEvent = {
+                        gifterUsername: gifter,
+                        subscribers: subBomb.subs,
+                    };
+                    handlerSubBomb(subBombEvent);
+                }
+                subBomb.subs.forEach(handlerGift);
+            }, 1000),
+        };
+        subBomb.subs.push(gift);
+        // New subs in this sub bomb. Refresh timeout in case another one follows.
+        subBomb.timeout.refresh();
+        this.subBombDetectionMap.set(gifter, subBomb);
     }
     async connect() {
         return new Promise((resolve, _reject) => {
@@ -90,8 +120,15 @@ class StreamElementsServiceClient extends events_1.EventEmitter {
             }
         });
     }
-    onSubscriber(handler) {
-        this.on("subscriber", handler);
+    onSubscriber(handler, includeSubGifts = true) {
+        this.on("subscriber", (data) => {
+            if (data.data.gifted && !includeSubGifts)
+                return;
+            handler(data);
+        });
+    }
+    onSubscriberBomb(handler) {
+        this.on("subbomb", handler);
     }
     onTip(handler) {
         this.on("tip", handler);
@@ -114,15 +151,18 @@ class StreamElementsServiceClient extends events_1.EventEmitter {
     onTest(handler) {
         this.on("test", handler);
     }
-    onTestSubscriber(handler) {
-        this.on("test:subscriber-latest", handler);
+    onTestSubscriber(handler, includeSubGifts = true) {
+        this.on("test:subscriber-latest", (data) => {
+            if (data.event.gifted && !includeSubGifts)
+                return;
+            handler(data);
+        });
+    }
+    onTestSubscriberBomb(handler) {
+        this.on("test:subbomb", handler);
     }
     onTestGift(handler) {
-        this.on("test:subscriber-latest", d => {
-            if (d.data.gifted) {
-                handler(d);
-            }
-        });
+        this.on("test:gift", handler);
     }
     onTestCheer(handler) {
         this.on("test:cheer-latest", handler);
@@ -143,13 +183,14 @@ class StreamElementsServiceClient extends events_1.EventEmitter {
         if (rep.value === undefined) {
             rep.value = {};
         }
-        this.on("subscriber", (data) => (rep.value.lastSubscriber = data));
-        this.on("tip", (data) => (rep.value.lastTip = data));
-        this.on("cheer", (data) => (rep.value.lastCheer = data));
-        this.on("gift", (data) => (rep.value.lastGift = data));
-        this.on("follow", (data) => (rep.value.lastFollow = data));
-        this.on("raid", (data) => (rep.value.lastRaid = data));
-        this.on("host", (data) => (rep.value.lastHost = data));
+        this.onSubscriber((data) => (rep.value.lastSubscriber = data));
+        this.onSubscriberBomb((data) => (rep.value.lastSubBomb = data));
+        this.onTip((data) => (rep.value.lastTip = data));
+        this.onCheer((data) => (rep.value.lastCheer = data));
+        this.onGift((data) => (rep.value.lastGift = data));
+        this.onFollow((data) => (rep.value.lastFollow = data));
+        this.onRaid((data) => (rep.value.lastRaid = data));
+        this.onHost((data) => (rep.value.lastHost = data));
     }
 }
 exports.StreamElementsServiceClient = StreamElementsServiceClient;

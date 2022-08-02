@@ -100,6 +100,16 @@ export declare type StreamElementsSubscriberEvent = StreamElementsBaseEvent<"sub
      */
     tier: "1000" | "2000" | "3000" | "prime";
 }>;
+export interface StreamElementsSubBombEvent<T extends StreamElementsSubscriberEvent | StreamElementsTestSubscriberEvent> {
+    /**
+     * The username of the gifter.
+     */
+    gifterUsername: string;
+    /**
+     * All gifted subs.
+     */
+    subscribers: ReadonlyArray<T>;
+}
 export declare type StreamElementsTipEvent = StreamElementsBaseEvent<"tip", {
     /**
      * The amount of money in the given currency that was tipped.
