@@ -1,8 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PersistenceManager = exports.ensureEncryptionSaltIsSet = exports.reEncryptData = exports.deriveEncryptionKey = exports.encryptData = exports.decryptData = void 0;
+exports.PersistenceManager = exports.getEncryptionSalt = exports.reEncryptData = exports.deriveEncryptionKey = exports.encryptData = exports.decryptData = void 0;
 const tslib_1 = require("tslib");
 const crypto_js_1 = tslib_1.__importDefault(require("crypto-js"));
+const argon2 = tslib_1.__importStar(require("argon2-browser"));
 const result_1 = require("./utils/result");
 /**
  * Decrypts the passed encrypted data using the passed encryption key.
@@ -46,34 +47,26 @@ exports.encryptData = encryptData;
  * Derives a key suitable for encrypting the config from the given password.
  *
  * @param password the password from which the encryption key will be derived.
- * @param salt the salt that is used for key derivation.
+ * @param salt the hex encoded salt that is used for key derivation.
  * @returns a hex encoded string of the derived key.
  */
-function deriveEncryptionKey(password, salt) {
-    const saltWordArray = crypto_js_1.default.enc.Hex.parse(salt);
-    return crypto_js_1.default
-        .PBKDF2(password, saltWordArray, {
-        // Generate a 256 bit long key for AES-256.
-        keySize: 256 / 32,
-        // Iterations should ideally be as high as possible.
-        // OWASP recommends 310.000 iterations for PBKDF2 with SHA-256 [https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#pbkdf2].
-        // The problem that we have here is that this is run inside the browser
-        // and we must use the JavaScript implementation which is slow.
-        // There is the SubtleCrypto API in browsers that is implemented in native code inside the browser and can use cryptographic CPU extensions.
-        // However SubtleCrypto is only available in secure contexts (https) so we cannot use it
-        // because nodecg-io should be usable on e.g. raspberry pi on a local trusted network.
-        // So were left with only 5000 iterations which were determined
-        // by checking how many iterations are possible on a AMD Ryzen 5 1600 in a single second
-        // which should be acceptable time for logging in. Slower CPUs will take longer,
-        // so I didn't want to increase this any further.
-        // For comparison: the crypto.js internal key generation function that was used in nodecg.io <0.3 configs
-        // used PBKDF1 based on a single MD5 iteration (yes, that is really the default in crypto.js...).
-        // So this is still a big improvement in comparison to the old config format.
-        iterations: 5000,
-        // Use SHA-256 as the hashing algorithm. crypto.js defaults to SHA-1 which is less secure.
-        hasher: crypto_js_1.default.algo.SHA256,
-    })
-        .toString(crypto_js_1.default.enc.Hex);
+async function deriveEncryptionKey(password, salt) {
+    var _a, _b;
+    const saltBytes = Uint8Array.from((_b = (_a = salt.match(/.{1,2}/g)) === null || _a === void 0 ? void 0 : _a.map((byte) => parseInt(byte, 16))) !== null && _b !== void 0 ? _b : []);
+    const hash = await argon2.hash({
+        pass: password,
+        salt: saltBytes,
+        // OWASP reccomends either t=1,m=37MiB or t=2,m=37MiB for argon2id:
+        // https://www.owasp.org/index.php/Password_Storage_Cheat_Sheet#Argon2id
+        // On a Ryzen 5 5500u a single iteration is about 220 ms. Two iterations would make that about 440 ms, which is still fine.
+        // This is run inside the browser when logging in, therefore 37 MiB is acceptable too.
+        // To future proof this we use 37 MiB ram and 2 iterations.
+        time: 2,
+        mem: 37 * 1024,
+        hashLen: 32,
+        type: argon2.ArgonType.Argon2id,
+    });
+    return hash.hashHex;
 }
 exports.deriveEncryptionKey = deriveEncryptionKey;
 /**
@@ -103,17 +96,18 @@ exports.reEncryptData = reEncryptData;
  * The salt attribute is not set when either this is the first start of nodecg-io
  * or if this is a old config from nodecg-io <= 0.2.
  *
- * If this is a new configuration a new salt will be generated and set inside the EncryptedData object.
+ * If this is a new configuration a new salt will be generated, set inside the EncryptedData object and returned.
  * If this is a old configuration from nodecg-io <= 0.2 it will be migrated to the new format as well.
  *
  * @param data the encrypted data where the salt should be ensured to be available
  * @param password the password of the encrypted data. Used if this config needs to be migrated
+ * @return returns the either retrieved or generated salt
  */
-function ensureEncryptionSaltIsSet(data, password) {
+async function getEncryptionSalt(data, password) {
     if (data.salt !== undefined) {
         // We already have a salt, so we have the new (nodecg-io >=0.3) format too.
         // We don't need to do anything then.
-        return;
+        return data.salt;
     }
     // No salt is present, which is the case for the nodecg-io <=0.2 configs
     // where crypto-js derived the encryption key and managed the salt
@@ -124,7 +118,7 @@ function ensureEncryptionSaltIsSet(data, password) {
         // Salt is unset but we have some encrypted data.
         // This means that this is a old config (nodecg-io <=0.2), that we need to migrate to the new format.
         // Re-encrypt the configuration using our own derived key instead of the password.
-        const newEncryptionKey = deriveEncryptionKey(password, salt);
+        const newEncryptionKey = await deriveEncryptionKey(password, salt);
         const newEncryptionKeyArr = crypto_js_1.default.enc.Hex.parse(newEncryptionKey);
         const res = reEncryptData(data, password, newEncryptionKeyArr);
         if (res.failed) {
@@ -132,8 +126,9 @@ function ensureEncryptionSaltIsSet(data, password) {
         }
     }
     data.salt = salt;
+    return salt;
 }
-exports.ensureEncryptionSaltIsSet = ensureEncryptionSaltIsSet;
+exports.getEncryptionSalt = getEncryptionSalt;
 /**
  * Manages encrypted persistence of data that is held by the instance and bundle managers.
  */
@@ -345,12 +340,11 @@ class PersistenceManager {
         // So if we want to wait for NodeCG to be loaded we can watch for changes on this replicant and
         // if we get a non-empty array it means that NodeCG has finished loading.
         this.nodecg.Replicant("bundles", "nodecg").on("change", async (bundles) => {
-            var _a;
             if (bundles.length > 0) {
                 try {
                     this.nodecg.log.info("Attempting to automatically login...");
-                    ensureEncryptionSaltIsSet(this.encryptedData.value, password);
-                    const encryptionKey = deriveEncryptionKey(password, (_a = this.encryptedData.value.salt) !== null && _a !== void 0 ? _a : "");
+                    const salt = await getEncryptionSalt(this.encryptedData.value, password);
+                    const encryptionKey = await deriveEncryptionKey(password, salt);
                     const loadResult = await this.load(encryptionKey);
                     if (!loadResult.failed) {
                         this.nodecg.log.info("Automatic login successful.");
@@ -360,16 +354,16 @@ class PersistenceManager {
                     }
                 }
                 catch (err) {
-                    const logMesssage = `Failed to automatically login: ${err}`;
+                    const logMessage = `Failed to automatically login: ${err}`;
                     if (this.isLoaded()) {
                         // load() threw an error but nodecg-io is currently loaded nonetheless.
                         // Anyway, nodecg-io is loaded which is what we wanted
-                        this.nodecg.log.warn(logMesssage);
+                        this.nodecg.log.warn(logMessage);
                     }
                     else {
                         // Something went wrong and nodecg-io is not loaded.
                         // This is a real error, the password might be wrong or some other issue.
-                        this.nodecg.log.error(logMesssage);
+                        this.nodecg.log.error(logMessage);
                     }
                 }
             }
