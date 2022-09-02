@@ -1,0 +1,64 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.OpenTTSClient = void 0;
+const tslib_1 = require("tslib");
+const node_fetch_1 = tslib_1.__importDefault(require("node-fetch"));
+class OpenTTSClient {
+    constructor(config) {
+        this.config = config;
+    }
+    buildBaseURL() {
+        const protocol = this.config.useHttps ? "https" : "http";
+        return `${protocol}://${this.config.host}`;
+    }
+    async executeRequest(path) {
+        const response = await (0, node_fetch_1.default)(this.buildBaseURL() + path);
+        if (!response.ok) {
+            throw new Error("Failed to execute opentts request: " + (await response.text()));
+        }
+        return response;
+    }
+    async getLanguages(ttsName) {
+        const urlVar = ttsName ? `?tts_name=${ttsName}` : "";
+        const response = await this.executeRequest(`/api/languages${urlVar}`);
+        return await response.json();
+    }
+    async getVoices(language, locale, gender, ttsName) {
+        const params = new URLSearchParams();
+        if (language)
+            params.set("language", language);
+        if (locale)
+            params.set("locale", locale);
+        if (gender)
+            params.set("gender", gender);
+        if (ttsName)
+            params.set("tts_name", ttsName);
+        const response = await this.executeRequest(`/api/voices?${params}`);
+        return await response.json();
+    }
+    generateWavUrl(text, voice, vocoder, denoiserStrength, cache) {
+        const params = new URLSearchParams({ text, voice });
+        if (vocoder)
+            params.set("vocoder", vocoder);
+        if (denoiserStrength)
+            params.set("denoiserStrength", denoiserStrength.toString());
+        if (cache !== undefined)
+            params.set("cache", cache.toString());
+        return `${this.buildBaseURL()}/api/tts?${params}`;
+    }
+    async getWavData(url) {
+        const response = await this.executeRequest(url);
+        return await response.arrayBuffer();
+    }
+    static async isOpenTTSAvailable(config) {
+        try {
+            await new OpenTTSClient(config).getLanguages();
+            return true;
+        }
+        catch (_e) {
+            return false;
+        }
+    }
+}
+exports.OpenTTSClient = OpenTTSClient;
+//# sourceMappingURL=openTtsClient.js.map

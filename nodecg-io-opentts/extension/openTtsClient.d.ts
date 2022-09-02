@@ -1,0 +1,29 @@
+import { OpenTTSConfig } from "./index";
+import { ObjectMap } from "nodecg-io-core/extension/service";
+declare type OpenTTSName = "espeak" | "flite" | "festival" | "nanotts" | "marytts";
+declare type OpenTTSGender = "F" | "M";
+declare type OpenTTVOCoderQuality = "high" | "medium" | "low";
+export interface OpenTTSVoice {
+    gender: OpenTTSGender;
+    id: string;
+    language: string;
+    locale: string;
+    multispeaker: boolean;
+    name: string;
+    speakers?: ObjectMap<number>;
+    tag: ObjectMap<unknown>;
+    tts_name: string;
+}
+export declare class OpenTTSClient {
+    private config;
+    constructor(config: OpenTTSConfig);
+    private buildBaseURL;
+    private executeRequest;
+    getLanguages(ttsName?: OpenTTSName): Promise<Array<string>>;
+    getVoices(language?: string, locale?: string, gender?: OpenTTSGender, ttsName?: OpenTTSName): Promise<ObjectMap<OpenTTSVoice>>;
+    generateWavUrl(text: string, voice: string, vocoder?: OpenTTVOCoderQuality, denoiserStrength?: number, cache?: boolean): string;
+    getWavData(url: string): Promise<ArrayBuffer>;
+    static isOpenTTSAvailable(config: OpenTTSConfig): Promise<boolean>;
+}
+export {};
+//# sourceMappingURL=openTtsClient.d.ts.map
