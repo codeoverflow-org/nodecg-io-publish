@@ -20,7 +20,7 @@ class OpenTTSService extends nodecg_io_core_1.ServiceBundle {
         logger.info("Successfully created OpenTTS client.");
         return (0, nodecg_io_core_1.success)(client);
     }
-    stopClient(_, logger) {
+    stopClient(_, _logger) {
         // Client is stateless, no need to stop anything
     }
 }
