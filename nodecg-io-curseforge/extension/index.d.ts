@@ -1,4 +1,0 @@
-import { CurseForge } from "./curseforgeClient";
-export declare type CurseForgeClient = CurseForge;
-export { CurseAddon, CurseFile, CurseGameInfo, CurseParsingRule, CurseGameFile, CurseGameDetectionHint, CurseModLoader, CurseAddonInfo, CurseAddonAuthor, CurseAddonAttachment, CurseFileInfo, LatestCurseFileInfo, CurseGameVersionLatestFile, CurseCategory, CurseCategorySection, CurseCategoryInfo, CurseDependency, CurseModule, CurseSortableGameVersion, CurseFingerprintResponse, CurseFeaturedAddonsResponse, CurseReleaseType, CurseDependencyType, CurseFileStatus, CurseProjectStatus, CurseSearchQuery, CurseFeaturedAddonsQuery, MagicValues, HttpMethod, } from "./curseforgeClient";
-//# sourceMappingURL=index.d.ts.map
