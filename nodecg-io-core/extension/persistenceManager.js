@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.PersistenceManager = exports.getEncryptionSalt = exports.reEncryptData = exports.deriveEncryptionKey = exports.encryptData = exports.decryptData = void 0;
 const tslib_1 = require("tslib");
 const crypto_js_1 = tslib_1.__importDefault(require("crypto-js"));
-const argon2 = tslib_1.__importStar(require("argon2-browser"));
+const hash_wasm_1 = require("hash-wasm");
 const result_1 = require("./utils/result");
 /**
  * Decrypts the passed encrypted data using the passed encryption key.
@@ -53,20 +53,20 @@ exports.encryptData = encryptData;
 async function deriveEncryptionKey(password, salt) {
     var _a, _b;
     const saltBytes = Uint8Array.from((_b = (_a = salt.match(/.{1,2}/g)) === null || _a === void 0 ? void 0 : _a.map((byte) => parseInt(byte, 16))) !== null && _b !== void 0 ? _b : []);
-    const hash = await argon2.hash({
-        pass: password,
+    return await (0, hash_wasm_1.argon2id)({
+        password,
         salt: saltBytes,
         // OWASP reccomends either t=1,m=37MiB or t=2,m=37MiB for argon2id:
         // https://www.owasp.org/index.php/Password_Storage_Cheat_Sheet#Argon2id
         // On a Ryzen 5 5500u a single iteration is about 220 ms. Two iterations would make that about 440 ms, which is still fine.
         // This is run inside the browser when logging in, therefore 37 MiB is acceptable too.
         // To future proof this we use 37 MiB ram and 2 iterations.
-        time: 2,
-        mem: 37 * 1024,
-        hashLen: 32,
-        type: argon2.ArgonType.Argon2id,
+        iterations: 2,
+        memorySize: 37,
+        hashLength: 32,
+        parallelism: 1,
+        outputType: "hex",
     });
-    return hash.hashHex;
 }
 exports.deriveEncryptionKey = deriveEncryptionKey;
 /**
