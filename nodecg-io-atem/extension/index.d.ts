@@ -1,3 +1,3 @@
 import { Atem } from "atem-connection";
-export declare type AtemServiceClient = Atem;
+export type AtemServiceClient = Atem;
 //# sourceMappingURL=index.d.ts.map

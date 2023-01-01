@@ -1,3 +1,3 @@
 import * as WebSocket from "ws";
-export declare type WSServerServiceClient = WebSocket.Server;
+export type WSServerServiceClient = WebSocket.Server;
 //# sourceMappingURL=index.d.ts.map

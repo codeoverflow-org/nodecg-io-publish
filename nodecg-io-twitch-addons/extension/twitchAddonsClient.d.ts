@@ -59,7 +59,7 @@ export declare class TwitchAddonsClient {
 /**
  * The data the better twitch tv API gives for a twitch channel
  */
-export declare type BetterTTVChannel = {
+export type BetterTTVChannel = {
     /**
      * UUID used by BetterTTV for this channel
      */
@@ -80,7 +80,7 @@ export declare type BetterTTVChannel = {
 /**
  * One emote from BetterTTV
  */
-export declare type BetterTTVEmote = {
+export type BetterTTVEmote = {
     /**
      * A UUID used to identify this emote
      */
@@ -97,7 +97,7 @@ export declare type BetterTTVEmote = {
 /**
  * One channel emote from BetterTTV
  */
-export declare type BetterTTVChannelEmote = BetterTTVEmote & {
+export type BetterTTVChannelEmote = BetterTTVEmote & {
     /**
      * UUID of the user who created this emote. Pretty useless as it seems to be
      * always the same id that is also available in BetterTTVChannel
@@ -107,7 +107,7 @@ export declare type BetterTTVChannelEmote = BetterTTVEmote & {
 /**
  * One shared emote from BetterTTV
  */
-export declare type BetterTTVSharedEmote = BetterTTVEmote & {
+export type BetterTTVSharedEmote = BetterTTVEmote & {
     /**
      * The user who created this emote
      */
@@ -116,7 +116,7 @@ export declare type BetterTTVSharedEmote = BetterTTVEmote & {
 /**
  * A BetterTTV user
  */
-export declare type BetterTTVUser = {
+export type BetterTTVUser = {
     /**
      * UUID used by BetterTTV for this user
      */
@@ -137,11 +137,11 @@ export declare type BetterTTVUser = {
 /**
  * A FFZ URL is always only a part of a URL. Use getURL() to get a complete URL.
  */
-export declare type FFZUrl = string;
+export type FFZUrl = string;
 /**
  * A channel in the FrankerFaceZ API
  */
-export declare type FFZChannel = {
+export type FFZChannel = {
     /**
      * Generic information about the channel
      */
@@ -154,7 +154,7 @@ export declare type FFZChannel = {
 /**
  * Generic information abou a FFZ channel.
  */
-export declare type FFZRoom = {
+export type FFZRoom = {
     /**
      * The helix id of the user
      */
@@ -183,7 +183,7 @@ export declare type FFZRoom = {
 /**
  * A set of FFZ emotes
  */
-export declare type FFZEmoteSet = {
+export type FFZEmoteSet = {
     /**
      * The id of the emote set.
      */
@@ -199,7 +199,7 @@ export declare type FFZEmoteSet = {
 /**
  * One FFZ emote
  */
-export declare type FFZEmote = {
+export type FFZEmote = {
     /**
      * The id of the emote
      */
@@ -227,7 +227,7 @@ export declare type FFZEmote = {
 /**
  * A FFZ user
  */
-export declare type FFZUser = {
+export type FFZUser = {
     /**
      * The login name of the user
      */
@@ -240,7 +240,7 @@ export declare type FFZUser = {
 /**
  * Global emotes from FFZ
  */
-export declare type FFZGlobalEmotes = {
+export type FFZGlobalEmotes = {
     /**
      * Contains the ids of sets that everyone can use.
      */
@@ -256,7 +256,7 @@ export declare type FFZGlobalEmotes = {
  * The list of users depends on the query:
  * > `user_identifier: "object_id" | "twitch_id" | "login"`
  */
-export declare type SevenTVBadge = {
+export type SevenTVBadge = {
     /**
      * 7TV Badge ID
      */
@@ -301,7 +301,7 @@ export declare type SevenTVBadge = {
 /**
  * 7TV Emote Object
  */
-export declare type SevenTVEmote = {
+export type SevenTVEmote = {
     /**
      * Unique ID of 7TV Emote.
      */
@@ -359,15 +359,15 @@ export declare type SevenTVEmote = {
 /**
  * List of emotes for a specified Channel
  */
-export declare type SevenTVChannelEmotes = SevenTVEmote[];
+export type SevenTVChannelEmotes = SevenTVEmote[];
 /**
  * List of Global Emotes for 7TV.
  */
-export declare type SevenTVGlobalEmotes = SevenTVEmote[];
+export type SevenTVGlobalEmotes = SevenTVEmote[];
 /**
  * 7TV User Object.
  */
-export declare type SevenTVUser = {
+export type SevenTVUser = {
     /**
      * ID of the User in 7TV API.
      */
@@ -417,7 +417,7 @@ export declare type SevenTVUser = {
 /**
  * Contains a list of emote sets from BTTV and / or FFZ
  */
-export declare type EmoteCollection = {
+export type EmoteCollection = {
     bttvChannel: BetterTTVChannelEmote[];
     bttvShared: BetterTTVSharedEmote[];
     bttvGlobal: BetterTTVEmote[];
@@ -429,7 +429,7 @@ export declare type EmoteCollection = {
 /**
  * Options for method getEmoteCollection.
  */
-export declare type EmoteCollectionOptions = {
+export type EmoteCollectionOptions = {
     /**
      * Include each providers' global emotes in the returned collection.
      * @default true
@@ -444,5 +444,5 @@ export declare type EmoteCollectionOptions = {
 /**
  * Resolution of an emote image
  */
-export declare type EmoteResolution = 1 | 2 | 3 | 4;
+export type EmoteResolution = 1 | 2 | 3 | 4;
 //# sourceMappingURL=twitchAddonsClient.d.ts.map

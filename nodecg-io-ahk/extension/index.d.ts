@@ -1,3 +1,3 @@
 import { AHK } from "./AHK";
-export declare type AHKServiceClient = AHK;
+export type AHKServiceClient = AHK;
 //# sourceMappingURL=index.d.ts.map

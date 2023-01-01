@@ -1,3 +1,3 @@
 import { IntelliJ } from "./intellij";
-export declare type IntelliJServiceClient = IntelliJ;
+export type IntelliJServiceClient = IntelliJ;
 //# sourceMappingURL=index.d.ts.map

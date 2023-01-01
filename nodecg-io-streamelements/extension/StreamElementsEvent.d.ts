@@ -51,8 +51,8 @@ interface StreamElementsDataBase {
      */
     providerId?: string;
 }
-export declare type StreamElementsFollowEvent = StreamElementsBaseEvent<"follow", unknown>;
-export declare type StreamElementsCheerEvent = StreamElementsBaseEvent<"cheer", {
+export type StreamElementsFollowEvent = StreamElementsBaseEvent<"follow", unknown>;
+export type StreamElementsCheerEvent = StreamElementsBaseEvent<"cheer", {
     /**
      * The count of bits that were cheered.
      */
@@ -62,19 +62,19 @@ export declare type StreamElementsCheerEvent = StreamElementsBaseEvent<"cheer", 
      */
     message: string;
 }>;
-export declare type StreamElementsHostEvent = StreamElementsBaseEvent<"host", {
+export type StreamElementsHostEvent = StreamElementsBaseEvent<"host", {
     /**
      * Number of viewers that are watching through this host.
      */
     amount: number;
 }>;
-export declare type StreamElementsRaidEvent = StreamElementsBaseEvent<"raid", {
+export type StreamElementsRaidEvent = StreamElementsBaseEvent<"raid", {
     /**
      * Number of viewers raiding this channel.
      */
     amount: number;
 }>;
-export declare type StreamElementsSubscriberEvent = StreamElementsBaseEvent<"subscriber", {
+export type StreamElementsSubscriberEvent = StreamElementsBaseEvent<"subscriber", {
     /**
      * The total amount of months that this user has already subscribed.
      */
@@ -110,7 +110,7 @@ export interface StreamElementsSubBombEvent<T extends StreamElementsSubscriberEv
      */
     subscribers: ReadonlyArray<T>;
 }
-export declare type StreamElementsTipEvent = StreamElementsBaseEvent<"tip", {
+export type StreamElementsTipEvent = StreamElementsBaseEvent<"tip", {
     /**
      * The amount of money in the given currency that was tipped.
      */
@@ -154,8 +154,8 @@ interface StreamElementsTestDataBase {
      */
     providerId?: string;
 }
-export declare type StreamElementsTestFollowEvent = StreamElementsBaseTestEvent<"follower-latest", unknown>;
-export declare type StreamElementsTestCheerEvent = StreamElementsBaseTestEvent<"cheer-latest", {
+export type StreamElementsTestFollowEvent = StreamElementsBaseTestEvent<"follower-latest", unknown>;
+export type StreamElementsTestCheerEvent = StreamElementsBaseTestEvent<"cheer-latest", {
     /**
      * The count of bits that were cheered.
      */
@@ -165,19 +165,19 @@ export declare type StreamElementsTestCheerEvent = StreamElementsBaseTestEvent<"
      */
     message: string;
 }>;
-export declare type StreamElementsTestHostEvent = StreamElementsBaseTestEvent<"host-latest", {
+export type StreamElementsTestHostEvent = StreamElementsBaseTestEvent<"host-latest", {
     /**
      * Number of viewers that are watching through this host.
      */
     amount: number;
 }>;
-export declare type StreamElementsTestRaidEvent = StreamElementsBaseTestEvent<"raid-latest", {
+export type StreamElementsTestRaidEvent = StreamElementsBaseTestEvent<"raid-latest", {
     /**
      * Number of viewers raiding this channel.
      */
     amount: number;
 }>;
-export declare type StreamElementsTestSubscriberEvent = StreamElementsBaseTestEvent<"subscriber-latest", {
+export type StreamElementsTestSubscriberEvent = StreamElementsBaseTestEvent<"subscriber-latest", {
     /**
      * The total amount of months that this user has already subscribed.
      */
@@ -203,7 +203,7 @@ export declare type StreamElementsTestSubscriberEvent = StreamElementsBaseTestEv
      */
     tier: "1000" | "2000" | "3000" | "prime";
 }>;
-export declare type StreamElementsTestTipEvent = StreamElementsBaseTestEvent<"tip-latest", {
+export type StreamElementsTestTipEvent = StreamElementsBaseTestEvent<"tip-latest", {
     /**
      * The amount of money in the given currency that was tipped.
      */
@@ -221,7 +221,7 @@ export declare type StreamElementsTestTipEvent = StreamElementsBaseTestEvent<"ti
      */
     tipId: string;
 }>;
-export declare type StreamElementsEvent = StreamElementsFollowEvent | StreamElementsCheerEvent | StreamElementsHostEvent | StreamElementsRaidEvent | StreamElementsSubscriberEvent | StreamElementsTipEvent;
-export declare type StreamElementsTestEvent = StreamElementsTestFollowEvent | StreamElementsTestCheerEvent | StreamElementsTestHostEvent | StreamElementsTestRaidEvent | StreamElementsTestSubscriberEvent | StreamElementsTestTipEvent;
+export type StreamElementsEvent = StreamElementsFollowEvent | StreamElementsCheerEvent | StreamElementsHostEvent | StreamElementsRaidEvent | StreamElementsSubscriberEvent | StreamElementsTipEvent;
+export type StreamElementsTestEvent = StreamElementsTestFollowEvent | StreamElementsTestCheerEvent | StreamElementsTestHostEvent | StreamElementsTestRaidEvent | StreamElementsTestSubscriberEvent | StreamElementsTestTipEvent;
 export {};
 //# sourceMappingURL=StreamElementsEvent.d.ts.map

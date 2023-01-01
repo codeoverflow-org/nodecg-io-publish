@@ -1,3 +1,3 @@
 import Twitter = require("twitter");
-export declare type TwitterServiceClient = Twitter;
+export type TwitterServiceClient = Twitter;
 //# sourceMappingURL=index.d.ts.map

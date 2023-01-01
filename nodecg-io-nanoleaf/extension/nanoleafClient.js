@@ -6,6 +6,12 @@ const node_fetch_1 = tslib_1.__importDefault(require("node-fetch"));
 const nanoleafQueue_1 = require("./nanoleafQueue");
 const nanoleafUtils_1 = require("./nanoleafUtils");
 class NanoleafClient {
+    /**
+     * Returns the client-specific effect queue.
+     */
+    getQueue() {
+        return this.queue;
+    }
     constructor(ipAddress, authToken) {
         this.ipAddress = ipAddress;
         this.authToken = authToken;
@@ -13,12 +19,6 @@ class NanoleafClient {
         this.colors = new Map();
         // This queue is used to queue effects
         this.queue = new nanoleafQueue_1.NanoleafQueue();
-    }
-    /**
-     * Returns the client-specific effect queue.
-     */
-    getQueue() {
-        return this.queue;
     }
     async callGET(relativePath) {
         return (0, node_fetch_1.default)(nanoleafUtils_1.NanoleafUtils.buildBaseRequestAddress(this.ipAddress, this.authToken) + relativePath, {
