@@ -40,6 +40,6 @@
     "dependencies": {
         "node-fetch": "^2.6.9",
         "nodecg-io-core": "^0.3.0",
-        "nodecg-io-twitch-auth": "^0.3.0"
+        "nodecg-io-twitch-auth": "https://codeoverflow-org.github.io/nodecg-io-publish/nodecg-io-twitch-auth-0.3.0.tgz"
     }
 }
