@@ -101,9 +101,9 @@ class NanoleafUtils {
         };
     }
 }
-exports.NanoleafUtils = NanoleafUtils;
 /**
  * This port seems to be default for all nanoleaf controllers
  */
 NanoleafUtils.defaultPort = 16021;
+exports.NanoleafUtils = NanoleafUtils;
 //# sourceMappingURL=nanoleafUtils.js.map
