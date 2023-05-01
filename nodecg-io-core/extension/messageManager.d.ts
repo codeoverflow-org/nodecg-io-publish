@@ -1,4 +1,4 @@
-import { NodeCG } from "nodecg-types/types/server";
+import NodeCG from "@nodecg/types";
 import { InstanceManager } from "./instanceManager";
 import { BundleManager } from "./bundleManager";
 import { PersistenceManager } from "./persistenceManager";
@@ -32,7 +32,7 @@ export declare class MessageManager {
     private instances;
     private bundles;
     private persist;
-    constructor(nodecg: NodeCG, services: ServiceManager, instances: InstanceManager, bundles: BundleManager, persist: PersistenceManager);
+    constructor(nodecg: NodeCG.ServerAPI, services: ServiceManager, instances: InstanceManager, bundles: BundleManager, persist: PersistenceManager);
     registerMessageHandlers(): void;
     private listen;
     private listenWithAuth;

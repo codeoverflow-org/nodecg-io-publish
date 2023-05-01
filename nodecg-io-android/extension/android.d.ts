@@ -282,7 +282,7 @@ export declare class GpsSensor {
      * @param time The minimum time (in milliseconds) between two location updates sent. Set this as high as possible.
      * @param distance The minimum distance (in meters) between two location updates
      */
-    subscribeLocations(listener: (l: Location) => void, time?: number, distance?: number): Promise<Subscription>;
+    subscribeLocations(listener: (l: LocationInfo) => void, time?: number, distance?: number): Promise<Subscription>;
     equals(other: GpsSensor): boolean;
 }
 export type LocationInfo = {

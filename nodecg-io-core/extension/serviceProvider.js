@@ -54,7 +54,8 @@ class ServiceProvider {
 exports.ServiceProvider = ServiceProvider;
 /**
  * Allows for bundles to require services.
- * @param {NodeCG} nodecg the NodeCG instance of your bundle. Is used to get the bundle name of the calling bundle.
+ * @param {NodeCGCompatible} nodecg the NodeCG instance of your bundle. Is used to get the bundle name of the calling bundle
+ *                                  and to get access to the nodecg-io-core bundle to register your service requirement.
  * @param {string} serviceType the type of service you want to require, e.g., "twitch" or "spotify".
  * @return {ServiceClientWrapper<C> | undefined} a service client wrapper for access to the service client
  *                                               or undefined if the core wasn't loaded or the service type doesn't exist.

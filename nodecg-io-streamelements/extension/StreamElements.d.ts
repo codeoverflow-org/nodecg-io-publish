@@ -2,7 +2,7 @@
 import { Result } from "nodecg-io-core";
 import { StreamElementsCheerEvent, StreamElementsEvent, StreamElementsFollowEvent, StreamElementsHostEvent, StreamElementsRaidEvent, StreamElementsSubBombEvent, StreamElementsSubscriberEvent, StreamElementsTestCheerEvent, StreamElementsTestFollowEvent, StreamElementsTestHostEvent, StreamElementsTestRaidEvent, StreamElementsTestSubscriberEvent, StreamElementsTestTipEvent, StreamElementsTipEvent } from "./StreamElementsEvent";
 import { EventEmitter } from "events";
-import { Replicant } from "nodecg-types/types/server";
+import NodeCG from "@nodecg/types";
 export interface StreamElementsReplicant {
     lastSubscriber?: StreamElementsSubscriberEvent;
     lastSubBomb?: StreamElementsSubBombEvent<StreamElementsSubscriberEvent>;
@@ -48,6 +48,6 @@ export declare class StreamElementsServiceClient extends EventEmitter {
     onTestRaid(handler: (data: StreamElementsTestRaidEvent) => void): void;
     onTestHost(handler: (data: StreamElementsTestHostEvent) => void): void;
     onTestTip(handler: (data: StreamElementsTestTipEvent) => void): void;
-    setupReplicant(rep: Replicant<StreamElementsReplicant>): void;
+    setupReplicant(rep: NodeCG.ServerReplicant<StreamElementsReplicant>): void;
 }
 //# sourceMappingURL=StreamElements.d.ts.map
