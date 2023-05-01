@@ -1,5 +1,5 @@
 /// <reference types="node" />
-import { NodeCG } from "nodecg-types/types/server";
+import NodeCG from "@nodecg/types";
 import { ObjectMap, Service, ServiceInstance } from "./service";
 import { Result } from "./utils/result";
 import { ServiceManager } from "./serviceManager";
@@ -14,7 +14,7 @@ export declare class InstanceManager extends EventEmitter {
     private readonly bundles;
     private serviceInstances;
     private ajv;
-    constructor(nodecg: NodeCG, services: ServiceManager, bundles: BundleManager);
+    constructor(nodecg: NodeCG.ServerAPI, services: ServiceManager, bundles: BundleManager);
     /**
      * Finds and returns the service instance with the passed name if it exists.
      * @param instanceName the name of the instance you want to get.

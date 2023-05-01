@@ -1,4 +1,4 @@
-import { NodeCG } from "nodecg-types/types/server";
+import NodeCG from "@nodecg/types";
 import { Color } from "./interfaces";
 /**
  * This class contains static helper methods, mostly used to verify the connection to your nanoleafs.
@@ -25,7 +25,7 @@ export declare class NanoleafUtils {
      * @param ipAddress the ip address of the nanoleaf controller
      * @param nodecg the current nodecg instance
      */
-    static retrieveAuthKey(ipAddress: string, nodecg: NodeCG): Promise<string>;
+    static retrieveAuthKey(ipAddress: string, nodecg: NodeCG.ServerAPI): Promise<string>;
     private static checkConnection;
     /**
      * Converts the specified color from the HSV (Hue-Saturation-Value) color space to the RGB (Red-Green-Blue) color space.

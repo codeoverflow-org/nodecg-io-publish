@@ -1,5 +1,5 @@
 /// <reference types="node" />
-import { NodeCG } from "nodecg-types/types/server";
+import NodeCG from "@nodecg/types";
 import { ObjectMap, Service, ServiceDependency, ServiceInstance } from "./service";
 import { Result } from "./utils/result";
 import { EventEmitter } from "events";
@@ -10,7 +10,7 @@ import { ServiceProvider } from "./serviceProvider";
 export declare class BundleManager extends EventEmitter {
     private readonly nodecg;
     private readonly bundles;
-    constructor(nodecg: NodeCG);
+    constructor(nodecg: NodeCG.ServerAPI);
     /**
      * Gets all bundle dependencies
      * @return {ObjectMap<ServiceDependency<unknown>[]>} all bundle dependencies
