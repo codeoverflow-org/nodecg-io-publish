@@ -1,3 +1,4 @@
+import { ObjectMap } from "nodecg-io-core";
 interface StreamElementsBaseEvent<TType, TData> {
     /**
      * StreamElements hexadecimal Event ID
@@ -132,7 +133,7 @@ interface StreamElementsBaseTestEvent<TListener, TEvent> {
     /**
      * Event provider
      */
-    provider: "twitch" | "youtube" | "facebook";
+    provider?: "twitch" | "youtube" | "facebook";
     listener: TListener;
     event: TEvent & StreamElementsTestDataBase;
 }
@@ -223,5 +224,16 @@ export type StreamElementsTestTipEvent = StreamElementsBaseTestEvent<"tip-latest
 }>;
 export type StreamElementsEvent = StreamElementsFollowEvent | StreamElementsCheerEvent | StreamElementsHostEvent | StreamElementsRaidEvent | StreamElementsSubscriberEvent | StreamElementsTipEvent;
 export type StreamElementsTestEvent = StreamElementsTestFollowEvent | StreamElementsTestCheerEvent | StreamElementsTestHostEvent | StreamElementsTestRaidEvent | StreamElementsTestSubscriberEvent | StreamElementsTestTipEvent;
+/**
+ * When replaying real events the structure is similar to the test events
+ * except for the keys in the root object.
+ * This is a replay event general for all types.
+ * The data structure and name follows the same schema as the test events.
+ */
+export interface StreamElementsReplayEvent {
+    provider?: "twitch" | "youtube" | "facebook";
+    name: string;
+    data: ObjectMap<string | number>;
+}
 export {};
 //# sourceMappingURL=StreamElementsEvent.d.ts.map

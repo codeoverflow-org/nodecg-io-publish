@@ -119,6 +119,19 @@ class StreamElementsServiceClient extends events_1.EventEmitter {
                 handler(data);
             }
         });
+        this.socket.on("event:update", (data) => {
+            // event:update is all replays of previous real events.
+            // Because the structure is similar to the test events and just the keys in the root element
+            // are named differently we rename those to align with the naming in the test events
+            // and handle it as a test event from here on.
+            if (data) {
+                handler({
+                    event: data.data,
+                    listener: data.name,
+                    provider: data.provider,
+                });
+            }
+        });
     }
     onSubscriber(handler, includeSubGifts = true) {
         this.on("subscriber", (data) => {
