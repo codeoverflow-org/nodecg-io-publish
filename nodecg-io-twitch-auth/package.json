@@ -14,9 +14,6 @@
     "keywords": [
         "nodecg-io"
     ],
-    "nodecg": {
-        "compatibleRange": ">=1.1.1 <3.0.0"
-    },
     "license": "MIT",
     "devDependencies": {
         "@types/node": "^20.3.3",
