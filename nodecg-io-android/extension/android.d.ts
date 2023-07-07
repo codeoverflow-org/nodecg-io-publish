@@ -100,20 +100,20 @@ export declare class Android {
  * A runtime permission that has to be requested via requestPermissions() before using any
  * function that requires it.
  */
-export declare type BasicPermission = "gps" | "phone" | "read_sms" | "send_sms" | "contacts";
+export type BasicPermission = "gps" | "phone" | "read_sms" | "send_sms" | "contacts";
 /**
  * Special permissions are considered more dangerous than runtime permissions. They must be
  * requested one after another via requestSpecial().
  */
-export declare type SpecialPermission = "statistics";
+export type SpecialPermission = "statistics";
 /**
  * A permission that needs to be granted at runtime.
  */
-export declare type Permission = BasicPermission | SpecialPermission;
+export type Permission = BasicPermission | SpecialPermission;
 /**
  * An id of a sensor that might be present on a device
  */
-export declare type SensorId = "gps" | "motion" | "magnetic" | "light";
+export type SensorId = "gps" | "motion" | "magnetic" | "light";
 /**
  * Used to control a volume channel on the device.
  */
@@ -146,7 +146,7 @@ export declare class VolumeStream {
 /**
  * A volume channel that can be used to get a VolumeStream
  */
-export declare type VolumeChannel = "ring" | "accessibility" | "alarm" | "dtmf" | "music" | "notification" | "system" | "voice_call";
+export type VolumeChannel = "ring" | "accessibility" | "alarm" | "dtmf" | "music" | "notification" | "system" | "voice_call";
 /**
  * An operation for adjustVolume().
  *
@@ -157,7 +157,7 @@ export declare type VolumeChannel = "ring" | "accessibility" | "alarm" | "dtmf" 
  * `unmute`: Unmutes the channel
  * `toggle_mute`: Toggles the mute state of the channel
  */
-export declare type VolumeAdjustment = "same" | "raise" | "lower" | "mute" | "unmute" | "toggle_mute";
+export type VolumeAdjustment = "same" | "raise" | "lower" | "mute" | "unmute" | "toggle_mute";
 /**
  * Flags to use when setting a volume
  *
@@ -166,14 +166,14 @@ export declare type VolumeAdjustment = "same" | "raise" | "lower" | "mute" | "un
  * `silent`: Supresses any vibration and sound
  * `vibrate`: Causes a vibration when activating vibrate ringer mode
  */
-export declare type VolumeFlag = "show_ui" | "play_sound" | "silent" | "vibrate";
+export type VolumeFlag = "show_ui" | "play_sound" | "silent" | "vibrate";
 /**
  * Flags to use when adjusting a volume
  *
  * See VolumeFlag.
  * `ringer_modes`: When the volume is at 0 and is lowered, with this flag set, vibrate and then mute is activated.
  */
-export declare type AdjustmentVolumeFlag = VolumeFlag | "ringer_modes";
+export type AdjustmentVolumeFlag = VolumeFlag | "ringer_modes";
 /**
  * Additional properties for a notification on the device
  */
@@ -282,10 +282,10 @@ export declare class GpsSensor {
      * @param time The minimum time (in milliseconds) between two location updates sent. Set this as high as possible.
      * @param distance The minimum distance (in meters) between two location updates
      */
-    subscribeLocations(listener: (l: Location) => void, time?: number, distance?: number): Promise<Subscription>;
+    subscribeLocations(listener: (l: LocationInfo) => void, time?: number, distance?: number): Promise<Subscription>;
     equals(other: GpsSensor): boolean;
 }
-export declare type LocationInfo = {
+export type LocationInfo = {
     /**
      * The latitude in degrees
      */
@@ -370,8 +370,8 @@ export declare class MotionSensor {
 /**
  * A single sensor that is used to get the whole motion
  */
-export declare type MotionSensorPart = "accelerometer" | "accelerometer_uncalibrated" | "gravity" | "gyroscope" | "gyroscope_uncalibrated" | "linear_acceleration" | "rotation_vector";
-export declare type AccelerometerResult = {
+export type MotionSensorPart = "accelerometer" | "accelerometer_uncalibrated" | "gravity" | "gyroscope" | "gyroscope_uncalibrated" | "linear_acceleration" | "rotation_vector";
+export type AccelerometerResult = {
     /**
      * Acceleration force along the x axis (including gravity) in meters per second squared
      */
@@ -385,7 +385,7 @@ export declare type AccelerometerResult = {
      */
     z: number;
 };
-export declare type AccelerometerUncalibratedResult = {
+export type AccelerometerUncalibratedResult = {
     /**
      * Measured Acceleration force along the x axis (without bias compensation) in meters per second squared
      */
@@ -411,7 +411,7 @@ export declare type AccelerometerUncalibratedResult = {
      */
     bcZ: number;
 };
-export declare type GravityResult = {
+export type GravityResult = {
     /**
      * Force of gravity along the x axis in meters per second squared
      */
@@ -425,7 +425,7 @@ export declare type GravityResult = {
      */
     gravityZ: number;
 };
-export declare type GyroscopeResult = {
+export type GyroscopeResult = {
     /**
      * Rotation around the x axis in radians / second
      */
@@ -439,7 +439,7 @@ export declare type GyroscopeResult = {
      */
     rotZ: number;
 };
-export declare type GyroscopeUncalibratedResult = {
+export type GyroscopeUncalibratedResult = {
     /**
      * Rotation around the x axis (without drift compensation) in radians / second
      */
@@ -465,7 +465,7 @@ export declare type GyroscopeUncalibratedResult = {
      */
     driftZ: number;
 };
-export declare type LinearAccelerationResult = {
+export type LinearAccelerationResult = {
     /**
      * Acceleration force along the x axis (without gravity) in meters per second squared
      */
@@ -479,7 +479,7 @@ export declare type LinearAccelerationResult = {
      */
     ngZ: number;
 };
-export declare type RotationVectorResult = {
+export type RotationVectorResult = {
     /**
      * Rotation vector component along the x axis (x * sin(θ/2)).
      */
@@ -494,7 +494,7 @@ export declare type RotationVectorResult = {
     rotVecZ: number;
     rotScalar?: number;
 };
-export declare type Motion = AccelerometerResult & AccelerometerUncalibratedResult & GravityResult & GyroscopeResult & GyroscopeUncalibratedResult & LinearAccelerationResult & RotationVectorResult;
+export type Motion = AccelerometerResult & AccelerometerUncalibratedResult & GravityResult & GyroscopeResult & GyroscopeUncalibratedResult & LinearAccelerationResult & RotationVectorResult;
 /**
  * A sensor for magnetic field data.
  */
@@ -510,7 +510,7 @@ export declare class MagneticSensor {
 /**
  * The result of a magnetic field sensor
  */
-export declare type MagneticField = {
+export type MagneticField = {
     /**
      * The ambient magnetic field on x axis in micro-Tesla
      */
@@ -579,7 +579,7 @@ export declare class Telephony implements SmsResolvable {
 /**
  * Properties for a Telephony object.
  */
-export declare type TelephonyProperties = {
+export type TelephonyProperties = {
     /**
      * The slot index (starting at 0) where the SIM of that telephony is located. Might be undefined
      * for eUICCs or if not known.
@@ -650,7 +650,7 @@ export declare class SmsManager {
 /**
  * A category / state of a sms message
  */
-export declare type SmsCategory = "all" | "inbox" | "outbox" | "sent" | "draft";
+export type SmsCategory = "all" | "inbox" | "outbox" | "sent" | "draft";
 /**
  * Something that can be used to filter SMS.
  */
@@ -661,7 +661,7 @@ export interface SmsResolvable {
 /**
  * A type of message (sms or mms)
  */
-export declare type MessageType = "sms" | "mms";
+export type MessageType = "sms" | "mms";
 /**
  * Common parts of a message that ies either sms or mms.
  */
@@ -815,20 +815,20 @@ export declare class Recipient {
 /**
  * Anything that can be used to send a sms or mms message to.
  */
-export declare type SmsReceiver = string | Recipient | Contact;
+export type SmsReceiver = string | Recipient | Contact;
 /**
  * A successful result when sending a message
  */
-export declare type SmsResultSuccess = "success";
+export type SmsResultSuccess = "success";
 /**
  * An errored result when sending a message
  */
-export declare type SmsResultFailure = "error_generic_failure" | "error_radio_off" | "error_null_pdu" | "error_no_service" | "error_limit_exceeded" | "error_fdn_check_failure" | "error_short_code_not_allowed" | "error_short_code_never_allowed" | "radio_not_available" | "network_reject" | "invalid_arguments" | "invalid_state" | "no_memory" | "invalid_sms_format" | "system_error" | "modem_error" | "network_error" | "encoding_error" | "invalid_smsc_address" | "operation_not_allowed" | "internal_error" | "no_resources" | "cancelled" | "request_not_supported" | "no_bluetooth_service" | "invalid_bluetooth_address" | "bluetooth_disconnected" | "unexpected_event_stop_sending" | "sms_blocked_during_emergency" | "sms_send_retry_failed" | "remote_exception" | "no_default_sms_app" | "ril_radio_not_available" | "ril_sms_send_fail_retry" | "ril_network_reject" | "ril_invalid_state" | "ril_invalid_arguments" | "ril_no_memory" | "ril_request_rate_limited" | "ril_invalid_sms_format" | "ril_system_err" | "ril_encoding_err" | "ril_invalid_smsc_address" | "ril_modem_err" | "ril_network_err" | "ril_internal_err" | "ril_request_not_supported" | "ril_invalid_modem_state" | "ril_network_not_ready" | "ril_operation_not_allowed" | "ril_no_resources" | "ril_cancelled" | "ril_sim_absent";
-export declare type SmsResultUnknown = "unknown";
+export type SmsResultFailure = "error_generic_failure" | "error_radio_off" | "error_null_pdu" | "error_no_service" | "error_limit_exceeded" | "error_fdn_check_failure" | "error_short_code_not_allowed" | "error_short_code_never_allowed" | "radio_not_available" | "network_reject" | "invalid_arguments" | "invalid_state" | "no_memory" | "invalid_sms_format" | "system_error" | "modem_error" | "network_error" | "encoding_error" | "invalid_smsc_address" | "operation_not_allowed" | "internal_error" | "no_resources" | "cancelled" | "request_not_supported" | "no_bluetooth_service" | "invalid_bluetooth_address" | "bluetooth_disconnected" | "unexpected_event_stop_sending" | "sms_blocked_during_emergency" | "sms_send_retry_failed" | "remote_exception" | "no_default_sms_app" | "ril_radio_not_available" | "ril_sms_send_fail_retry" | "ril_network_reject" | "ril_invalid_state" | "ril_invalid_arguments" | "ril_no_memory" | "ril_request_rate_limited" | "ril_invalid_sms_format" | "ril_system_err" | "ril_encoding_err" | "ril_invalid_smsc_address" | "ril_modem_err" | "ril_network_err" | "ril_internal_err" | "ril_request_not_supported" | "ril_invalid_modem_state" | "ril_network_not_ready" | "ril_operation_not_allowed" | "ril_no_resources" | "ril_cancelled" | "ril_sim_absent";
+export type SmsResultUnknown = "unknown";
 /**
  * A result when sending a message
  */
-export declare type SmsResult = SmsResultSuccess | SmsResultFailure | SmsResultUnknown;
+export type SmsResult = SmsResultSuccess | SmsResultFailure | SmsResultUnknown;
 /**
  * Manager for contacts on the device.
  */
@@ -889,8 +889,8 @@ export declare class Contact {
     getData(dataId: "address", account?: ContactDataAccount): Promise<Array<ContactDataAddress>>;
     equals(other: Contact): boolean;
 }
-export declare type ContactPresence = "offline" | "invisible" | "away" | "idle" | "do_not_disturb" | "available";
-export declare type ContactStatus = {
+export type ContactPresence = "offline" | "invisible" | "away" | "idle" | "do_not_disturb" | "available";
+export type ContactStatus = {
     /**
      * The status message of that contact
      */
@@ -909,7 +909,7 @@ export declare type ContactStatus = {
  * For example WhatsApp adds `['com.whatsapp', 'WhatsApp']` for WhatsApp data.
  * The first string is the account type, the second string is the account name.
  */
-export declare type ContactDataAccount = [string, string];
+export type ContactDataAccount = [string, string];
 /**
  * A type of data that may be stored in a contact. When used to find contacts from database, the
  * following columns are searched:
@@ -921,15 +921,15 @@ export declare type ContactDataAccount = [string, string];
  * 'notes': This data set ist not searchable. Searching for 'notes' will never find a contact
  * 'address': address, street, post_box, post_code, city
  */
-export declare type ContactDataId = "name" | "phone" | "email" | "event" | "nickname" | "notes" | "address";
+export type ContactDataId = "name" | "phone" | "email" | "event" | "nickname" | "notes" | "address";
 /**
  * Asian is used when it can nut be determined whether `chinese`, `japanese` or `korean` is correct.
  */
-export declare type ContactNameStyle = "unset" | "western" | "asian" | "chinese" | "japanese" | "korean";
+export type ContactNameStyle = "unset" | "western" | "asian" | "chinese" | "japanese" | "korean";
 /**
  * Name information for a contact
  */
-export declare type ContactNameInfo = {
+export type ContactNameInfo = {
     /**
      * The name that should be used to display the contact.
      */
@@ -962,11 +962,11 @@ export declare type ContactNameInfo = {
 /**
  * A type of a phone number
  */
-export declare type PhoneNumberType = "home" | "mobile" | "work" | "fax_work" | "fax_home" | "pager" | "other" | "callback" | "car" | "company_main" | "isdn" | "main" | "other_fax" | "radio" | "telex" | "tty_tdd" | "work_mobile" | "work_pager" | "assistant" | "mms";
+export type PhoneNumberType = "home" | "mobile" | "work" | "fax_work" | "fax_home" | "pager" | "other" | "callback" | "car" | "company_main" | "isdn" | "main" | "other_fax" | "radio" | "telex" | "tty_tdd" | "work_mobile" | "work_pager" | "assistant" | "mms";
 /**
  * Represents one phone number
  */
-export declare type ContactDataPhone = {
+export type ContactDataPhone = {
     /**
      * The phone number as the user entered it.
      */
@@ -987,11 +987,11 @@ export declare type ContactDataPhone = {
 /**
  * A type of email address
  */
-export declare type EmailType = "home" | "mobile" | "work" | "other";
+export type EmailType = "home" | "mobile" | "work" | "other";
 /**
  * Represents one email address
  */
-export declare type ContactDataEmail = {
+export type ContactDataEmail = {
     /**
      * The email address.
      */
@@ -1012,11 +1012,11 @@ export declare type ContactDataEmail = {
 /**
  * A type of contact related event
  */
-export declare type EventType = "birthday" | "anniversary" | "other";
+export type EventType = "birthday" | "anniversary" | "other";
 /**
  * Represents one special event for a contact
  */
-export declare type ContactDataEvent = {
+export type ContactDataEvent = {
     /**
      * The date of the event as the user entered it. This is not sored as a timestamp in the database
      * and you can expect any type of text here. So be careful when trying to get a Date object from this.
@@ -1034,11 +1034,11 @@ export declare type ContactDataEvent = {
 /**
  * A type of contact nickname
  */
-export declare type NicknameType = "default" | "other" | "maiden_name" | "short_name" | "initials";
+export type NicknameType = "default" | "other" | "maiden_name" | "short_name" | "initials";
 /**
  * Represents one nickname for a contact
  */
-export declare type ContactDataNickname = {
+export type ContactDataNickname = {
     /**
      * The nickname of the contact
      */
@@ -1055,7 +1055,7 @@ export declare type ContactDataNickname = {
 /**
  * The notes for a contact.
  */
-export declare type ContactNotes = {
+export type ContactNotes = {
     /**
      * The text in the notes
      */
@@ -1064,11 +1064,11 @@ export declare type ContactNotes = {
 /**
  * A type of address
  */
-export declare type AddressType = "home" | "work" | "other";
+export type AddressType = "home" | "work" | "other";
 /**
  * Represents one address for a contact
  */
-export declare type ContactDataAddress = {
+export type ContactDataAddress = {
     /**
      * The address in one string as he user entered it.
      */
@@ -1158,7 +1158,7 @@ export declare class WifiManager {
 /**
  * Information about the wifi device.
  */
-export declare type WifiInformation = {
+export type WifiInformation = {
     /**
      * Whether this device supports the 5GHz Band
      */
@@ -1224,16 +1224,16 @@ export declare type WifiInformation = {
 /**
  * A wifi standard. This is supported only on Android 11+
  */
-export declare type WifiStandard = "ieee80211abg" | "ieee80211n" | "ieee80211ac" | "ieee80211ax" | "unknown";
+export type WifiStandard = "ieee80211abg" | "ieee80211n" | "ieee80211ac" | "ieee80211ax" | "unknown";
 /**
  * A state for the wifi device
  */
-export declare type WifiDeviceState = "disabled" | "disabling" | "enabled" | "enabling" | "unknown";
+export type WifiDeviceState = "disabled" | "disabling" | "enabled" | "enabling" | "unknown";
 /**
  * Channel width for wifi scan result. 80Mhz+ means the channel is using 160Mhz but as 80Mhz + 80MHz
  */
-export declare type WifiChannelWidth = "20MHz" | "40Mhz" | "80Mhz" | "160Mhz" | "80MHz+" | "unknown";
-export declare type WifiScanResultBase = {
+export type WifiChannelWidth = "20MHz" | "40Mhz" | "80Mhz" | "160Mhz" | "80MHz+" | "unknown";
+export type WifiScanResultBase = {
     /**
      * The SSID of the connected network.
      */
@@ -1264,7 +1264,7 @@ export declare type WifiScanResultBase = {
      */
     passpoint: boolean;
 };
-export declare type WifiScanResultExtra = {
+export type WifiScanResultExtra = {
     /**
      * Whether this network support rtt (802.11mc)
      */
@@ -1277,8 +1277,8 @@ export declare type WifiScanResultExtra = {
 /**
  * A result entry for a wifi scan
  */
-export declare type WifiScanResult = WifiScanResultBase & WifiScanResultExtra;
-export declare type WifiStateCommon = {
+export type WifiScanResult = WifiScanResultBase & WifiScanResultExtra;
+export type WifiStateCommon = {
     /**
      * The state of the wifi device
      */
@@ -1288,7 +1288,7 @@ export declare type WifiStateCommon = {
      */
     connected: boolean;
 };
-export declare type WifiStateConnectedExtra = {
+export type WifiStateConnectedExtra = {
     connected: true;
     /**
      * Whether the SSID of the connected network is hidden.
@@ -1321,19 +1321,19 @@ export declare type WifiStateConnectedExtra = {
      */
     passpoint_fqdn?: string;
 };
-export declare type WifiStateDisconnectedExtra = {
+export type WifiStateDisconnectedExtra = {
     connected: false;
 };
-export declare type WifiStateConnected = WifiStateCommon & WifiStateConnectedExtra & WifiScanResultBase;
-export declare type WifiStateDisconnected = WifiStateCommon & WifiStateDisconnectedExtra;
+export type WifiStateConnected = WifiStateCommon & WifiStateConnectedExtra & WifiScanResultBase;
+export type WifiStateDisconnected = WifiStateCommon & WifiStateDisconnectedExtra;
 /**
  * Connection state of the wifi device
  */
-export declare type WifiState = WifiStateConnected | WifiStateDisconnected;
+export type WifiState = WifiStateConnected | WifiStateDisconnected;
 /**
  * A wifi encryption method that requires no passphrase
  */
-export declare type WifiEncryptionSimple = {
+export type WifiEncryptionSimple = {
     /**
      * The type: Either none or enhanced_open (OWE).
      */
@@ -1342,7 +1342,7 @@ export declare type WifiEncryptionSimple = {
 /**
  * A wifi encryption method that requires a passphrase
  */
-export declare type WifiEncryptionPassphrase = {
+export type WifiEncryptionPassphrase = {
     /**
      * The type: Either WPA2 or WPA3. If you need support for WPA try WPA2. On some device it will work.
      * WPA2/3 Enterprise is not supported for this.
@@ -1356,18 +1356,18 @@ export declare type WifiEncryptionPassphrase = {
 /**
  * A type of encryption to be used for a wifi connect request.
  */
-export declare type WifiEncryption = WifiEncryptionSimple | WifiEncryptionPassphrase;
+export type WifiEncryption = WifiEncryptionSimple | WifiEncryptionPassphrase;
 /**
  * Base type for a wifi connection request. Must be joined with either WifiConnectionRequestSSID
  * or WifiConnectionRequestBSSID or both to get a valid request.
  */
-export declare type WifiConnectionRequestBase = {
+export type WifiConnectionRequestBase = {
     encryption?: WifiEncryption;
 };
 /**
  * Specifies a SSID for a WLAN network to connect to.
  */
-export declare type WifiConnectionRequestSSID = {
+export type WifiConnectionRequestSSID = {
     /**
      * The SSID of the WLAN network to connect to.
      */
@@ -1376,7 +1376,7 @@ export declare type WifiConnectionRequestSSID = {
 /**
  * Specifies a BSSID for a WLAN network to connect to.
  */
-export declare type WifiConnectionRequestBSSID = {
+export type WifiConnectionRequestBSSID = {
     /**
      * The BSSID of the WLAN network to connect to.
      */
@@ -1389,11 +1389,11 @@ export declare type WifiConnectionRequestBSSID = {
 /**
  * Specifies a WLAN network to connect to.
  */
-export declare type WifiConnectionRequest = WifiConnectionRequestBase & (WifiConnectionRequestSSID | WifiConnectionRequestBSSID | (WifiConnectionRequestSSID & WifiConnectionRequestBSSID));
+export type WifiConnectionRequest = WifiConnectionRequestBase & (WifiConnectionRequestSSID | WifiConnectionRequestBSSID | (WifiConnectionRequestSSID & WifiConnectionRequestBSSID));
 /**
  * A period of time to get usage statistics.
  */
-export declare type UsageStatsTime = {
+export type UsageStatsTime = {
     /**
      * The start of the period of time. Set to undefined to make it an open start.
      */
@@ -1406,7 +1406,7 @@ export declare type UsageStatsTime = {
 /**
  * Usage statistics for a package
  */
-export declare type UsageStats = {
+export type UsageStats = {
     /**
      * The package for the statistic
      */

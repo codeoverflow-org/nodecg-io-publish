@@ -7,12 +7,12 @@
  *
  * @typeParam T the return type of the function on success.
  */
-export declare type Result<T> = Failure | Success<T>;
+export type Result<T> = Failure | Success<T>;
 /**
  * Function has failed and has returned a string describing the error.
  * Should be created by calling {@link error}.
  */
-export declare type Failure = {
+export type Failure = {
     failed: true;
     errorMessage: string;
 };
@@ -20,7 +20,7 @@ export declare type Failure = {
  * Function has succeeded and has returned its result.
  * Should be created by calling {@link success} or {@link emptySuccess}.
  */
-export declare type Success<T> = {
+export type Success<T> = {
     failed: false;
     result: T;
 };

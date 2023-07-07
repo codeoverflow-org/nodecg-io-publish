@@ -1,6 +1,6 @@
 import { LightData, LightValues } from "./lightData";
 import { Response } from "node-fetch";
-export declare type LightType = "KeyLight" | "LightStrip";
+export type LightType = "KeyLight" | "LightStrip";
 /**
  * Represents an elgato light. Is never directly created but has subclasses for the different light types.
  */

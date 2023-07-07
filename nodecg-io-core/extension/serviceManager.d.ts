@@ -1,5 +1,5 @@
 import { Service } from "./service";
-import { NodeCG } from "nodecg-types/types/server";
+import NodeCG from "@nodecg/types";
 import { Result } from "./utils/result";
 /**
  * Manages services by allowing services to register them and allowing access of other components to the registered services.
@@ -7,7 +7,7 @@ import { Result } from "./utils/result";
 export declare class ServiceManager {
     private readonly nodecg;
     private services;
-    constructor(nodecg: NodeCG);
+    constructor(nodecg: NodeCG.ServerAPI);
     /**
      * Registers the passed service which show it in the GUI and allows it to be instanced using {@link createServiceInstance}.
      * @param service the service you want to register.

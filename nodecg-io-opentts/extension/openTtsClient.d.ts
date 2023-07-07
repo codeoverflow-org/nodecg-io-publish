@@ -1,8 +1,8 @@
 import { OpenTTSConfig } from "./index";
 import { ObjectMap } from "nodecg-io-core/extension/service";
-declare type OpenTTSName = "espeak" | "flite" | "festival" | "nanotts" | "marytts";
-declare type OpenTTSGender = "F" | "M";
-declare type OpenTTVOCoderQuality = "high" | "medium" | "low";
+type OpenTTSName = "espeak" | "flite" | "festival" | "nanotts" | "marytts";
+type OpenTTSGender = "F" | "M";
+type OpenTTVOCoderQuality = "high" | "medium" | "low";
 export interface OpenTTSVoice {
     gender: OpenTTSGender;
     id: string;

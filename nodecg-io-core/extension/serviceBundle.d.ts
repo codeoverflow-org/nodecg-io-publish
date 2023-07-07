@@ -1,5 +1,5 @@
 import { NodeCGIOCore } from ".";
-import { NodeCG } from "nodecg-types/types/server";
+import NodeCG from "@nodecg/types";
 import { ObjectMap, Service } from "./service";
 import { Result } from "./utils/result";
 import { Logger } from "./utils/logger";
@@ -13,7 +13,7 @@ import { Logger } from "./utils/logger";
  */
 export declare abstract class ServiceBundle<R, C> implements Service<R, C> {
     core: NodeCGIOCore | undefined;
-    nodecg: NodeCG;
+    nodecg: NodeCG.ServerAPI;
     serviceType: string;
     schema?: ObjectMap<unknown>;
     /**
@@ -32,7 +32,7 @@ export declare abstract class ServiceBundle<R, C> implements Service<R, C> {
      * @param serviceName the name of the service in all-lowercase-and-with-hyphen
      * @param pathSegments the path to the schema.json most likely __dirname, "../serviceName-schema.json"
      */
-    constructor(nodecg: NodeCG, serviceName: string, ...pathSegments: string[]);
+    constructor(nodecg: NodeCG.ServerAPI, serviceName: string, ...pathSegments: string[]);
     /**
      * Registers this service bundle at the core bundle, makes it appear in the GUI and makes it usable.
      * @return a service provider for this service, can be used by bundles to depend on this service.

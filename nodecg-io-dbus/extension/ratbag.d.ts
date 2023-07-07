@@ -206,17 +206,17 @@ export declare class RatBagLed extends DBusObject {
 /**
  * A model of a ratbagd device.
  */
-export declare type RatBagModel = RatBagModelUnknown | RatBagModelCommon;
+export type RatBagModel = RatBagModelUnknown | RatBagModelCommon;
 /**
  * An unknown device model.
  */
-export declare type RatBagModelUnknown = {
+export type RatBagModelUnknown = {
     busType: "unknown";
 };
 /**
  * A known device model.
  */
-export declare type RatBagModelCommon = {
+export type RatBagModelCommon = {
     /**
      * How the device id connected.
      */
@@ -247,30 +247,30 @@ export declare type RatBagModelCommon = {
  * A resolution in DPI. This can either be a single value or separate values for x and y depending on the device.
  * When setting a DPI value, it must be exactly the kind of value, the device supports.
  */
-export declare type RatBagDpi = number | {
+export type RatBagDpi = number | {
     x: number;
     y: number;
 };
 /**
  * A mapping for a button.
  */
-export declare type RatBagMapping = RatBagMappingNone | RatBagMappingUnknown | RatBagMappingButton | RatBagMappingSpecial | RatBagMappingMacro;
+export type RatBagMapping = RatBagMappingNone | RatBagMappingUnknown | RatBagMappingButton | RatBagMappingSpecial | RatBagMappingMacro;
 /**
  * A button mapping that does nothing.
  */
-export declare type RatBagMappingNone = {
+export type RatBagMappingNone = {
     type: "none";
 };
 /**
  * An unknown button mapping.
  */
-export declare type RatBagMappingUnknown = {
+export type RatBagMappingUnknown = {
     type: "unknown";
 };
 /**
  * A button mapping that maps a physical button to a logical button.
  */
-export declare type RatBagMappingButton = {
+export type RatBagMappingButton = {
     type: "button";
     /**
      * The logical mouse button to map to.
@@ -280,7 +280,7 @@ export declare type RatBagMappingButton = {
 /**
  * A mapping that triggers a special action.
  */
-export declare type RatBagMappingSpecial = {
+export type RatBagMappingSpecial = {
     type: "special";
     /**
      * The action to trigger.
@@ -290,21 +290,21 @@ export declare type RatBagMappingSpecial = {
 /**
  * A mapping that triggers a macro.
  */
-export declare type RatBagMappingMacro = {
+export type RatBagMappingMacro = {
     type: "macro";
     macro: RatBagMacroAction[];
 };
 /**
  * An action in a macro.
  */
-export declare type RatBagMacroAction = {
+export type RatBagMacroAction = {
     type: "press" | "release";
     keyCode: number;
 };
 /**
  * A color represented by red, green and blue values in range [0;255]
  */
-export declare type RatBagColorObj = {
+export type RatBagColorObj = {
     red: number;
     green: number;
     blue: number;
@@ -312,15 +312,15 @@ export declare type RatBagColorObj = {
 /**
  * A color represented as 0xRRGGBB
  */
-export declare type RatBagColorValue = {
+export type RatBagColorValue = {
     color: number;
 };
 /**
  * A special button action.
  */
-export declare type RatBagSpecialAction = "unknown" | "doubleclick" | "wheel left" | "wheel right" | "wheel up" | "wheel down" | "ratched mode switch" | "resolution cycle up" | "resolution cycle down" | "resolution up" | "resolution down" | "resolution alternate" | "resolution default" | "profile cycle up" | "profile cycle down" | "profile up" | "profile down" | "second mode" | "battery level";
+export type RatBagSpecialAction = "unknown" | "doubleclick" | "wheel left" | "wheel right" | "wheel up" | "wheel down" | "ratched mode switch" | "resolution cycle up" | "resolution cycle down" | "resolution up" | "resolution down" | "resolution alternate" | "resolution default" | "profile cycle up" | "profile cycle down" | "profile up" | "profile down" | "second mode" | "battery level";
 /**
  * A mode for a led.
  */
-export declare type LedMode = "off" | "on" | "cycle" | "breath";
+export type LedMode = "off" | "on" | "cycle" | "breath";
 //# sourceMappingURL=ratbag.d.ts.map

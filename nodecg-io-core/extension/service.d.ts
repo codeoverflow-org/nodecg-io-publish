@@ -10,7 +10,7 @@ import { Logger } from "./utils/logger";
  * A normal es6 map would use an iterator which can't be serialized by the NodeCG replicant and thus
  * can't be used to give the GUI access to the data in this map.
  */
-export declare type ObjectMap<V> = Record<string, V>;
+export type ObjectMap<V> = Record<string, V>;
 /**
  * Models a service that a bundle can depend upon and used to access e.g., a twitch chat or similar.
  * @typeParam R an interface type that describes the user provided config for the service.

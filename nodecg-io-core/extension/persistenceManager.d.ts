@@ -1,10 +1,11 @@
-import { NodeCG } from "nodecg-types/types/server";
+import NodeCG from "@nodecg/types";
 import { InstanceManager } from "./instanceManager";
 import { BundleManager } from "./bundleManager";
 import crypto from "crypto-js";
 import { Result } from "./utils/result";
 import { ObjectMap, ServiceDependency, ServiceInstance } from "./service";
 import { ServiceManager } from "./serviceManager";
+import { NodeCGBundleConfig } from ".";
 /**
  * Models all the data that needs to be persistent in a plain manner.
  */
@@ -111,7 +112,7 @@ export declare class PersistenceManager {
     private readonly bundles;
     private encryptionKey;
     private encryptedData;
-    constructor(nodecg: NodeCG, services: ServiceManager, instances: InstanceManager, bundles: BundleManager);
+    constructor(nodecg: NodeCG.ServerAPI<NodeCGBundleConfig>, services: ServiceManager, instances: InstanceManager, bundles: BundleManager);
     /**
      * Checks whether the passed encryption key is correct. Only works if already loaded and a encryption key is already set.
      * @param encryptionKey the encryption key which should be checked for correctness

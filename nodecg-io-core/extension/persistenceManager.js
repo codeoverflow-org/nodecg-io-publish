@@ -167,7 +167,8 @@ class PersistenceManager {
      * If this returns true {@link load} will accept any encryption key and use it to encrypt the configuration.
      */
     isFirstStartup() {
-        return this.encryptedData.value.cipherText === undefined;
+        var _a;
+        return ((_a = this.encryptedData.value) === null || _a === void 0 ? void 0 : _a.cipherText) === undefined;
     }
     /**
      * Decrypts and loads the locally stored configuration using the passed encryption key.
@@ -175,10 +176,11 @@ class PersistenceManager {
      * @return success if the encryption key was correct and loading has been successful and an error if the encryption key is wrong.
      */
     async load(encryptionKey) {
+        var _a;
         if (this.isLoaded()) {
             return (0, result_1.error)("Config has already been decrypted and loaded.");
         }
-        if (this.encryptedData.value.cipherText === undefined) {
+        if (((_a = this.encryptedData.value) === null || _a === void 0 ? void 0 : _a.cipherText) === undefined) {
             // No encrypted data has been saved, probably because this is the first startup.
             // Therefore nothing needs to be decrypted, and we write an empty config to disk.
             this.nodecg.log.info("No saved configuration found, creating a empty one.");
@@ -274,6 +276,9 @@ class PersistenceManager {
             bundleDependencies: this.bundles.getBundleDependencies(),
         };
         // Encrypt and save data to persistent replicant.
+        if (this.encryptedData.value === undefined) {
+            this.encryptedData.value = {};
+        }
         const encryptionKeyArr = crypto_js_1.default.enc.Hex.parse(this.encryptionKey);
         const [cipherText, iv] = encryptData(data, encryptionKeyArr);
         this.encryptedData.value.cipherText = cipherText;
@@ -326,6 +331,10 @@ class PersistenceManager {
             this.nodecg.log.warn("Automatic login is setup but disabled.");
             return;
         }
+        if (password === undefined) {
+            this.nodecg.log.error("Automatic login is setup but no password is provided.");
+            return;
+        }
         this.setupAutomaticLogin(password);
     }
     /**
@@ -340,7 +349,7 @@ class PersistenceManager {
         // So if we want to wait for NodeCG to be loaded we can watch for changes on this replicant and
         // if we get a non-empty array it means that NodeCG has finished loading.
         this.nodecg.Replicant("bundles", "nodecg").on("change", async (bundles) => {
-            if (bundles.length > 0) {
+            if (bundles && bundles.length > 0 && this.encryptedData.value) {
                 try {
                     this.nodecg.log.info("Attempting to automatically login...");
                     const salt = await getEncryptionSalt(this.encryptedData.value, password);
