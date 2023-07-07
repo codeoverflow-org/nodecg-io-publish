@@ -30,6 +30,7 @@ class RatBagManager extends dbusClient_1.DBusObject {
         return devices;
     }
 }
+exports.RatBagManager = RatBagManager;
 RatBagManager.PROXY = {
     iface: "org.freedesktop.ratbag1",
     path: "/org/freedesktop/ratbag1",
@@ -38,7 +39,6 @@ RatBagManager.PROXY = {
         return new RatBagManager(client, proxy);
     },
 };
-exports.RatBagManager = RatBagManager;
 /**
  * A device, ratbagd can control.
  */
@@ -379,6 +379,7 @@ class RatBagButton extends dbusClient_1.DBusObject {
         await this.setProperty("org.freedesktop.ratbag1.Button", "Mapping", new dbus_next_1.Variant("(uv)", [id, variant]));
     }
 }
+exports.RatBagButton = RatBagButton;
 RatBagButton.SPECIAL_ACTION_MAP = {
     "unknown": 0x40000000,
     "doubleclick": 0x40000001,
@@ -400,7 +401,6 @@ RatBagButton.SPECIAL_ACTION_MAP = {
     "second mode": 0x40000011,
     "battery level": 0x40000012,
 };
-exports.RatBagButton = RatBagButton;
 /**
  * A led on a device for a specific profile
  */

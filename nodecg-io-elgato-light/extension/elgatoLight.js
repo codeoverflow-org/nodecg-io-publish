@@ -135,8 +135,8 @@ class ElgatoKeyLight extends ElgatoLight {
         }
     }
 }
-ElgatoKeyLight.temperatureFactor = 1000000;
 exports.ElgatoKeyLight = ElgatoKeyLight;
+ElgatoKeyLight.temperatureFactor = 1000000;
 /**
  * Represents an elgato light stripe of any length.
  */
