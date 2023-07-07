@@ -994,8 +994,8 @@ class ContactManager {
         return this.android.equals(other.android);
     }
 }
-ContactManager.PHONE = ["com.android.localphone", "PHONE"];
 exports.ContactManager = ContactManager;
+ContactManager.PHONE = ["com.android.localphone", "PHONE"];
 /**
  * One contact
  */
