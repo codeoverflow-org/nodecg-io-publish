@@ -3,21 +3,21 @@ import { InstanceManager } from "./instanceManager";
 import { BundleManager } from "./bundleManager";
 import { PersistenceManager } from "./persistenceManager";
 import { ServiceManager } from "./serviceManager";
-export interface PasswordMessage {
-    password: string;
+export interface AuthenticationMessage {
+    encryptionKey: string;
 }
-export interface UpdateInstanceConfigMessage extends PasswordMessage {
+export interface UpdateInstanceConfigMessage extends AuthenticationMessage {
     instanceName: string;
     config: unknown;
 }
-export interface CreateServiceInstanceMessage extends PasswordMessage {
+export interface CreateServiceInstanceMessage extends AuthenticationMessage {
     serviceType: string;
     instanceName: string;
 }
-export interface DeleteServiceInstanceMessage extends PasswordMessage {
+export interface DeleteServiceInstanceMessage extends AuthenticationMessage {
     instanceName: string;
 }
-export interface SetServiceDependencyMessage extends PasswordMessage {
+export interface SetServiceDependencyMessage extends AuthenticationMessage {
     bundleName: string;
     instanceName: string | undefined;
     serviceType: string;

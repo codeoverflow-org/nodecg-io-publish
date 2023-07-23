@@ -1,20 +1,26 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.PersistenceManager = exports.decryptData = void 0;
+exports.PersistenceManager = exports.getEncryptionSalt = exports.reEncryptData = exports.deriveEncryptionKey = exports.encryptData = exports.decryptData = void 0;
 const tslib_1 = require("tslib");
-const crypto = tslib_1.__importStar(require("crypto-js"));
+const crypto_js_1 = tslib_1.__importDefault(require("crypto-js"));
+const hash_wasm_1 = require("hash-wasm");
 const result_1 = require("./utils/result");
 /**
- * Decrypts the passed encrypted data using the passed password.
- * If the password is wrong, an error will be returned.
+ * Decrypts the passed encrypted data using the passed encryption key.
+ * If the encryption key is wrong, an error will be returned.
+ *
+ * This function supports the <=0.2 format with the plain password as an
+ * encryption key and no iv (read from ciphertext) and the >=0.3 format with the iv and derived key.
  *
  * @param cipherText the ciphertext that needs to be decrypted.
- * @param password the password for the encrypted data.
+ * @param encryptionKey the encryption key for the encrypted data.
+ * @param iv the initialization vector for the encrypted data.
  */
-function decryptData(cipherText, password) {
+function decryptData(cipherText, encryptionKey, iv) {
     try {
-        const decryptedBytes = crypto.AES.decrypt(cipherText, password);
-        const decryptedText = decryptedBytes.toString(crypto.enc.Utf8);
+        const ivWordArray = iv ? crypto_js_1.default.enc.Hex.parse(iv) : undefined;
+        const decryptedBytes = crypto_js_1.default.AES.decrypt(cipherText, encryptionKey, { iv: ivWordArray });
+        const decryptedText = decryptedBytes.toString(crypto_js_1.default.enc.Utf8);
         const data = JSON.parse(decryptedText);
         return (0, result_1.success)(data);
     }
@@ -23,6 +29,106 @@ function decryptData(cipherText, password) {
     }
 }
 exports.decryptData = decryptData;
+/**
+ * Encrypts the passed data object using the passed encryption key.
+ *
+ * @param data the data that needs to be encrypted.
+ * @param encryptionKey the encryption key that should be used to encrypt the data.
+ * @returns a tuple containing the encrypted data and the initialization vector as a hex string.
+ */
+function encryptData(data, encryptionKey) {
+    const iv = crypto_js_1.default.lib.WordArray.random(16);
+    const ivText = iv.toString();
+    const encrypted = crypto_js_1.default.AES.encrypt(JSON.stringify(data), encryptionKey, { iv });
+    return [encrypted.toString(), ivText];
+}
+exports.encryptData = encryptData;
+/**
+ * Derives a key suitable for encrypting the config from the given password.
+ *
+ * @param password the password from which the encryption key will be derived.
+ * @param salt the hex encoded salt that is used for key derivation.
+ * @returns a hex encoded string of the derived key.
+ */
+async function deriveEncryptionKey(password, salt) {
+    var _a, _b;
+    const saltBytes = Uint8Array.from((_b = (_a = salt.match(/.{1,2}/g)) === null || _a === void 0 ? void 0 : _a.map((byte) => parseInt(byte, 16))) !== null && _b !== void 0 ? _b : []);
+    return await (0, hash_wasm_1.argon2id)({
+        password,
+        salt: saltBytes,
+        // OWASP reccomends either t=1,m=37MiB or t=2,m=37MiB for argon2id:
+        // https://www.owasp.org/index.php/Password_Storage_Cheat_Sheet#Argon2id
+        // On a Ryzen 5 5500u a single iteration is about 220 ms. Two iterations would make that about 440 ms, which is still fine.
+        // This is run inside the browser when logging in, therefore 37 MiB is acceptable too.
+        // To future proof this we use 37 MiB ram and 2 iterations.
+        iterations: 2,
+        memorySize: 37,
+        hashLength: 32,
+        parallelism: 1,
+        outputType: "hex",
+    });
+}
+exports.deriveEncryptionKey = deriveEncryptionKey;
+/**
+ * Re-encrypts the passed data to change the password/encryption key.
+ * Currently only used to migrate from <=0.2 to >=0.3 config formats but
+ * could be used to implement a change password feature in the future.
+ * @param data the data that should be re-encrypted.
+ * @param oldSecret the previous encryption key or password.
+ * @param newSecret the new encryption key.
+ */
+function reEncryptData(data, oldSecret, newSecret) {
+    if (data.cipherText === undefined) {
+        return (0, result_1.error)("Cannot re-encrypt empty cipher text.");
+    }
+    const decryptedData = decryptData(data.cipherText, oldSecret, data.iv);
+    if (decryptedData.failed) {
+        return (0, result_1.error)(decryptedData.errorMessage);
+    }
+    const [newCipherText, iv] = encryptData(decryptedData.result, newSecret);
+    data.cipherText = newCipherText;
+    data.iv = iv;
+    return (0, result_1.emptySuccess)();
+}
+exports.reEncryptData = reEncryptData;
+/**
+ * Ensures that the passed encrypted data has the salt attribute set.
+ * The salt attribute is not set when either this is the first start of nodecg-io
+ * or if this is a old config from nodecg-io <= 0.2.
+ *
+ * If this is a new configuration a new salt will be generated, set inside the EncryptedData object and returned.
+ * If this is a old configuration from nodecg-io <= 0.2 it will be migrated to the new format as well.
+ *
+ * @param data the encrypted data where the salt should be ensured to be available
+ * @param password the password of the encrypted data. Used if this config needs to be migrated
+ * @return returns the either retrieved or generated salt
+ */
+async function getEncryptionSalt(data, password) {
+    if (data.salt !== undefined) {
+        // We already have a salt, so we have the new (nodecg-io >=0.3) format too.
+        // We don't need to do anything then.
+        return data.salt;
+    }
+    // No salt is present, which is the case for the nodecg-io <=0.2 configs
+    // where crypto-js derived the encryption key and managed the salt
+    // or when nodecg-io is first started.
+    // Generate a random salt.
+    const salt = crypto_js_1.default.lib.WordArray.random(128 / 8).toString();
+    if (data.cipherText !== undefined) {
+        // Salt is unset but we have some encrypted data.
+        // This means that this is a old config (nodecg-io <=0.2), that we need to migrate to the new format.
+        // Re-encrypt the configuration using our own derived key instead of the password.
+        const newEncryptionKey = await deriveEncryptionKey(password, salt);
+        const newEncryptionKeyArr = crypto_js_1.default.enc.Hex.parse(newEncryptionKey);
+        const res = reEncryptData(data, password, newEncryptionKeyArr);
+        if (res.failed) {
+            throw new Error(`Failed to migrate config: ${res.errorMessage}`);
+        }
+    }
+    data.salt = salt;
+    return salt;
+}
+exports.getEncryptionSalt = getEncryptionSalt;
 /**
  * Manages encrypted persistence of data that is held by the instance and bundle managers.
  */
@@ -39,37 +145,37 @@ class PersistenceManager {
         this.checkAutomaticLogin();
     }
     /**
-     * Checks whether the passed password is correct. Only works if already loaded and a password is already set.
-     * @param password the password which should be checked for correctness
+     * Checks whether the passed encryption key is correct. Only works if already loaded and a encryption key is already set.
+     * @param encryptionKey the encryption key which should be checked for correctness
      */
-    checkPassword(password) {
+    checkEncryptionKey(encryptionKey) {
         if (this.isLoaded()) {
-            return this.password === password;
+            return this.encryptionKey === encryptionKey;
         }
         else {
             return false;
         }
     }
     /**
-     * Returns if the locally stored configuration has been loaded and a password has been set.
+     * Returns if the locally stored configuration has been loaded and a encryption key has been set.
      */
     isLoaded() {
-        return this.password !== undefined;
+        return this.encryptionKey !== undefined;
     }
     /**
      * Returns whether this is the first startup aka. whether any encrypted data has been saved.
-     * If this returns true {{@link load}} will accept any password and use it to encrypt the configuration.
+     * If this returns true {@link load} will accept any encryption key and use it to encrypt the configuration.
      */
     isFirstStartup() {
         var _a;
         return ((_a = this.encryptedData.value) === null || _a === void 0 ? void 0 : _a.cipherText) === undefined;
     }
     /**
-     * Decrypts and loads the locally stored configuration using the passed password.
-     * @param password the password of the encrypted config.
-     * @return success if the password was correct and loading has been successful and an error if the password is wrong.
+     * Decrypts and loads the locally stored configuration using the passed encryption key.
+     * @param encryptionKey the encryption key of the encrypted config.
+     * @return success if the encryption key was correct and loading has been successful and an error if the encryption key is wrong.
      */
-    async load(password) {
+    async load(encryptionKey) {
         var _a;
         if (this.isLoaded()) {
             return (0, result_1.error)("Config has already been decrypted and loaded.");
@@ -78,14 +184,16 @@ class PersistenceManager {
             // No encrypted data has been saved, probably because this is the first startup.
             // Therefore nothing needs to be decrypted, and we write an empty config to disk.
             this.nodecg.log.info("No saved configuration found, creating a empty one.");
-            this.password = password;
+            this.encryptionKey = encryptionKey;
             this.save();
         }
         else {
             // Decrypt config
             this.nodecg.log.info("Decrypting and loading saved configuration.");
-            const data = decryptData(this.encryptedData.value.cipherText, password);
+            const encryptionKeyArr = crypto_js_1.default.enc.Hex.parse(encryptionKey);
+            const data = decryptData(this.encryptedData.value.cipherText, encryptionKeyArr, this.encryptedData.value.iv);
             if (data.failed) {
+                this.nodecg.log.error("Could not decrypt configuration: encryption key is invalid.");
                 return data;
             }
             // Load config into the respecting manager
@@ -94,8 +202,8 @@ class PersistenceManager {
             this.loadBundleDependencies(data.result.bundleDependencies);
             this.saveAfterServiceInstancesLoaded(promises);
         }
-        // Save password, used in save() function
-        this.password = password;
+        // Save encryption key, used in save() function
+        this.encryptionKey = encryptionKey;
         // Register handlers to save when something changes
         this.instances.on("change", () => this.save());
         this.bundles.on("change", () => this.save());
@@ -158,8 +266,8 @@ class PersistenceManager {
      * Encrypts and saves current state to the persistent replicant.
      */
     save() {
-        // Check if we have a password to encrypt the data with.
-        if (this.password === undefined) {
+        // Check if we have a encryption key to encrypt the data with.
+        if (this.encryptionKey === undefined) {
             return;
         }
         // Organize all data that will be encrypted into a single object.
@@ -168,11 +276,13 @@ class PersistenceManager {
             bundleDependencies: this.bundles.getBundleDependencies(),
         };
         // Encrypt and save data to persistent replicant.
-        const cipherText = crypto.AES.encrypt(JSON.stringify(data), this.password);
         if (this.encryptedData.value === undefined) {
             this.encryptedData.value = {};
         }
-        this.encryptedData.value.cipherText = cipherText.toString();
+        const encryptionKeyArr = crypto_js_1.default.enc.Hex.parse(this.encryptionKey);
+        const [cipherText, iv] = encryptData(data, encryptionKeyArr);
+        this.encryptedData.value.cipherText = cipherText;
+        this.encryptedData.value.iv = iv;
     }
     /**
      * Creates a copy of all service instances without the service clients, because those
@@ -239,15 +349,17 @@ class PersistenceManager {
         // So if we want to wait for NodeCG to be loaded we can watch for changes on this replicant and
         // if we get a non-empty array it means that NodeCG has finished loading.
         this.nodecg.Replicant("bundles", "nodecg").on("change", async (bundles) => {
-            if (bundles && bundles.length > 0) {
+            if (bundles && bundles.length > 0 && this.encryptedData.value) {
                 try {
                     this.nodecg.log.info("Attempting to automatically login...");
-                    const loadResult = await this.load(password);
+                    const salt = await getEncryptionSalt(this.encryptedData.value, password);
+                    const encryptionKey = await deriveEncryptionKey(password, salt);
+                    const loadResult = await this.load(encryptionKey);
                     if (!loadResult.failed) {
                         this.nodecg.log.info("Automatic login successful.");
                     }
                     else {
-                        throw loadResult.errorMessage;
+                        throw new Error(loadResult.errorMessage);
                     }
                 }
                 catch (err) {
