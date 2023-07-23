@@ -22,14 +22,7 @@ class StreamElementsServiceClient extends events_1.EventEmitter {
         this.registerEvents();
     }
     registerEvents() {
-        this.socket.on("event:update", (data) => {
-            console.log("AAAAAAAAAAAAAAAAAAAAAAAAA:", data);
-        });
-        this.socket.on("event", (data) => {
-            console.log("BBBBBBBBBBBBBBBBBBBBBBBBB:", data);
-        });
         this.onEvent((data) => {
-            console.log(data);
             if (data.type === "subscriber") {
                 if (data.data.gifted) {
                     this.handleSubGift(data.data.sender, data, (subBomb) => this.emit("subbomb", subBomb), (gift) => this.emit("gift", gift));
