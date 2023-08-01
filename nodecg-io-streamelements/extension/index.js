@@ -11,11 +11,11 @@ module.exports = (nodecg) => {
 };
 class StreamElementsService extends nodecg_io_core_1.ServiceBundle {
     async validateConfig(config) {
-        return new StreamElements_1.StreamElementsServiceClient(config.jwtToken, config.handleTestEvents).testConnection();
+        return new StreamElements_1.StreamElementsServiceClient(config.jwtToken).testConnection();
     }
     async createClient(config, logger) {
         logger.info("Connecting to StreamElements socket server...");
-        const client = new StreamElements_1.StreamElementsServiceClient(config.jwtToken, config.handleTestEvents);
+        const client = new StreamElements_1.StreamElementsServiceClient(config.jwtToken);
         await client.connect();
         logger.info("Successfully connected to StreamElements socket server.");
         return (0, nodecg_io_core_1.success)(client);

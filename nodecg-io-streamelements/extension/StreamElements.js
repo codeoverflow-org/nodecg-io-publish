@@ -5,10 +5,9 @@ const io = require("socket.io-client");
 const nodecg_io_core_1 = require("nodecg-io-core");
 const events_1 = require("events");
 class StreamElementsServiceClient extends events_1.EventEmitter {
-    constructor(jwtToken, handleTestEvents) {
+    constructor(jwtToken) {
         super();
         this.jwtToken = jwtToken;
-        this.handleTestEvents = handleTestEvents;
         this.subBombDetectionMap = new Map();
     }
     createSocket() {
@@ -30,19 +29,6 @@ class StreamElementsServiceClient extends events_1.EventEmitter {
             }
             this.emit(data.type, data);
         });
-        if (this.handleTestEvents) {
-            this.onTestEvent((data) => {
-                if (data.listener) {
-                    this.emit("test", data);
-                    this.emit("test:" + data.listener, data);
-                }
-            });
-            this.onTestSubscriber((data) => {
-                if (data.event.gifted) {
-                    this.handleSubGift(data.event.sender, data, (subBomb) => this.emit("test:subbomb", subBomb), (gift) => this.emit("test:gift", gift));
-                }
-            });
-        }
     }
     handleSubGift(subGifter, gift, handlerSubBomb, handlerGift) {
         var _a;
@@ -59,6 +45,9 @@ class StreamElementsServiceClient extends events_1.EventEmitter {
                         subscribers: subBomb.subs,
                     };
                     handlerSubBomb(subBombEvent);
+                    subBomb.subs.forEach(sub => {
+                        sub.data.isFromSubBomb = true;
+                    });
                 }
                 subBomb.subs.forEach(handlerGift);
             }, 1000),
@@ -113,26 +102,6 @@ class StreamElementsServiceClient extends events_1.EventEmitter {
             }
         });
     }
-    onTestEvent(handler) {
-        this.socket.on("event:test", (data) => {
-            if (data) {
-                handler(data);
-            }
-        });
-        this.socket.on("event:update", (data) => {
-            // event:update is all replays of previous real events.
-            // Because the structure is similar to the test events and just the keys in the root element
-            // are named differently we rename those to align with the naming in the test events
-            // and handle it as a test event from here on.
-            if (data) {
-                handler({
-                    event: data.data,
-                    listener: data.name,
-                    provider: data.provider,
-                });
-            }
-        });
-    }
     onSubscriber(handler, includeSubGifts = true) {
         this.on("subscriber", (data) => {
             if (data.data.gifted && !includeSubGifts)
@@ -160,37 +129,6 @@ class StreamElementsServiceClient extends events_1.EventEmitter {
     }
     onHost(handler) {
         this.on("host", handler);
-    }
-    onTest(handler) {
-        this.on("test", handler);
-    }
-    onTestSubscriber(handler, includeSubGifts = true) {
-        this.on("test:subscriber-latest", (data) => {
-            if (data.event.gifted && !includeSubGifts)
-                return;
-            handler(data);
-        });
-    }
-    onTestSubscriberBomb(handler) {
-        this.on("test:subbomb", handler);
-    }
-    onTestGift(handler) {
-        this.on("test:gift", handler);
-    }
-    onTestCheer(handler) {
-        this.on("test:cheer-latest", handler);
-    }
-    onTestFollow(handler) {
-        this.on("test:follower-latest", handler);
-    }
-    onTestRaid(handler) {
-        this.on("test:raid-latest", handler);
-    }
-    onTestHost(handler) {
-        this.on("test:host-latest", handler);
-    }
-    onTestTip(handler) {
-        this.on("test:tip-latest", handler);
     }
     setupReplicant(rep) {
         if (rep.value === undefined) {
