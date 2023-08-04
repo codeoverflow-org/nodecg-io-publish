@@ -112,7 +112,6 @@
     constructor(message) {
       super(message || "An unexpected bug occurred.");
       Object.setPrototypeOf(this, _BugIndicatingError.prototype);
-      debugger;
     }
   };
 
@@ -424,29 +423,6 @@
   };
   Disposable.None = Object.freeze({ dispose() {
   } });
-  var SafeDisposable = class {
-    constructor() {
-      this.dispose = () => {
-      };
-      this.unset = () => {
-      };
-      this.isset = () => false;
-      trackDisposable(this);
-    }
-    set(fn) {
-      let callback = fn;
-      this.unset = () => callback = void 0;
-      this.isset = () => callback !== void 0;
-      this.dispose = () => {
-        if (callback) {
-          callback();
-          callback = void 0;
-          markAsDisposed(this);
-        }
-      };
-      return this;
-    }
-  };
   var DisposableMap = class {
     constructor() {
       this._store = /* @__PURE__ */ new Map();
@@ -610,161 +586,14 @@
     }
   };
 
-  // ../../../node_modules/monaco-editor/esm/vs/nls.js
-  var isPseudo = typeof document !== "undefined" && document.location && document.location.hash.indexOf("pseudo=true") >= 0;
-  function _format(message, args) {
-    let result;
-    if (args.length === 0) {
-      result = message;
-    } else {
-      result = message.replace(/\{(\d+)\}/g, (match, rest) => {
-        const index = rest[0];
-        const arg = args[index];
-        let result2 = match;
-        if (typeof arg === "string") {
-          result2 = arg;
-        } else if (typeof arg === "number" || typeof arg === "boolean" || arg === void 0 || arg === null) {
-          result2 = String(arg);
-        }
-        return result2;
-      });
-    }
-    if (isPseudo) {
-      result = "\uFF3B" + result.replace(/[aouei]/g, "$&$&") + "\uFF3D";
-    }
-    return result;
-  }
-  function localize(data, message, ...args) {
-    return _format(message, args);
-  }
-  function getConfiguredDefaultLocale(_) {
-    return void 0;
-  }
-
-  // ../../../node_modules/monaco-editor/esm/vs/base/common/platform.js
-  var _a;
-  var LANGUAGE_DEFAULT = "en";
-  var _isWindows = false;
-  var _isMacintosh = false;
-  var _isLinux = false;
-  var _isLinuxSnap = false;
-  var _isNative = false;
-  var _isWeb = false;
-  var _isElectron = false;
-  var _isIOS = false;
-  var _isCI = false;
-  var _isMobile = false;
-  var _locale = void 0;
-  var _language = LANGUAGE_DEFAULT;
-  var _platformLocale = LANGUAGE_DEFAULT;
-  var _translationsConfigFile = void 0;
-  var _userAgent = void 0;
-  var globals = typeof self === "object" ? self : typeof global === "object" ? global : {};
-  var nodeProcess = void 0;
-  if (typeof globals.vscode !== "undefined" && typeof globals.vscode.process !== "undefined") {
-    nodeProcess = globals.vscode.process;
-  } else if (typeof process !== "undefined") {
-    nodeProcess = process;
-  }
-  var isElectronProcess = typeof ((_a = nodeProcess === null || nodeProcess === void 0 ? void 0 : nodeProcess.versions) === null || _a === void 0 ? void 0 : _a.electron) === "string";
-  var isElectronRenderer = isElectronProcess && (nodeProcess === null || nodeProcess === void 0 ? void 0 : nodeProcess.type) === "renderer";
-  if (typeof navigator === "object" && !isElectronRenderer) {
-    _userAgent = navigator.userAgent;
-    _isWindows = _userAgent.indexOf("Windows") >= 0;
-    _isMacintosh = _userAgent.indexOf("Macintosh") >= 0;
-    _isIOS = (_userAgent.indexOf("Macintosh") >= 0 || _userAgent.indexOf("iPad") >= 0 || _userAgent.indexOf("iPhone") >= 0) && !!navigator.maxTouchPoints && navigator.maxTouchPoints > 0;
-    _isLinux = _userAgent.indexOf("Linux") >= 0;
-    _isMobile = (_userAgent === null || _userAgent === void 0 ? void 0 : _userAgent.indexOf("Mobi")) >= 0;
-    _isWeb = true;
-    const configuredLocale = getConfiguredDefaultLocale(
-      // This call _must_ be done in the file that calls `nls.getConfiguredDefaultLocale`
-      // to ensure that the NLS AMD Loader plugin has been loaded and configured.
-      // This is because the loader plugin decides what the default locale is based on
-      // how it's able to resolve the strings.
-      localize({ key: "ensureLoaderPluginIsLoaded", comment: ["{Locked}"] }, "_")
-    );
-    _locale = configuredLocale || LANGUAGE_DEFAULT;
-    _language = _locale;
-    _platformLocale = navigator.language;
-  } else if (typeof nodeProcess === "object") {
-    _isWindows = nodeProcess.platform === "win32";
-    _isMacintosh = nodeProcess.platform === "darwin";
-    _isLinux = nodeProcess.platform === "linux";
-    _isLinuxSnap = _isLinux && !!nodeProcess.env["SNAP"] && !!nodeProcess.env["SNAP_REVISION"];
-    _isElectron = isElectronProcess;
-    _isCI = !!nodeProcess.env["CI"] || !!nodeProcess.env["BUILD_ARTIFACTSTAGINGDIRECTORY"];
-    _locale = LANGUAGE_DEFAULT;
-    _language = LANGUAGE_DEFAULT;
-    const rawNlsConfig = nodeProcess.env["VSCODE_NLS_CONFIG"];
-    if (rawNlsConfig) {
-      try {
-        const nlsConfig = JSON.parse(rawNlsConfig);
-        const resolved = nlsConfig.availableLanguages["*"];
-        _locale = nlsConfig.locale;
-        _platformLocale = nlsConfig.osLocale;
-        _language = resolved ? resolved : LANGUAGE_DEFAULT;
-        _translationsConfigFile = nlsConfig._translationsConfigFile;
-      } catch (e) {
-      }
-    }
-    _isNative = true;
-  } else {
-    console.error("Unable to resolve platform.");
-  }
-  var _platform = 0;
-  if (_isMacintosh) {
-    _platform = 1;
-  } else if (_isWindows) {
-    _platform = 3;
-  } else if (_isLinux) {
-    _platform = 2;
-  }
-  var isWindows = _isWindows;
-  var isMacintosh = _isMacintosh;
-  var isWebWorker = _isWeb && typeof globals.importScripts === "function";
-  var userAgent = _userAgent;
-  var setTimeout0IsFaster = typeof globals.postMessage === "function" && !globals.importScripts;
-  var setTimeout0 = (() => {
-    if (setTimeout0IsFaster) {
-      const pending = [];
-      globals.addEventListener("message", (e) => {
-        if (e.data && e.data.vscodeScheduleAsyncWork) {
-          for (let i = 0, len = pending.length; i < len; i++) {
-            const candidate = pending[i];
-            if (candidate.id === e.data.vscodeScheduleAsyncWork) {
-              pending.splice(i, 1);
-              candidate.callback();
-              return;
-            }
-          }
-        }
-      });
-      let lastId = 0;
-      return (callback) => {
-        const myId = ++lastId;
-        pending.push({
-          id: myId,
-          callback
-        });
-        globals.postMessage({ vscodeScheduleAsyncWork: myId }, "*");
-      };
-    }
-    return (callback) => setTimeout(callback);
-  })();
-  var isChrome = !!(userAgent && userAgent.indexOf("Chrome") >= 0);
-  var isFirefox = !!(userAgent && userAgent.indexOf("Firefox") >= 0);
-  var isSafari = !!(!isChrome && (userAgent && userAgent.indexOf("Safari") >= 0));
-  var isEdge = !!(userAgent && userAgent.indexOf("Edg/") >= 0);
-  var isAndroid = !!(userAgent && userAgent.indexOf("Android") >= 0);
-
   // ../../../node_modules/monaco-editor/esm/vs/base/common/stopwatch.js
-  var hasPerformanceNow = globals.performance && typeof globals.performance.now === "function";
+  var hasPerformanceNow = globalThis.performance && typeof globalThis.performance.now === "function";
   var StopWatch = class _StopWatch {
-    static create(highResolution = true) {
+    static create(highResolution) {
       return new _StopWatch(highResolution);
     }
     constructor(highResolution) {
-      this._highResolution = hasPerformanceNow && highResolution;
+      this._now = hasPerformanceNow && highResolution === false ? Date.now : globalThis.performance.now.bind(globalThis.performance);
       this._startTime = this._now();
       this._stopTime = -1;
     }
@@ -776,9 +605,6 @@
         return this._stopTime - this._startTime;
       }
       return this._now() - this._startTime;
-    }
-    _now() {
-      return this._highResolution ? globals.performance.now() : Date.now();
     }
   };
 
@@ -1169,7 +995,7 @@
       _EventProfiling.all.add(this);
     }
     start(listenerCount) {
-      this._stopWatch = new StopWatch(true);
+      this._stopWatch = new StopWatch();
       this.listenerCount = listenerCount;
     }
     stop() {
@@ -1237,21 +1063,28 @@
       console.warn(this.value.split("\n").slice(2).join("\n"));
     }
   };
-  var Listener = class {
-    constructor(callback, callbackThis, stack) {
-      this.callback = callback;
-      this.callbackThis = callbackThis;
-      this.stack = stack;
-      this.subscription = new SafeDisposable();
+  var UniqueContainer = class {
+    constructor(value) {
+      this.value = value;
     }
-    invoke(e) {
-      this.callback.call(this.callbackThis, e);
+  };
+  var compactionThreshold = 2;
+  var forEachListener = (listeners, fn) => {
+    if (listeners instanceof UniqueContainer) {
+      fn(listeners);
+    } else {
+      for (let i = 0; i < listeners.length; i++) {
+        const l = listeners[i];
+        if (l) {
+          fn(l);
+        }
+      }
     }
   };
   var Emitter = class {
     constructor(options) {
       var _a3, _b, _c, _d, _e;
-      this._disposed = false;
+      this._size = 0;
       this._options = options;
       this._leakageMon = _globalLeakWarningThreshold > 0 || ((_a3 = this._options) === null || _a3 === void 0 ? void 0 : _a3.leakWarningThreshold) ? new LeakageMonitor((_c = (_b = this._options) === null || _b === void 0 ? void 0 : _b.leakWarningThreshold) !== null && _c !== void 0 ? _c : _globalLeakWarningThreshold) : void 0;
       this._perfMon = ((_d = this._options) === null || _d === void 0 ? void 0 : _d._profName) ? new EventProfiling(this._options._profName) : void 0;
@@ -1261,22 +1094,22 @@
       var _a3, _b, _c, _d;
       if (!this._disposed) {
         this._disposed = true;
+        if (((_a3 = this._deliveryQueue) === null || _a3 === void 0 ? void 0 : _a3.current) === this) {
+          this._deliveryQueue.reset();
+        }
         if (this._listeners) {
           if (_enableDisposeWithListenerWarning) {
-            const listeners = Array.from(this._listeners);
+            const listeners = this._listeners;
             queueMicrotask(() => {
-              var _a4;
-              for (const listener of listeners) {
-                if (listener.subscription.isset()) {
-                  listener.subscription.unset();
-                  (_a4 = listener.stack) === null || _a4 === void 0 ? void 0 : _a4.print();
-                }
-              }
+              forEachListener(listeners, (l) => {
+                var _a4;
+                return (_a4 = l.stack) === null || _a4 === void 0 ? void 0 : _a4.print();
+              });
             });
           }
-          this._listeners.clear();
+          this._listeners = void 0;
+          this._size = 0;
         }
-        (_a3 = this._deliveryQueue) === null || _a3 === void 0 ? void 0 : _a3.clear(this);
         (_c = (_b = this._options) === null || _b === void 0 ? void 0 : _b.onDidRemoveLastListener) === null || _c === void 0 ? void 0 : _c.call(_b);
         (_d = this._leakageMon) === null || _d === void 0 ? void 0 : _d.dispose();
       }
@@ -1286,127 +1119,155 @@
      * to events from this Emitter
      */
     get event() {
-      if (!this._event) {
-        this._event = (callback, thisArgs, disposables) => {
-          var _a3, _b, _c;
-          if (!this._listeners) {
-            this._listeners = new LinkedList();
-          }
-          if (this._leakageMon && this._listeners.size > this._leakageMon.threshold * 3) {
-            console.warn(`[${this._leakageMon.name}] REFUSES to accept new listeners because it exceeded its threshold by far`);
-            return Disposable.None;
-          }
-          const firstListener = this._listeners.isEmpty();
-          if (firstListener && ((_a3 = this._options) === null || _a3 === void 0 ? void 0 : _a3.onWillAddFirstListener)) {
-            this._options.onWillAddFirstListener(this);
-          }
-          let removeMonitor;
-          let stack;
-          if (this._leakageMon && this._listeners.size >= Math.ceil(this._leakageMon.threshold * 0.2)) {
-            stack = Stacktrace.create();
-            removeMonitor = this._leakageMon.check(stack, this._listeners.size + 1);
-          }
-          if (_enableDisposeWithListenerWarning) {
-            stack = stack !== null && stack !== void 0 ? stack : Stacktrace.create();
-          }
-          const listener = new Listener(callback, thisArgs, stack);
-          const removeListener = this._listeners.push(listener);
-          if (firstListener && ((_b = this._options) === null || _b === void 0 ? void 0 : _b.onDidAddFirstListener)) {
-            this._options.onDidAddFirstListener(this);
-          }
-          if ((_c = this._options) === null || _c === void 0 ? void 0 : _c.onDidAddListener) {
-            this._options.onDidAddListener(this, callback, thisArgs);
-          }
-          const result = listener.subscription.set(() => {
-            var _a4, _b2;
-            removeMonitor === null || removeMonitor === void 0 ? void 0 : removeMonitor();
-            if (!this._disposed) {
-              (_b2 = (_a4 = this._options) === null || _a4 === void 0 ? void 0 : _a4.onWillRemoveListener) === null || _b2 === void 0 ? void 0 : _b2.call(_a4, this);
-              removeListener();
-              if (this._options && this._options.onDidRemoveLastListener) {
-                const hasListeners = this._listeners && !this._listeners.isEmpty();
-                if (!hasListeners) {
-                  this._options.onDidRemoveLastListener(this);
-                }
-              }
-            }
-          });
-          if (disposables instanceof DisposableStore) {
-            disposables.add(result);
-          } else if (Array.isArray(disposables)) {
-            disposables.push(result);
-          }
-          return result;
-        };
-      }
+      var _a3;
+      (_a3 = this._event) !== null && _a3 !== void 0 ? _a3 : this._event = (callback, thisArgs, disposables) => {
+        var _a4, _b, _c, _d, _e;
+        if (this._leakageMon && this._size > this._leakageMon.threshold * 3) {
+          console.warn(`[${this._leakageMon.name}] REFUSES to accept new listeners because it exceeded its threshold by far`);
+          return Disposable.None;
+        }
+        if (this._disposed) {
+          return Disposable.None;
+        }
+        if (thisArgs) {
+          callback = callback.bind(thisArgs);
+        }
+        const contained = new UniqueContainer(callback);
+        let removeMonitor;
+        let stack;
+        if (this._leakageMon && this._size >= Math.ceil(this._leakageMon.threshold * 0.2)) {
+          contained.stack = Stacktrace.create();
+          removeMonitor = this._leakageMon.check(contained.stack, this._size + 1);
+        }
+        if (_enableDisposeWithListenerWarning) {
+          contained.stack = stack !== null && stack !== void 0 ? stack : Stacktrace.create();
+        }
+        if (!this._listeners) {
+          (_b = (_a4 = this._options) === null || _a4 === void 0 ? void 0 : _a4.onWillAddFirstListener) === null || _b === void 0 ? void 0 : _b.call(_a4, this);
+          this._listeners = contained;
+          (_d = (_c = this._options) === null || _c === void 0 ? void 0 : _c.onDidAddFirstListener) === null || _d === void 0 ? void 0 : _d.call(_c, this);
+        } else if (this._listeners instanceof UniqueContainer) {
+          (_e = this._deliveryQueue) !== null && _e !== void 0 ? _e : this._deliveryQueue = new EventDeliveryQueuePrivate();
+          this._listeners = [this._listeners, contained];
+        } else {
+          this._listeners.push(contained);
+        }
+        this._size++;
+        const result = toDisposable(() => {
+          removeMonitor === null || removeMonitor === void 0 ? void 0 : removeMonitor();
+          this._removeListener(contained);
+        });
+        if (disposables instanceof DisposableStore) {
+          disposables.add(result);
+        } else if (Array.isArray(disposables)) {
+          disposables.push(result);
+        }
+        return result;
+      };
       return this._event;
+    }
+    _removeListener(listener) {
+      var _a3, _b, _c, _d;
+      (_b = (_a3 = this._options) === null || _a3 === void 0 ? void 0 : _a3.onWillRemoveListener) === null || _b === void 0 ? void 0 : _b.call(_a3, this);
+      if (!this._listeners) {
+        return;
+      }
+      if (this._size === 1) {
+        this._listeners = void 0;
+        (_d = (_c = this._options) === null || _c === void 0 ? void 0 : _c.onDidRemoveLastListener) === null || _d === void 0 ? void 0 : _d.call(_c, this);
+        this._size = 0;
+        return;
+      }
+      const listeners = this._listeners;
+      const index = listeners.indexOf(listener);
+      if (index === -1) {
+        console.log("disposed?", this._disposed);
+        console.log("size?", this._size);
+        console.log("arr?", JSON.stringify(this._listeners));
+        throw new Error("Attempted to dispose unknown listener");
+      }
+      this._size--;
+      listeners[index] = void 0;
+      const adjustDeliveryQueue = this._deliveryQueue.current === this;
+      if (this._size * compactionThreshold <= listeners.length) {
+        let n = 0;
+        for (let i = 0; i < listeners.length; i++) {
+          if (listeners[i]) {
+            listeners[n++] = listeners[i];
+          } else if (adjustDeliveryQueue) {
+            this._deliveryQueue.end--;
+            if (n < this._deliveryQueue.i) {
+              this._deliveryQueue.i--;
+            }
+          }
+        }
+        listeners.length = n;
+      }
+    }
+    _deliver(listener, value) {
+      var _a3;
+      if (!listener) {
+        return;
+      }
+      const errorHandler2 = ((_a3 = this._options) === null || _a3 === void 0 ? void 0 : _a3.onListenerError) || onUnexpectedError;
+      if (!errorHandler2) {
+        listener.value(value);
+        return;
+      }
+      try {
+        listener.value(value);
+      } catch (e) {
+        errorHandler2(e);
+      }
+    }
+    /** Delivers items in the queue. Assumes the queue is ready to go. */
+    _deliverQueue(dq) {
+      const listeners = dq.current._listeners;
+      while (dq.i < dq.end) {
+        this._deliver(listeners[dq.i++], dq.value);
+      }
+      dq.reset();
     }
     /**
      * To be kept private to fire an event to
      * subscribers
      */
     fire(event) {
-      var _a3, _b, _c;
-      if (this._listeners) {
-        if (!this._deliveryQueue) {
-          this._deliveryQueue = new PrivateEventDeliveryQueue((_a3 = this._options) === null || _a3 === void 0 ? void 0 : _a3.onListenerError);
-        }
-        for (const listener of this._listeners) {
-          this._deliveryQueue.push(this, listener, event);
-        }
-        (_b = this._perfMon) === null || _b === void 0 ? void 0 : _b.start(this._deliveryQueue.size);
-        this._deliveryQueue.deliver();
-        (_c = this._perfMon) === null || _c === void 0 ? void 0 : _c.stop();
+      var _a3, _b, _c, _d;
+      if ((_a3 = this._deliveryQueue) === null || _a3 === void 0 ? void 0 : _a3.current) {
+        this._deliverQueue(this._deliveryQueue);
+        (_b = this._perfMon) === null || _b === void 0 ? void 0 : _b.stop();
       }
+      (_c = this._perfMon) === null || _c === void 0 ? void 0 : _c.start(this._size);
+      if (!this._listeners) {
+      } else if (this._listeners instanceof UniqueContainer) {
+        this._deliver(this._listeners, event);
+      } else {
+        const dq = this._deliveryQueue;
+        dq.enqueue(this, event, this._listeners.length);
+        this._deliverQueue(dq);
+      }
+      (_d = this._perfMon) === null || _d === void 0 ? void 0 : _d.stop();
     }
     hasListeners() {
-      if (!this._listeners) {
-        return false;
-      }
-      return !this._listeners.isEmpty();
+      return this._size > 0;
     }
   };
-  var EventDeliveryQueue = class {
-    constructor(_onListenerError = onUnexpectedError) {
-      this._onListenerError = _onListenerError;
-      this._queue = new LinkedList();
+  var EventDeliveryQueuePrivate = class {
+    constructor() {
+      this.i = -1;
+      this.end = 0;
     }
-    get size() {
-      return this._queue.size;
+    enqueue(emitter, value, end) {
+      this.i = 0;
+      this.end = end;
+      this.current = emitter;
+      this.value = value;
     }
-    push(emitter, listener, event) {
-      this._queue.push(new EventDeliveryQueueElement(emitter, listener, event));
-    }
-    clear(emitter) {
-      const newQueue = new LinkedList();
-      for (const element of this._queue) {
-        if (element.emitter !== emitter) {
-          newQueue.push(element);
-        }
-      }
-      this._queue = newQueue;
-    }
-    deliver() {
-      while (this._queue.size > 0) {
-        const element = this._queue.shift();
-        try {
-          element.listener.invoke(element.event);
-        } catch (e) {
-          this._onListenerError(e);
-        }
-      }
-    }
-  };
-  var PrivateEventDeliveryQueue = class extends EventDeliveryQueue {
-    clear(emitter) {
-      this._queue.clear();
-    }
-  };
-  var EventDeliveryQueueElement = class {
-    constructor(emitter, listener, event) {
-      this.emitter = emitter;
-      this.listener = listener;
-      this.event = event;
+    reset() {
+      this.i = this.end;
+      this.current = void 0;
+      this.value = void 0;
     }
   };
 
@@ -1447,6 +1308,153 @@
     }
     return result;
   }
+
+  // ../../../node_modules/monaco-editor/esm/vs/nls.js
+  var isPseudo = typeof document !== "undefined" && document.location && document.location.hash.indexOf("pseudo=true") >= 0;
+  function _format(message, args) {
+    let result;
+    if (args.length === 0) {
+      result = message;
+    } else {
+      result = message.replace(/\{(\d+)\}/g, (match, rest) => {
+        const index = rest[0];
+        const arg = args[index];
+        let result2 = match;
+        if (typeof arg === "string") {
+          result2 = arg;
+        } else if (typeof arg === "number" || typeof arg === "boolean" || arg === void 0 || arg === null) {
+          result2 = String(arg);
+        }
+        return result2;
+      });
+    }
+    if (isPseudo) {
+      result = "\uFF3B" + result.replace(/[aouei]/g, "$&$&") + "\uFF3D";
+    }
+    return result;
+  }
+  function localize(data, message, ...args) {
+    return _format(message, args);
+  }
+  function getConfiguredDefaultLocale(_) {
+    return void 0;
+  }
+
+  // ../../../node_modules/monaco-editor/esm/vs/base/common/platform.js
+  var _a;
+  var LANGUAGE_DEFAULT = "en";
+  var _isWindows = false;
+  var _isMacintosh = false;
+  var _isLinux = false;
+  var _isLinuxSnap = false;
+  var _isNative = false;
+  var _isWeb = false;
+  var _isElectron = false;
+  var _isIOS = false;
+  var _isCI = false;
+  var _isMobile = false;
+  var _locale = void 0;
+  var _language = LANGUAGE_DEFAULT;
+  var _platformLocale = LANGUAGE_DEFAULT;
+  var _translationsConfigFile = void 0;
+  var _userAgent = void 0;
+  var globals = typeof self === "object" ? self : typeof global === "object" ? global : {};
+  var nodeProcess = void 0;
+  if (typeof globals.vscode !== "undefined" && typeof globals.vscode.process !== "undefined") {
+    nodeProcess = globals.vscode.process;
+  } else if (typeof process !== "undefined") {
+    nodeProcess = process;
+  }
+  var isElectronProcess = typeof ((_a = nodeProcess === null || nodeProcess === void 0 ? void 0 : nodeProcess.versions) === null || _a === void 0 ? void 0 : _a.electron) === "string";
+  var isElectronRenderer = isElectronProcess && (nodeProcess === null || nodeProcess === void 0 ? void 0 : nodeProcess.type) === "renderer";
+  if (typeof navigator === "object" && !isElectronRenderer) {
+    _userAgent = navigator.userAgent;
+    _isWindows = _userAgent.indexOf("Windows") >= 0;
+    _isMacintosh = _userAgent.indexOf("Macintosh") >= 0;
+    _isIOS = (_userAgent.indexOf("Macintosh") >= 0 || _userAgent.indexOf("iPad") >= 0 || _userAgent.indexOf("iPhone") >= 0) && !!navigator.maxTouchPoints && navigator.maxTouchPoints > 0;
+    _isLinux = _userAgent.indexOf("Linux") >= 0;
+    _isMobile = (_userAgent === null || _userAgent === void 0 ? void 0 : _userAgent.indexOf("Mobi")) >= 0;
+    _isWeb = true;
+    const configuredLocale = getConfiguredDefaultLocale(
+      // This call _must_ be done in the file that calls `nls.getConfiguredDefaultLocale`
+      // to ensure that the NLS AMD Loader plugin has been loaded and configured.
+      // This is because the loader plugin decides what the default locale is based on
+      // how it's able to resolve the strings.
+      localize({ key: "ensureLoaderPluginIsLoaded", comment: ["{Locked}"] }, "_")
+    );
+    _locale = configuredLocale || LANGUAGE_DEFAULT;
+    _language = _locale;
+    _platformLocale = navigator.language;
+  } else if (typeof nodeProcess === "object") {
+    _isWindows = nodeProcess.platform === "win32";
+    _isMacintosh = nodeProcess.platform === "darwin";
+    _isLinux = nodeProcess.platform === "linux";
+    _isLinuxSnap = _isLinux && !!nodeProcess.env["SNAP"] && !!nodeProcess.env["SNAP_REVISION"];
+    _isElectron = isElectronProcess;
+    _isCI = !!nodeProcess.env["CI"] || !!nodeProcess.env["BUILD_ARTIFACTSTAGINGDIRECTORY"];
+    _locale = LANGUAGE_DEFAULT;
+    _language = LANGUAGE_DEFAULT;
+    const rawNlsConfig = nodeProcess.env["VSCODE_NLS_CONFIG"];
+    if (rawNlsConfig) {
+      try {
+        const nlsConfig = JSON.parse(rawNlsConfig);
+        const resolved = nlsConfig.availableLanguages["*"];
+        _locale = nlsConfig.locale;
+        _platformLocale = nlsConfig.osLocale;
+        _language = resolved ? resolved : LANGUAGE_DEFAULT;
+        _translationsConfigFile = nlsConfig._translationsConfigFile;
+      } catch (e) {
+      }
+    }
+    _isNative = true;
+  } else {
+    console.error("Unable to resolve platform.");
+  }
+  var _platform = 0;
+  if (_isMacintosh) {
+    _platform = 1;
+  } else if (_isWindows) {
+    _platform = 3;
+  } else if (_isLinux) {
+    _platform = 2;
+  }
+  var isWindows = _isWindows;
+  var isMacintosh = _isMacintosh;
+  var isWebWorker = _isWeb && typeof globals.importScripts === "function";
+  var userAgent = _userAgent;
+  var setTimeout0IsFaster = typeof globals.postMessage === "function" && !globals.importScripts;
+  var setTimeout0 = (() => {
+    if (setTimeout0IsFaster) {
+      const pending = [];
+      globals.addEventListener("message", (e) => {
+        if (e.data && e.data.vscodeScheduleAsyncWork) {
+          for (let i = 0, len = pending.length; i < len; i++) {
+            const candidate = pending[i];
+            if (candidate.id === e.data.vscodeScheduleAsyncWork) {
+              pending.splice(i, 1);
+              candidate.callback();
+              return;
+            }
+          }
+        }
+      });
+      let lastId = 0;
+      return (callback) => {
+        const myId = ++lastId;
+        pending.push({
+          id: myId,
+          callback
+        });
+        globals.postMessage({ vscodeScheduleAsyncWork: myId }, "*");
+      };
+    }
+    return (callback) => setTimeout(callback);
+  })();
+  var isChrome = !!(userAgent && userAgent.indexOf("Chrome") >= 0);
+  var isFirefox = !!(userAgent && userAgent.indexOf("Firefox") >= 0);
+  var isSafari = !!(!isChrome && (userAgent && userAgent.indexOf("Safari") >= 0));
+  var isEdge = !!(userAgent && userAgent.indexOf("Edg/") >= 0);
+  var isAndroid = !!(userAgent && userAgent.indexOf("Android") >= 0);
 
   // ../../../node_modules/monaco-editor/esm/vs/base/common/cache.js
   var LRUCachedFunction = class {
@@ -4239,9 +4247,15 @@
       }
       return new Uri("file", authority, path, _empty, _empty);
     }
-    static from(components) {
-      const result = new Uri(components.scheme, components.authority, components.path, components.query, components.fragment);
-      _validateUri(result, true);
+    /**
+     * Creates new URI from uri components.
+     *
+     * Unless `strict` is `true` the scheme is defaults to be `file`. This function performs
+     * validation and should be used for untrusted uri components retrieved from storage,
+     * user input, command arguments etc
+     */
+    static from(components, strict) {
+      const result = new Uri(components.scheme, components.authority, components.path, components.query, components.fragment, strict);
       return result;
     }
     /**
@@ -4282,14 +4296,15 @@
       return this;
     }
     static revive(data) {
+      var _a3, _b;
       if (!data) {
         return data;
       } else if (data instanceof _URI) {
         return data;
       } else {
         const result = new Uri(data);
-        result._formatted = data.external;
-        result._fsPath = data._sep === _pathSepMarker ? data.fsPath : null;
+        result._formatted = (_a3 = data.external) !== null && _a3 !== void 0 ? _a3 : null;
+        result._fsPath = data._sep === _pathSepMarker ? (_b = data.fsPath) !== null && _b !== void 0 ? _b : null : null;
         return result;
       }
     }
@@ -6204,11 +6219,11 @@
       [1, 114, "F17", 75, "F17", 128, "VK_F17", empty, empty],
       [1, 115, "F18", 76, "F18", 129, "VK_F18", empty, empty],
       [1, 116, "F19", 77, "F19", 130, "VK_F19", empty, empty],
-      [1, 117, "F20", 78, "F20", 0, "VK_F20", empty, empty],
-      [1, 118, "F21", 79, "F21", 0, "VK_F21", empty, empty],
-      [1, 119, "F22", 80, "F22", 0, "VK_F22", empty, empty],
-      [1, 120, "F23", 81, "F23", 0, "VK_F23", empty, empty],
-      [1, 121, "F24", 82, "F24", 0, "VK_F24", empty, empty],
+      [1, 117, "F20", 78, "F20", 131, "VK_F20", empty, empty],
+      [1, 118, "F21", 79, "F21", 132, "VK_F21", empty, empty],
+      [1, 119, "F22", 80, "F22", 133, "VK_F22", empty, empty],
+      [1, 120, "F23", 81, "F23", 134, "VK_F23", empty, empty],
+      [1, 121, "F24", 82, "F24", 135, "VK_F24", empty, empty],
       [1, 122, "Open", 0, empty, 0, empty, empty, empty],
       [1, 123, "Help", 0, empty, 0, empty, empty, empty],
       [1, 124, "Select", 0, empty, 0, empty, empty, empty],
@@ -7727,66 +7742,69 @@
     EditorOption2[EditorOption2["overviewRulerBorder"] = 79] = "overviewRulerBorder";
     EditorOption2[EditorOption2["overviewRulerLanes"] = 80] = "overviewRulerLanes";
     EditorOption2[EditorOption2["padding"] = 81] = "padding";
-    EditorOption2[EditorOption2["parameterHints"] = 82] = "parameterHints";
-    EditorOption2[EditorOption2["peekWidgetDefaultFocus"] = 83] = "peekWidgetDefaultFocus";
-    EditorOption2[EditorOption2["definitionLinkOpensInPeek"] = 84] = "definitionLinkOpensInPeek";
-    EditorOption2[EditorOption2["quickSuggestions"] = 85] = "quickSuggestions";
-    EditorOption2[EditorOption2["quickSuggestionsDelay"] = 86] = "quickSuggestionsDelay";
-    EditorOption2[EditorOption2["readOnly"] = 87] = "readOnly";
-    EditorOption2[EditorOption2["renameOnType"] = 88] = "renameOnType";
-    EditorOption2[EditorOption2["renderControlCharacters"] = 89] = "renderControlCharacters";
-    EditorOption2[EditorOption2["renderFinalNewline"] = 90] = "renderFinalNewline";
-    EditorOption2[EditorOption2["renderLineHighlight"] = 91] = "renderLineHighlight";
-    EditorOption2[EditorOption2["renderLineHighlightOnlyWhenFocus"] = 92] = "renderLineHighlightOnlyWhenFocus";
-    EditorOption2[EditorOption2["renderValidationDecorations"] = 93] = "renderValidationDecorations";
-    EditorOption2[EditorOption2["renderWhitespace"] = 94] = "renderWhitespace";
-    EditorOption2[EditorOption2["revealHorizontalRightPadding"] = 95] = "revealHorizontalRightPadding";
-    EditorOption2[EditorOption2["roundedSelection"] = 96] = "roundedSelection";
-    EditorOption2[EditorOption2["rulers"] = 97] = "rulers";
-    EditorOption2[EditorOption2["scrollbar"] = 98] = "scrollbar";
-    EditorOption2[EditorOption2["scrollBeyondLastColumn"] = 99] = "scrollBeyondLastColumn";
-    EditorOption2[EditorOption2["scrollBeyondLastLine"] = 100] = "scrollBeyondLastLine";
-    EditorOption2[EditorOption2["scrollPredominantAxis"] = 101] = "scrollPredominantAxis";
-    EditorOption2[EditorOption2["selectionClipboard"] = 102] = "selectionClipboard";
-    EditorOption2[EditorOption2["selectionHighlight"] = 103] = "selectionHighlight";
-    EditorOption2[EditorOption2["selectOnLineNumbers"] = 104] = "selectOnLineNumbers";
-    EditorOption2[EditorOption2["showFoldingControls"] = 105] = "showFoldingControls";
-    EditorOption2[EditorOption2["showUnused"] = 106] = "showUnused";
-    EditorOption2[EditorOption2["snippetSuggestions"] = 107] = "snippetSuggestions";
-    EditorOption2[EditorOption2["smartSelect"] = 108] = "smartSelect";
-    EditorOption2[EditorOption2["smoothScrolling"] = 109] = "smoothScrolling";
-    EditorOption2[EditorOption2["stickyScroll"] = 110] = "stickyScroll";
-    EditorOption2[EditorOption2["stickyTabStops"] = 111] = "stickyTabStops";
-    EditorOption2[EditorOption2["stopRenderingLineAfter"] = 112] = "stopRenderingLineAfter";
-    EditorOption2[EditorOption2["suggest"] = 113] = "suggest";
-    EditorOption2[EditorOption2["suggestFontSize"] = 114] = "suggestFontSize";
-    EditorOption2[EditorOption2["suggestLineHeight"] = 115] = "suggestLineHeight";
-    EditorOption2[EditorOption2["suggestOnTriggerCharacters"] = 116] = "suggestOnTriggerCharacters";
-    EditorOption2[EditorOption2["suggestSelection"] = 117] = "suggestSelection";
-    EditorOption2[EditorOption2["tabCompletion"] = 118] = "tabCompletion";
-    EditorOption2[EditorOption2["tabIndex"] = 119] = "tabIndex";
-    EditorOption2[EditorOption2["unicodeHighlighting"] = 120] = "unicodeHighlighting";
-    EditorOption2[EditorOption2["unusualLineTerminators"] = 121] = "unusualLineTerminators";
-    EditorOption2[EditorOption2["useShadowDOM"] = 122] = "useShadowDOM";
-    EditorOption2[EditorOption2["useTabStops"] = 123] = "useTabStops";
-    EditorOption2[EditorOption2["wordBreak"] = 124] = "wordBreak";
-    EditorOption2[EditorOption2["wordSeparators"] = 125] = "wordSeparators";
-    EditorOption2[EditorOption2["wordWrap"] = 126] = "wordWrap";
-    EditorOption2[EditorOption2["wordWrapBreakAfterCharacters"] = 127] = "wordWrapBreakAfterCharacters";
-    EditorOption2[EditorOption2["wordWrapBreakBeforeCharacters"] = 128] = "wordWrapBreakBeforeCharacters";
-    EditorOption2[EditorOption2["wordWrapColumn"] = 129] = "wordWrapColumn";
-    EditorOption2[EditorOption2["wordWrapOverride1"] = 130] = "wordWrapOverride1";
-    EditorOption2[EditorOption2["wordWrapOverride2"] = 131] = "wordWrapOverride2";
-    EditorOption2[EditorOption2["wrappingIndent"] = 132] = "wrappingIndent";
-    EditorOption2[EditorOption2["wrappingStrategy"] = 133] = "wrappingStrategy";
-    EditorOption2[EditorOption2["showDeprecated"] = 134] = "showDeprecated";
-    EditorOption2[EditorOption2["inlayHints"] = 135] = "inlayHints";
-    EditorOption2[EditorOption2["editorClassName"] = 136] = "editorClassName";
-    EditorOption2[EditorOption2["pixelRatio"] = 137] = "pixelRatio";
-    EditorOption2[EditorOption2["tabFocusMode"] = 138] = "tabFocusMode";
-    EditorOption2[EditorOption2["layoutInfo"] = 139] = "layoutInfo";
-    EditorOption2[EditorOption2["wrappingInfo"] = 140] = "wrappingInfo";
-    EditorOption2[EditorOption2["defaultColorDecorators"] = 141] = "defaultColorDecorators";
+    EditorOption2[EditorOption2["pasteAs"] = 82] = "pasteAs";
+    EditorOption2[EditorOption2["parameterHints"] = 83] = "parameterHints";
+    EditorOption2[EditorOption2["peekWidgetDefaultFocus"] = 84] = "peekWidgetDefaultFocus";
+    EditorOption2[EditorOption2["definitionLinkOpensInPeek"] = 85] = "definitionLinkOpensInPeek";
+    EditorOption2[EditorOption2["quickSuggestions"] = 86] = "quickSuggestions";
+    EditorOption2[EditorOption2["quickSuggestionsDelay"] = 87] = "quickSuggestionsDelay";
+    EditorOption2[EditorOption2["readOnly"] = 88] = "readOnly";
+    EditorOption2[EditorOption2["readOnlyMessage"] = 89] = "readOnlyMessage";
+    EditorOption2[EditorOption2["renameOnType"] = 90] = "renameOnType";
+    EditorOption2[EditorOption2["renderControlCharacters"] = 91] = "renderControlCharacters";
+    EditorOption2[EditorOption2["renderFinalNewline"] = 92] = "renderFinalNewline";
+    EditorOption2[EditorOption2["renderLineHighlight"] = 93] = "renderLineHighlight";
+    EditorOption2[EditorOption2["renderLineHighlightOnlyWhenFocus"] = 94] = "renderLineHighlightOnlyWhenFocus";
+    EditorOption2[EditorOption2["renderValidationDecorations"] = 95] = "renderValidationDecorations";
+    EditorOption2[EditorOption2["renderWhitespace"] = 96] = "renderWhitespace";
+    EditorOption2[EditorOption2["revealHorizontalRightPadding"] = 97] = "revealHorizontalRightPadding";
+    EditorOption2[EditorOption2["roundedSelection"] = 98] = "roundedSelection";
+    EditorOption2[EditorOption2["rulers"] = 99] = "rulers";
+    EditorOption2[EditorOption2["scrollbar"] = 100] = "scrollbar";
+    EditorOption2[EditorOption2["scrollBeyondLastColumn"] = 101] = "scrollBeyondLastColumn";
+    EditorOption2[EditorOption2["scrollBeyondLastLine"] = 102] = "scrollBeyondLastLine";
+    EditorOption2[EditorOption2["scrollPredominantAxis"] = 103] = "scrollPredominantAxis";
+    EditorOption2[EditorOption2["selectionClipboard"] = 104] = "selectionClipboard";
+    EditorOption2[EditorOption2["selectionHighlight"] = 105] = "selectionHighlight";
+    EditorOption2[EditorOption2["selectOnLineNumbers"] = 106] = "selectOnLineNumbers";
+    EditorOption2[EditorOption2["showFoldingControls"] = 107] = "showFoldingControls";
+    EditorOption2[EditorOption2["showUnused"] = 108] = "showUnused";
+    EditorOption2[EditorOption2["snippetSuggestions"] = 109] = "snippetSuggestions";
+    EditorOption2[EditorOption2["smartSelect"] = 110] = "smartSelect";
+    EditorOption2[EditorOption2["smoothScrolling"] = 111] = "smoothScrolling";
+    EditorOption2[EditorOption2["stickyScroll"] = 112] = "stickyScroll";
+    EditorOption2[EditorOption2["stickyTabStops"] = 113] = "stickyTabStops";
+    EditorOption2[EditorOption2["stopRenderingLineAfter"] = 114] = "stopRenderingLineAfter";
+    EditorOption2[EditorOption2["suggest"] = 115] = "suggest";
+    EditorOption2[EditorOption2["suggestFontSize"] = 116] = "suggestFontSize";
+    EditorOption2[EditorOption2["suggestLineHeight"] = 117] = "suggestLineHeight";
+    EditorOption2[EditorOption2["suggestOnTriggerCharacters"] = 118] = "suggestOnTriggerCharacters";
+    EditorOption2[EditorOption2["suggestSelection"] = 119] = "suggestSelection";
+    EditorOption2[EditorOption2["tabCompletion"] = 120] = "tabCompletion";
+    EditorOption2[EditorOption2["tabIndex"] = 121] = "tabIndex";
+    EditorOption2[EditorOption2["unicodeHighlighting"] = 122] = "unicodeHighlighting";
+    EditorOption2[EditorOption2["unusualLineTerminators"] = 123] = "unusualLineTerminators";
+    EditorOption2[EditorOption2["useShadowDOM"] = 124] = "useShadowDOM";
+    EditorOption2[EditorOption2["useTabStops"] = 125] = "useTabStops";
+    EditorOption2[EditorOption2["wordBreak"] = 126] = "wordBreak";
+    EditorOption2[EditorOption2["wordSeparators"] = 127] = "wordSeparators";
+    EditorOption2[EditorOption2["wordWrap"] = 128] = "wordWrap";
+    EditorOption2[EditorOption2["wordWrapBreakAfterCharacters"] = 129] = "wordWrapBreakAfterCharacters";
+    EditorOption2[EditorOption2["wordWrapBreakBeforeCharacters"] = 130] = "wordWrapBreakBeforeCharacters";
+    EditorOption2[EditorOption2["wordWrapColumn"] = 131] = "wordWrapColumn";
+    EditorOption2[EditorOption2["wordWrapOverride1"] = 132] = "wordWrapOverride1";
+    EditorOption2[EditorOption2["wordWrapOverride2"] = 133] = "wordWrapOverride2";
+    EditorOption2[EditorOption2["wrappingIndent"] = 134] = "wrappingIndent";
+    EditorOption2[EditorOption2["wrappingStrategy"] = 135] = "wrappingStrategy";
+    EditorOption2[EditorOption2["showDeprecated"] = 136] = "showDeprecated";
+    EditorOption2[EditorOption2["inlayHints"] = 137] = "inlayHints";
+    EditorOption2[EditorOption2["editorClassName"] = 138] = "editorClassName";
+    EditorOption2[EditorOption2["pixelRatio"] = 139] = "pixelRatio";
+    EditorOption2[EditorOption2["tabFocusMode"] = 140] = "tabFocusMode";
+    EditorOption2[EditorOption2["layoutInfo"] = 141] = "layoutInfo";
+    EditorOption2[EditorOption2["wrappingInfo"] = 142] = "wrappingInfo";
+    EditorOption2[EditorOption2["defaultColorDecorators"] = 143] = "defaultColorDecorators";
+    EditorOption2[EditorOption2["colorDecoratorsActivatedOn"] = 144] = "colorDecoratorsActivatedOn";
   })(EditorOption || (EditorOption = {}));
   var EndOfLinePreference;
   (function(EndOfLinePreference2) {
@@ -8503,38 +8521,28 @@
     return character === " " || character === "\n" || character === "	";
   }
 
-  // ../../../node_modules/monaco-editor/esm/vs/editor/common/diff/linesDiffComputer.js
-  var LinesDiff = class {
-    constructor(changes, hitTimeout) {
-      this.changes = changes;
-      this.hitTimeout = hitTimeout;
-    }
-  };
-  var LineRangeMapping = class {
-    constructor(originalRange, modifiedRange, innerChanges) {
-      this.originalRange = originalRange;
-      this.modifiedRange = modifiedRange;
-      this.innerChanges = innerChanges;
-    }
-    toString() {
-      return `{${this.originalRange.toString()}->${this.modifiedRange.toString()}}`;
-    }
-    get changedLineCount() {
-      return Math.max(this.originalRange.length, this.modifiedRange.length);
-    }
-  };
-  var RangeMapping = class {
-    constructor(originalRange, modifiedRange) {
-      this.originalRange = originalRange;
-      this.modifiedRange = modifiedRange;
-    }
-    toString() {
-      return `{${this.originalRange.toString()}->${this.modifiedRange.toString()}}`;
-    }
-  };
-
   // ../../../node_modules/monaco-editor/esm/vs/editor/common/core/lineRange.js
   var LineRange = class _LineRange {
+    static fromRange(range) {
+      return new _LineRange(range.startLineNumber, range.endLineNumber);
+    }
+    static subtract(a2, b) {
+      if (!b) {
+        return [a2];
+      }
+      if (a2.startLineNumber < b.startLineNumber && b.endLineNumberExclusive < a2.endLineNumberExclusive) {
+        return [
+          new _LineRange(a2.startLineNumber, b.startLineNumber),
+          new _LineRange(b.endLineNumberExclusive, a2.endLineNumberExclusive)
+        ];
+      } else if (b.startLineNumber <= a2.startLineNumber && a2.endLineNumberExclusive <= b.endLineNumberExclusive) {
+        return [];
+      } else if (b.endLineNumberExclusive < a2.endLineNumberExclusive) {
+        return [new _LineRange(Math.max(b.endLineNumberExclusive, a2.startLineNumber), a2.endLineNumberExclusive)];
+      } else {
+        return [new _LineRange(a2.startLineNumber, Math.min(b.startLineNumber, a2.endLineNumberExclusive))];
+      }
+    }
     /**
      * @param lineRanges An array of sorted line ranges.
      */
@@ -8598,6 +8606,15 @@
       }
       return result;
     }
+    static ofLength(startLineNumber, length) {
+      return new _LineRange(startLineNumber, startLineNumber + length);
+    }
+    /**
+     * @internal
+     */
+    static deserialize(lineRange) {
+      return new _LineRange(lineRange[0], lineRange[1]);
+    }
     constructor(startLineNumber, endLineNumberExclusive) {
       if (startLineNumber > endLineNumberExclusive) {
         throw new BugIndicatingError(`startLineNumber ${startLineNumber} cannot be after endLineNumberExclusive ${endLineNumberExclusive}`);
@@ -8650,11 +8667,116 @@
       }
       return void 0;
     }
+    intersectsStrict(other) {
+      return this.startLineNumber < other.endLineNumberExclusive && other.startLineNumber < this.endLineNumberExclusive;
+    }
     overlapOrTouch(other) {
       return this.startLineNumber <= other.endLineNumberExclusive && other.startLineNumber <= this.endLineNumberExclusive;
     }
     equals(b) {
       return this.startLineNumber === b.startLineNumber && this.endLineNumberExclusive === b.endLineNumberExclusive;
+    }
+    toInclusiveRange() {
+      if (this.isEmpty) {
+        return null;
+      }
+      return new Range(this.startLineNumber, 1, this.endLineNumberExclusive - 1, Number.MAX_SAFE_INTEGER);
+    }
+    toExclusiveRange() {
+      return new Range(this.startLineNumber, 1, this.endLineNumberExclusive, 1);
+    }
+    mapToLineArray(f2) {
+      const result = [];
+      for (let lineNumber = this.startLineNumber; lineNumber < this.endLineNumberExclusive; lineNumber++) {
+        result.push(f2(lineNumber));
+      }
+      return result;
+    }
+    /**
+     * @internal
+     */
+    serialize() {
+      return [this.startLineNumber, this.endLineNumberExclusive];
+    }
+    includes(lineNumber) {
+      return this.startLineNumber <= lineNumber && lineNumber < this.endLineNumberExclusive;
+    }
+  };
+
+  // ../../../node_modules/monaco-editor/esm/vs/editor/common/diff/linesDiffComputer.js
+  var LinesDiff = class {
+    constructor(changes, moves, hitTimeout) {
+      this.changes = changes;
+      this.moves = moves;
+      this.hitTimeout = hitTimeout;
+    }
+  };
+  var LineRangeMapping = class _LineRangeMapping {
+    static inverse(mapping, originalLineCount, modifiedLineCount) {
+      const result = [];
+      let lastOriginalEndLineNumber = 1;
+      let lastModifiedEndLineNumber = 1;
+      for (const m of mapping) {
+        const r2 = new _LineRangeMapping(new LineRange(lastOriginalEndLineNumber, m.originalRange.startLineNumber), new LineRange(lastModifiedEndLineNumber, m.modifiedRange.startLineNumber), void 0);
+        if (!r2.modifiedRange.isEmpty) {
+          result.push(r2);
+        }
+        lastOriginalEndLineNumber = m.originalRange.endLineNumberExclusive;
+        lastModifiedEndLineNumber = m.modifiedRange.endLineNumberExclusive;
+      }
+      const r = new _LineRangeMapping(new LineRange(lastOriginalEndLineNumber, originalLineCount + 1), new LineRange(lastModifiedEndLineNumber, modifiedLineCount + 1), void 0);
+      if (!r.modifiedRange.isEmpty) {
+        result.push(r);
+      }
+      return result;
+    }
+    constructor(originalRange, modifiedRange, innerChanges) {
+      this.originalRange = originalRange;
+      this.modifiedRange = modifiedRange;
+      this.innerChanges = innerChanges;
+    }
+    toString() {
+      return `{${this.originalRange.toString()}->${this.modifiedRange.toString()}}`;
+    }
+    get changedLineCount() {
+      return Math.max(this.originalRange.length, this.modifiedRange.length);
+    }
+    flip() {
+      var _a3;
+      return new _LineRangeMapping(this.modifiedRange, this.originalRange, (_a3 = this.innerChanges) === null || _a3 === void 0 ? void 0 : _a3.map((c) => c.flip()));
+    }
+  };
+  var RangeMapping = class _RangeMapping {
+    constructor(originalRange, modifiedRange) {
+      this.originalRange = originalRange;
+      this.modifiedRange = modifiedRange;
+    }
+    toString() {
+      return `{${this.originalRange.toString()}->${this.modifiedRange.toString()}}`;
+    }
+    flip() {
+      return new _RangeMapping(this.modifiedRange, this.originalRange);
+    }
+  };
+  var SimpleLineRangeMapping = class _SimpleLineRangeMapping {
+    constructor(originalRange, modifiedRange) {
+      this.originalRange = originalRange;
+      this.modifiedRange = modifiedRange;
+    }
+    toString() {
+      return `{${this.originalRange.toString()}->${this.modifiedRange.toString()}}`;
+    }
+    flip() {
+      return new _SimpleLineRangeMapping(this.modifiedRange, this.originalRange);
+    }
+  };
+  var MovedText = class _MovedText {
+    constructor(lineRangeMapping, changes) {
+      this.lineRangeMapping = lineRangeMapping;
+      this.changes = changes;
+    }
+    flip() {
+      return new _MovedText(this.lineRangeMapping.flip(), this.changes.map((c) => c.flip()));
     }
   };
 
@@ -8700,7 +8822,7 @@
         return checkAdjacentItems(changes, (m1, m2) => m2.originalRange.startLineNumber - m1.originalRange.endLineNumberExclusive === m2.modifiedRange.startLineNumber - m1.modifiedRange.endLineNumberExclusive && // There has to be an unchanged line in between (otherwise both diffs should have been joined)
         m1.originalRange.endLineNumberExclusive < m2.originalRange.startLineNumber && m1.modifiedRange.endLineNumberExclusive < m2.modifiedRange.startLineNumber);
       });
-      return new LinesDiff(changes, result.quitEarly);
+      return new LinesDiff(changes, [], result.quitEarly);
     }
   };
   function computeDiff(originalSequence, modifiedSequence, continueProcessingPredicate, pretty) {
@@ -9178,6 +9300,12 @@
     join(other) {
       return new _SequenceDiff(this.seq1Range.join(other.seq1Range), this.seq2Range.join(other.seq2Range));
     }
+    delta(offset) {
+      if (offset === 0) {
+        return this;
+      }
+      return new _SequenceDiff(this.seq1Range.delta(offset), this.seq2Range.delta(offset));
+    }
   };
   var InfiniteTimeout = class {
     isValid() {
@@ -9326,53 +9454,79 @@
       result.push(sequenceDiffs[0]);
     }
     for (let i = 1; i < sequenceDiffs.length; i++) {
-      const lastResult = result[result.length - 1];
-      const cur = sequenceDiffs[i];
-      if (cur.seq1Range.isEmpty) {
-        let all = true;
-        const length = cur.seq1Range.start - lastResult.seq1Range.endExclusive;
-        for (let i2 = 1; i2 <= length; i2++) {
-          if (sequence2.getElement(cur.seq2Range.start - i2) !== sequence2.getElement(cur.seq2Range.endExclusive - i2)) {
-            all = false;
+      const prevResult = sequenceDiffs[i - 1];
+      let cur = sequenceDiffs[i];
+      if (cur.seq1Range.isEmpty || cur.seq2Range.isEmpty) {
+        const length = cur.seq1Range.start - prevResult.seq1Range.endExclusive;
+        let d;
+        for (d = 1; d <= length; d++) {
+          if (sequence1.getElement(cur.seq1Range.start - d) !== sequence1.getElement(cur.seq1Range.endExclusive - d) || sequence2.getElement(cur.seq2Range.start - d) !== sequence2.getElement(cur.seq2Range.endExclusive - d)) {
             break;
           }
         }
-        if (all) {
-          result[result.length - 1] = new SequenceDiff(lastResult.seq1Range, new OffsetRange(lastResult.seq2Range.start, cur.seq2Range.endExclusive - length));
+        d--;
+        if (d === length) {
+          result[result.length - 1] = new SequenceDiff(new OffsetRange(prevResult.seq1Range.start, cur.seq1Range.endExclusive - length), new OffsetRange(prevResult.seq2Range.start, cur.seq2Range.endExclusive - length));
           continue;
         }
+        cur = cur.delta(-d);
       }
       result.push(cur);
     }
-    return result;
+    const result2 = [];
+    for (let i = 0; i < result.length - 1; i++) {
+      const nextResult = result[i + 1];
+      let cur = result[i];
+      if (cur.seq1Range.isEmpty || cur.seq2Range.isEmpty) {
+        const length = nextResult.seq1Range.start - cur.seq1Range.endExclusive;
+        let d;
+        for (d = 0; d < length; d++) {
+          if (sequence1.getElement(cur.seq1Range.start + d) !== sequence1.getElement(cur.seq1Range.endExclusive + d) || sequence2.getElement(cur.seq2Range.start + d) !== sequence2.getElement(cur.seq2Range.endExclusive + d)) {
+            break;
+          }
+        }
+        if (d === length) {
+          result[i + 1] = new SequenceDiff(new OffsetRange(cur.seq1Range.start + length, nextResult.seq1Range.endExclusive), new OffsetRange(cur.seq2Range.start + length, nextResult.seq2Range.endExclusive));
+          continue;
+        }
+        if (d > 0) {
+          cur = cur.delta(d);
+        }
+      }
+      result2.push(cur);
+    }
+    if (result.length > 0) {
+      result2.push(result[result.length - 1]);
+    }
+    return result2;
   }
   function shiftSequenceDiffs(sequence1, sequence2, sequenceDiffs) {
     if (!sequence1.getBoundaryScore || !sequence2.getBoundaryScore) {
       return sequenceDiffs;
     }
     for (let i = 0; i < sequenceDiffs.length; i++) {
+      const prevDiff = i > 0 ? sequenceDiffs[i - 1] : void 0;
       const diff = sequenceDiffs[i];
+      const nextDiff = i + 1 < sequenceDiffs.length ? sequenceDiffs[i + 1] : void 0;
+      const seq1ValidRange = new OffsetRange(prevDiff ? prevDiff.seq1Range.start + 1 : 0, nextDiff ? nextDiff.seq1Range.endExclusive - 1 : sequence1.length);
+      const seq2ValidRange = new OffsetRange(prevDiff ? prevDiff.seq2Range.start + 1 : 0, nextDiff ? nextDiff.seq2Range.endExclusive - 1 : sequence2.length);
       if (diff.seq1Range.isEmpty) {
-        const seq2PrevEndExclusive = i > 0 ? sequenceDiffs[i - 1].seq2Range.endExclusive : -1;
-        const seq2NextStart = i + 1 < sequenceDiffs.length ? sequenceDiffs[i + 1].seq2Range.start : sequence2.length;
-        sequenceDiffs[i] = shiftDiffToBetterPosition(diff, sequence1, sequence2, seq2NextStart, seq2PrevEndExclusive);
+        sequenceDiffs[i] = shiftDiffToBetterPosition(diff, sequence1, sequence2, seq1ValidRange, seq2ValidRange);
       } else if (diff.seq2Range.isEmpty) {
-        const seq1PrevEndExclusive = i > 0 ? sequenceDiffs[i - 1].seq1Range.endExclusive : -1;
-        const seq1NextStart = i + 1 < sequenceDiffs.length ? sequenceDiffs[i + 1].seq1Range.start : sequence1.length;
-        sequenceDiffs[i] = shiftDiffToBetterPosition(diff.reverse(), sequence2, sequence1, seq1NextStart, seq1PrevEndExclusive).reverse();
+        sequenceDiffs[i] = shiftDiffToBetterPosition(diff.reverse(), sequence2, sequence1, seq2ValidRange, seq1ValidRange).reverse();
       }
     }
     return sequenceDiffs;
   }
-  function shiftDiffToBetterPosition(diff, sequence1, sequence2, seq2NextStart, seq2PrevEndExclusive) {
-    const maxShiftLimit = 20;
+  function shiftDiffToBetterPosition(diff, sequence1, sequence2, seq1ValidRange, seq2ValidRange) {
+    const maxShiftLimit = 100;
     let deltaBefore = 1;
-    while (diff.seq2Range.start - deltaBefore > seq2PrevEndExclusive && sequence2.getElement(diff.seq2Range.start - deltaBefore) === sequence2.getElement(diff.seq2Range.endExclusive - deltaBefore) && deltaBefore < maxShiftLimit) {
+    while (diff.seq1Range.start - deltaBefore >= seq1ValidRange.start && diff.seq2Range.start - deltaBefore >= seq2ValidRange.start && sequence2.getElement(diff.seq2Range.start - deltaBefore) === sequence2.getElement(diff.seq2Range.endExclusive - deltaBefore) && deltaBefore < maxShiftLimit) {
       deltaBefore++;
     }
     deltaBefore--;
     let deltaAfter = 0;
-    while (diff.seq2Range.start + deltaAfter < seq2NextStart && sequence2.getElement(diff.seq2Range.start + deltaAfter) === sequence2.getElement(diff.seq2Range.endExclusive + deltaAfter) && deltaAfter < maxShiftLimit) {
+    while (diff.seq1Range.start + deltaAfter < seq1ValidRange.endExclusive && diff.seq2Range.endExclusive + deltaAfter < seq2ValidRange.endExclusive && sequence2.getElement(diff.seq2Range.start + deltaAfter) === sequence2.getElement(diff.seq2Range.endExclusive + deltaAfter) && deltaAfter < maxShiftLimit) {
       deltaAfter++;
     }
     if (deltaBefore === 0 && deltaAfter === 0) {
@@ -9390,10 +9544,7 @@
         bestDelta = delta;
       }
     }
-    if (bestDelta !== 0) {
-      return new SequenceDiff(diff.seq1Range.delta(bestDelta), diff.seq2Range.delta(bestDelta));
-    }
-    return diff;
+    return diff.delta(bestDelta);
   }
 
   // ../../../node_modules/monaco-editor/esm/vs/editor/common/diff/algorithms/myersDiffAlgorithm.js
@@ -9418,14 +9569,19 @@
       loop:
         while (true) {
           d++;
-          for (k = -d; k <= d; k += 2) {
-            if (!timeout.isValid()) {
-              return DiffAlgorithmResult.trivialTimedOut(seq1, seq2);
-            }
-            const maxXofDLineTop = k === d ? -1 : V.get(k + 1);
-            const maxXofDLineLeft = k === -d ? -1 : V.get(k - 1) + 1;
+          if (!timeout.isValid()) {
+            return DiffAlgorithmResult.trivialTimedOut(seq1, seq2);
+          }
+          const lowerBound = -Math.min(d, seq2.length + d % 2);
+          const upperBound = Math.min(d, seq1.length + d % 2);
+          for (k = lowerBound; k <= upperBound; k += 2) {
+            const maxXofDLineTop = k === upperBound ? -1 : V.get(k + 1);
+            const maxXofDLineLeft = k === lowerBound ? -1 : V.get(k - 1) + 1;
             const x = Math.min(Math.max(maxXofDLineTop, maxXofDLineLeft), seq1.length);
             const y = x - k;
+            if (x > seq1.length || y > seq2.length) {
+              continue;
+            }
             const newMaxX = getXAfterSnake(x, y);
             V.set(k, newMaxX);
             const lastPath = x === maxXofDLineTop ? paths.get(k + 1) : paths.get(k - 1);
@@ -9587,17 +9743,39 @@
       }
       scanForWhitespaceChanges(originalLines.length - seq1LastStart);
       const changes = lineRangeMappingFromRangeMappings(alignments, originalLines, modifiedLines);
-      return new LinesDiff(changes, hitTimeout);
+      const moves = [];
+      if (options.computeMoves) {
+        const deletions = changes.filter((c) => c.modifiedRange.isEmpty && c.originalRange.length >= 3).map((d) => new LineRangeFragment(d.originalRange, originalLines));
+        const insertions = new Set(changes.filter((c) => c.originalRange.isEmpty && c.modifiedRange.length >= 3).map((d) => new LineRangeFragment(d.modifiedRange, modifiedLines)));
+        for (const deletion of deletions) {
+          let highestSimilarity = -1;
+          let best;
+          for (const insertion of insertions) {
+            const similarity = deletion.computeSimilarity(insertion);
+            if (similarity > highestSimilarity) {
+              highestSimilarity = similarity;
+              best = insertion;
+            }
+          }
+          if (highestSimilarity > 0.9 && best) {
+            const moveChanges = this.refineDiff(originalLines, modifiedLines, new SequenceDiff(new OffsetRange(deletion.range.startLineNumber - 1, deletion.range.endLineNumberExclusive - 1), new OffsetRange(best.range.startLineNumber - 1, best.range.endLineNumberExclusive - 1)), timeout, considerWhitespaceChanges);
+            const mappings = lineRangeMappingFromRangeMappings(moveChanges.mappings, originalLines, modifiedLines, true);
+            insertions.delete(best);
+            moves.push(new MovedText(new SimpleLineRangeMapping(deletion.range, best.range), mappings));
+          }
+        }
+      }
+      return new LinesDiff(changes, moves, hitTimeout);
     }
     refineDiff(originalLines, modifiedLines, diff, timeout, considerWhitespaceChanges) {
-      const sourceSlice = new Slice(originalLines, diff.seq1Range, considerWhitespaceChanges);
-      const targetSlice = new Slice(modifiedLines, diff.seq2Range, considerWhitespaceChanges);
-      const diffResult = sourceSlice.length + targetSlice.length < 500 ? this.dynamicProgrammingDiffing.compute(sourceSlice, targetSlice, timeout) : this.myersDiffingAlgorithm.compute(sourceSlice, targetSlice, timeout);
+      const slice1 = new Slice(originalLines, diff.seq1Range, considerWhitespaceChanges);
+      const slice2 = new Slice(modifiedLines, diff.seq2Range, considerWhitespaceChanges);
+      const diffResult = slice1.length + slice2.length < 500 ? this.dynamicProgrammingDiffing.compute(slice1, slice2, timeout) : this.myersDiffingAlgorithm.compute(slice1, slice2, timeout);
       let diffs = diffResult.diffs;
-      diffs = optimizeSequenceDiffs(sourceSlice, targetSlice, diffs);
-      diffs = coverFullWords(sourceSlice, targetSlice, diffs);
-      diffs = smoothenSequenceDiffs(sourceSlice, targetSlice, diffs);
-      const result = diffs.map((d) => new RangeMapping(sourceSlice.translateRange(d.seq1Range), targetSlice.translateRange(d.seq2Range)));
+      diffs = optimizeSequenceDiffs(slice1, slice2, diffs);
+      diffs = coverFullWords(slice1, slice2, diffs);
+      diffs = smoothenSequenceDiffs(slice1, slice2, diffs);
+      const result = diffs.map((d) => new RangeMapping(slice1.translateRange(d.seq1Range), slice2.translateRange(d.seq2Range)));
       return {
         mappings: result,
         hitTimeout: diffResult.hitTimeout
@@ -9680,7 +9858,7 @@
     }
     return result;
   }
-  function lineRangeMappingFromRangeMappings(alignments, originalLines, modifiedLines) {
+  function lineRangeMappingFromRangeMappings(alignments, originalLines, modifiedLines, dontAssertStartLine = false) {
     const changes = [];
     for (const g of group(alignments.map((a2) => getLineRangeMapping(a2, originalLines, modifiedLines)), (a1, a2) => a1.originalRange.overlapOrTouch(a2.originalRange) || a1.modifiedRange.overlapOrTouch(a2.modifiedRange))) {
       const first = g[0];
@@ -9688,6 +9866,11 @@
       changes.push(new LineRangeMapping(first.originalRange.join(last.originalRange), first.modifiedRange.join(last.modifiedRange), g.map((a2) => a2.innerChanges[0])));
     }
     assertFn(() => {
+      if (!dontAssertStartLine) {
+        if (changes.length > 0 && changes[0].originalRange.startLineNumber !== changes[0].modifiedRange.startLineNumber) {
+          return false;
+        }
+      }
       return checkAdjacentItems(changes, (m1, m2) => m2.originalRange.startLineNumber - m1.originalRange.endLineNumberExclusive === m2.modifiedRange.startLineNumber - m1.modifiedRange.endLineNumberExclusive && // There has to be an unchanged line in between (otherwise both diffs should have been joined)
       m1.originalRange.endLineNumberExclusive < m2.originalRange.startLineNumber && m1.modifiedRange.endLineNumberExclusive < m2.modifiedRange.startLineNumber);
     });
@@ -9696,11 +9879,11 @@
   function getLineRangeMapping(rangeMapping, originalLines, modifiedLines) {
     let lineStartDelta = 0;
     let lineEndDelta = 0;
-    if (rangeMapping.modifiedRange.startColumn - 1 >= modifiedLines[rangeMapping.modifiedRange.startLineNumber - 1].length && rangeMapping.originalRange.startColumn - 1 >= originalLines[rangeMapping.originalRange.startLineNumber - 1].length) {
-      lineStartDelta = 1;
-    }
     if (rangeMapping.modifiedRange.endColumn === 1 && rangeMapping.originalRange.endColumn === 1 && rangeMapping.originalRange.startLineNumber + lineStartDelta <= rangeMapping.originalRange.endLineNumber && rangeMapping.modifiedRange.startLineNumber + lineStartDelta <= rangeMapping.modifiedRange.endLineNumber) {
       lineEndDelta = -1;
+    }
+    if (rangeMapping.modifiedRange.startColumn - 1 >= modifiedLines[rangeMapping.modifiedRange.startLineNumber - 1].length && rangeMapping.originalRange.startColumn - 1 >= originalLines[rangeMapping.originalRange.startLineNumber - 1].length && rangeMapping.originalRange.startLineNumber <= rangeMapping.originalRange.endLineNumber + lineEndDelta && rangeMapping.modifiedRange.startLineNumber <= rangeMapping.modifiedRange.endLineNumber + lineEndDelta) {
+      lineStartDelta = 1;
     }
     const originalLineRange = new LineRange(rangeMapping.originalRange.startLineNumber + lineStartDelta, rangeMapping.originalRange.endLineNumber + 1 + lineEndDelta);
     const modifiedLineRange = new LineRange(rangeMapping.modifiedRange.startLineNumber + lineStartDelta, rangeMapping.modifiedRange.endLineNumber + 1 + lineEndDelta);
@@ -9827,8 +10010,8 @@
           i = k + 1;
         }
       }
-      const offsetOfPrevLineBreak = i === 0 ? 0 : this.firstCharOffsetByLineMinusOne[i - 1];
-      return new Position(this.lineRange.start + i + 1, offset - offsetOfPrevLineBreak + 1 + this.offsetByLine[i]);
+      const offsetOfFirstCharInLine = i === 0 ? 0 : this.firstCharOffsetByLineMinusOne[i - 1];
+      return new Position(this.lineRange.start + i + 1, offset - offsetOfFirstCharInLine + 1 + this.offsetByLine[i]);
     }
     translateRange(range) {
       return Range.fromPositions(this.translateOffset(range.start), this.translateOffset(range.endExclusive));
@@ -9916,11 +10099,50 @@
   function isSpace(charCode) {
     return charCode === 32 || charCode === 9;
   }
+  var chrKeys = /* @__PURE__ */ new Map();
+  function getKey(chr) {
+    let key = chrKeys.get(chr);
+    if (key === void 0) {
+      key = chrKeys.size;
+      chrKeys.set(chr, key);
+    }
+    return key;
+  }
+  var LineRangeFragment = class {
+    constructor(range, lines) {
+      this.range = range;
+      this.lines = lines;
+      this.histogram = [];
+      let counter = 0;
+      for (let i = range.startLineNumber - 1; i < range.endLineNumberExclusive - 1; i++) {
+        const line = lines[i];
+        for (let j = 0; j < line.length; j++) {
+          counter++;
+          const chr = line[j];
+          const key2 = getKey(chr);
+          this.histogram[key2] = (this.histogram[key2] || 0) + 1;
+        }
+        counter++;
+        const key = getKey("\n");
+        this.histogram[key] = (this.histogram[key] || 0) + 1;
+      }
+      this.totalCount = counter;
+    }
+    computeSimilarity(other) {
+      var _a3, _b;
+      let sumDifferences = 0;
+      const maxLength = Math.max(this.histogram.length, other.histogram.length);
+      for (let i = 0; i < maxLength; i++) {
+        sumDifferences += Math.abs(((_a3 = this.histogram[i]) !== null && _a3 !== void 0 ? _a3 : 0) - ((_b = other.histogram[i]) !== null && _b !== void 0 ? _b : 0));
+      }
+      return 1 - sumDifferences / (this.totalCount + other.totalCount);
+    }
+  };
 
   // ../../../node_modules/monaco-editor/esm/vs/editor/common/diff/linesDiffComputers.js
   var linesDiffComputers = {
-    legacy: new SmartLinesDiffComputer(),
-    advanced: new StandardLinesDiffComputer()
+    getLegacy: () => new SmartLinesDiffComputer(),
+    getAdvanced: () => new StandardLinesDiffComputer()
   };
 
   // ../../../node_modules/monaco-editor/esm/vs/base/common/color.js
@@ -10448,7 +10670,7 @@
   }
   function computeColors(model) {
     const result = [];
-    const initialValidationRegex = /\b(rgb|rgba|hsl|hsla)(\([0-9\s,.\%]*\))|(#)([A-Fa-f0-9]{6})\b|(#)([A-Fa-f0-9]{8})\b/gm;
+    const initialValidationRegex = /\b(rgb|rgba|hsl|hsla)(\([0-9\s,.\%]*\))|(#)([A-Fa-f0-9]{3})\b|(#)([A-Fa-f0-9]{4})\b|(#)([A-Fa-f0-9]{6})\b|(#)([A-Fa-f0-9]{8})\b/gm;
     const initialValidationMatches = _findMatches(model, initialValidationRegex);
     if (initialValidationMatches.length > 0) {
       for (const initialMatch of initialValidationMatches) {
@@ -10741,15 +10963,13 @@
       });
     }
     static computeDiff(originalTextModel, modifiedTextModel, options, algorithm) {
-      const diffAlgorithm = algorithm === "advanced" ? linesDiffComputers.advanced : linesDiffComputers.legacy;
+      const diffAlgorithm = algorithm === "advanced" ? linesDiffComputers.getAdvanced() : linesDiffComputers.getLegacy();
       const originalLines = originalTextModel.getLinesContent();
       const modifiedLines = modifiedTextModel.getLinesContent();
       const result = diffAlgorithm.computeDiff(originalLines, modifiedLines, options);
       const identical = result.changes.length > 0 ? false : this._modelsAreIdentical(originalTextModel, modifiedTextModel);
-      return {
-        identical,
-        quitEarly: result.hitTimeout,
-        changes: result.changes.map((m) => {
+      function getLineChanges(changes) {
+        return changes.map((m) => {
           var _a3;
           return [m.originalRange.startLineNumber, m.originalRange.endLineNumberExclusive, m.modifiedRange.startLineNumber, m.modifiedRange.endLineNumberExclusive, (_a3 = m.innerChanges) === null || _a3 === void 0 ? void 0 : _a3.map((m2) => [
             m2.originalRange.startLineNumber,
@@ -10761,7 +10981,19 @@
             m2.modifiedRange.endLineNumber,
             m2.modifiedRange.endColumn
           ])];
-        })
+        });
+      }
+      return {
+        identical,
+        quitEarly: result.hitTimeout,
+        changes: getLineChanges(result.changes),
+        moves: result.moves.map((m) => [
+          m.lineRangeMapping.originalRange.startLineNumber,
+          m.lineRangeMapping.originalRange.endLineNumberExclusive,
+          m.lineRangeMapping.modifiedRange.startLineNumber,
+          m.lineRangeMapping.modifiedRange.endLineNumberExclusive,
+          getLineChanges(m.changes)
+        ])
       };
     }
     static _modelsAreIdentical(original, modified) {
@@ -10853,7 +11085,7 @@
     }
     textualSuggest(modelUrls, leadingWord, wordDef, wordDefFlags) {
       return __awaiter2(this, void 0, void 0, function* () {
-        const sw = new StopWatch(true);
+        const sw = new StopWatch();
         const wordDefRegExp = new RegExp(wordDef, wordDefFlags);
         const seen = /* @__PURE__ */ new Set();
         outer:
@@ -18266,7 +18498,7 @@
 monaco-editor/esm/vs/language/json/json.worker.js:
   (*!-----------------------------------------------------------------------------
    * Copyright (c) Microsoft Corporation. All rights reserved.
-   * Version: 0.38.0(0e330ae453813de4e6cf272460fb79c7117073d0)
+   * Version: 0.40.0(83b3cf23ca80c94cccca7c5b3e48351b220f8e35)
    * Released under the MIT license
    * https://github.com/microsoft/monaco-editor/blob/main/LICENSE.txt
    *-----------------------------------------------------------------------------*)
