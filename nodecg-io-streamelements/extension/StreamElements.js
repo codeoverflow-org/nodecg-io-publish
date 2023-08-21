@@ -45,7 +45,7 @@ class StreamElementsServiceClient extends events_1.EventEmitter {
                         subscribers: subBomb.subs,
                     };
                     handlerSubBomb(subBombEvent);
-                    subBomb.subs.forEach(sub => {
+                    subBomb.subs.forEach((sub) => {
                         sub.data.isFromSubBomb = true;
                     });
                 }
