@@ -26,8 +26,8 @@
     "devDependencies": {
         "monaco-editor": "^0.45.0",
         "nodecg-io-esbuild": "^1.0.0",
-        "@nodecg/types": "^2.1.11",
-        "typescript": "^5.2.2"
+        "@nodecg/types": "^2.1.12",
+        "typescript": "^5.3.3"
     },
     "dependencies": {
         "crypto-js": "^4.2.0",
