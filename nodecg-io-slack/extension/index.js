@@ -8,7 +8,7 @@ module.exports = (nodecg) => {
 class SlackService extends nodecg_io_core_1.ServiceBundle {
     async validateConfig(config) {
         const client = new web_api_1.WebClient(config.token);
-        const res = await client.auth.test();
+        const res = await client.auth.test({ token: config.token });
         if (res.ok) {
             return (0, nodecg_io_core_1.emptySuccess)();
         }
@@ -19,7 +19,7 @@ class SlackService extends nodecg_io_core_1.ServiceBundle {
     async createClient(config, logger) {
         const client = new web_api_1.WebClient(config.token);
         logger.info("Successfully created Web Client for Slack WebAPI.");
-        const res = await client.auth.test();
+        const res = await client.auth.test({ token: config.token });
         if (res.ok) {
             return (0, nodecg_io_core_1.success)(client);
         }
