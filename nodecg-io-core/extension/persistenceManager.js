@@ -62,8 +62,8 @@ async function deriveEncryptionKey(password, salt) {
         // This is run inside the browser when logging in, therefore 37 MiB is acceptable too.
         // To future proof this we use 37 MiB ram and 2 iterations.
         iterations: 2,
-        memorySize: 37,
-        hashLength: 32,
+        memorySize: 37, // KiB
+        hashLength: 32, // Output size: 32 bytes = 256 bits as a key for AES-256
         parallelism: 1,
         outputType: "hex",
     });
@@ -139,7 +139,7 @@ class PersistenceManager {
         this.instances = instances;
         this.bundles = bundles;
         this.encryptedData = nodecg.Replicant("encryptedConfig", {
-            persistent: true,
+            persistent: true, // Is ok since it is encrypted
             defaultValue: {},
         });
         this.checkAutomaticLogin();

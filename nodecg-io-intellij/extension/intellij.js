@@ -863,7 +863,7 @@ class HistoryLabel extends HistoryChange {
      * gets the name of the label
      */
     async getName() {
-        return await super.intellij.rawRequest("lh_label_name", { change_id: this.id });
+        return await this.intellij.rawRequest("lh_label_name", { change_id: this.id });
     }
     /**
      * gets the color of the label or -1 if it's the default color.
