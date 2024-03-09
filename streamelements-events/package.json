@@ -23,13 +23,13 @@
     },
     "license": "MIT",
     "dependencies": {
-        "@types/node": "^20.5.9",
+        "@types/node": "^20.11.24",
         "nodecg-io-core": "^0.3.0",
         "nodecg-io-esbuild": "^1.0.0",
         "nodecg-io-streamelements": "^0.3.0",
         "nodecg-io-tsconfig": "^1.0.0",
         "@nodecg/types": "^2.1.12",
         "typescript": "^5.3.3",
-        "vue": "^3.3.4"
+        "vue": "^3.4.21"
     }
 }
