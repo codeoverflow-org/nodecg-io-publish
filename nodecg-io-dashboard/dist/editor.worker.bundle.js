@@ -60,6 +60,7 @@
       throw x;
     }, "return" in obj && method("return"), it;
   };
+  var __forAwait = (obj, it, method) => (it = obj[__knownSymbol("asyncIterator")]) ? it.call(obj) : (obj = obj[__knownSymbol("iterator")](), it = {}, method = (key, fn) => (fn = obj[key]) && (it[key] = (arg) => new Promise((yes, no, done) => (arg = fn.call(obj, arg), done = arg.done, Promise.resolve(arg.value).then((value) => yes({ value, done }), no)))), method("next"), method("return"), it);
 
   // ../../node_modules/monaco-editor/esm/vs/base/common/errors.js
   var ErrorHandler = class {
@@ -294,6 +295,28 @@
       } }];
     }
     Iterable2.consume = consume;
+    function asyncToArray(iterable) {
+      return __async(this, null, function* () {
+        const result = [];
+        try {
+          for (var iter = __forAwait(iterable), more, temp, error; more = !(temp = yield iter.next()).done; more = false) {
+            const item = temp.value;
+            result.push(item);
+          }
+        } catch (temp) {
+          error = [temp];
+        } finally {
+          try {
+            more && (temp = iter.return) && (yield temp.call(iter));
+          } finally {
+            if (error)
+              throw error[0];
+          }
+        }
+        return Promise.resolve(result);
+      });
+    }
+    Iterable2.asyncToArray = asyncToArray;
   })(Iterable || (Iterable = {}));
 
   // ../../node_modules/monaco-editor/esm/vs/base/common/lifecycle.js
@@ -945,21 +968,6 @@
       return event((e) => handler(e));
     }
     Event2.runAndSubscribe = runAndSubscribe;
-    function runAndSubscribeWithStore(event, handler) {
-      let store = null;
-      function run(e) {
-        store === null || store === void 0 ? void 0 : store.dispose();
-        store = new DisposableStore();
-        handler(e, store);
-      }
-      run(void 0);
-      const disposable = event((e) => run(e));
-      return toDisposable(() => {
-        disposable.dispose();
-        store === null || store === void 0 ? void 0 : store.dispose();
-      });
-    }
-    Event2.runAndSubscribeWithStore = runAndSubscribeWithStore;
     class EmitterObserver {
       constructor(_observable, store) {
         this._observable = _observable;
@@ -1427,25 +1435,7 @@
   }
   var isElectronProcess = typeof ((_a = nodeProcess === null || nodeProcess === void 0 ? void 0 : nodeProcess.versions) === null || _a === void 0 ? void 0 : _a.electron) === "string";
   var isElectronRenderer = isElectronProcess && (nodeProcess === null || nodeProcess === void 0 ? void 0 : nodeProcess.type) === "renderer";
-  if (typeof navigator === "object" && !isElectronRenderer) {
-    _userAgent = navigator.userAgent;
-    _isWindows = _userAgent.indexOf("Windows") >= 0;
-    _isMacintosh = _userAgent.indexOf("Macintosh") >= 0;
-    _isIOS = (_userAgent.indexOf("Macintosh") >= 0 || _userAgent.indexOf("iPad") >= 0 || _userAgent.indexOf("iPhone") >= 0) && !!navigator.maxTouchPoints && navigator.maxTouchPoints > 0;
-    _isLinux = _userAgent.indexOf("Linux") >= 0;
-    _isMobile = (_userAgent === null || _userAgent === void 0 ? void 0 : _userAgent.indexOf("Mobi")) >= 0;
-    _isWeb = true;
-    const configuredLocale = getConfiguredDefaultLocale(
-      // This call _must_ be done in the file that calls `nls.getConfiguredDefaultLocale`
-      // to ensure that the NLS AMD Loader plugin has been loaded and configured.
-      // This is because the loader plugin decides what the default locale is based on
-      // how it's able to resolve the strings.
-      localize({ key: "ensureLoaderPluginIsLoaded", comment: ["{Locked}"] }, "_")
-    );
-    _locale = configuredLocale || LANGUAGE_DEFAULT;
-    _language = _locale;
-    _platformLocale = navigator.language;
-  } else if (typeof nodeProcess === "object") {
+  if (typeof nodeProcess === "object") {
     _isWindows = nodeProcess.platform === "win32";
     _isMacintosh = nodeProcess.platform === "darwin";
     _isLinux = nodeProcess.platform === "linux";
@@ -1467,6 +1457,24 @@
       }
     }
     _isNative = true;
+  } else if (typeof navigator === "object" && !isElectronRenderer) {
+    _userAgent = navigator.userAgent;
+    _isWindows = _userAgent.indexOf("Windows") >= 0;
+    _isMacintosh = _userAgent.indexOf("Macintosh") >= 0;
+    _isIOS = (_userAgent.indexOf("Macintosh") >= 0 || _userAgent.indexOf("iPad") >= 0 || _userAgent.indexOf("iPhone") >= 0) && !!navigator.maxTouchPoints && navigator.maxTouchPoints > 0;
+    _isLinux = _userAgent.indexOf("Linux") >= 0;
+    _isMobile = (_userAgent === null || _userAgent === void 0 ? void 0 : _userAgent.indexOf("Mobi")) >= 0;
+    _isWeb = true;
+    const configuredLocale = getConfiguredDefaultLocale(
+      // This call _must_ be done in the file that calls `nls.getConfiguredDefaultLocale`
+      // to ensure that the NLS AMD Loader plugin has been loaded and configured.
+      // This is because the loader plugin decides what the default locale is based on
+      // how it's able to resolve the strings.
+      localize({ key: "ensureLoaderPluginIsLoaded", comment: ["{Locked}"] }, "_")
+    );
+    _locale = configuredLocale || LANGUAGE_DEFAULT;
+    _language = _locale;
+    _platformLocale = navigator.language;
   } else {
     console.error("Unable to resolve platform.");
   }
@@ -2033,7 +2041,7 @@
             delete loaderConfig.paths["vs"];
           }
         }
-        if (typeof loaderConfig.trustedTypesPolicy !== void 0) {
+        if (typeof loaderConfig.trustedTypesPolicy !== "undefined") {
           delete loaderConfig["trustedTypesPolicy"];
         }
         loaderConfig.catchError = true;
@@ -6740,6 +6748,7 @@
     closeDirty: register("close-dirty", 60017),
     debugBreakpoint: register("debug-breakpoint", 60017),
     debugBreakpointDisabled: register("debug-breakpoint-disabled", 60017),
+    debugBreakpointPending: register("debug-breakpoint-pending", 60377),
     debugHint: register("debug-hint", 60017),
     primitiveSquare: register("primitive-square", 60018),
     edit: register("edit", 60019),
@@ -7233,7 +7242,16 @@
     sparkleFilled: register("sparkle-filled", 60449),
     diffSingle: register("diff-single", 60450),
     diffMultiple: register("diff-multiple", 60451),
+    surroundWith: register("surround-with", 60452),
+    gitStash: register("git-stash", 60454),
+    gitStashApply: register("git-stash-apply", 60455),
+    gitStashPop: register("git-stash-pop", 60456),
+    runAllCoverage: register("run-all-coverage", 60461),
+    runCoverage: register("run-all-coverage", 60460),
+    coverage: register("coverage", 60462),
+    githubProject: register("github-project", 60463),
     // derived icons, that could become separate icons
+    // TODO: These mappings should go in the vscode-codicons mapping file
     dialogError: register("dialog-error", "error"),
     dialogWarning: register("dialog-warning", "warning"),
     dialogInfo: register("dialog-info", "info"),
@@ -7783,6 +7801,10 @@
   FoldingRangeKind.Comment = new FoldingRangeKind("comment");
   FoldingRangeKind.Imports = new FoldingRangeKind("imports");
   FoldingRangeKind.Region = new FoldingRangeKind("region");
+  var NewSymbolNameTag;
+  (function(NewSymbolNameTag3) {
+    NewSymbolNameTag3[NewSymbolNameTag3["AIGenerated"] = 1] = "AIGenerated";
+  })(NewSymbolNameTag || (NewSymbolNameTag = {}));
   var Command;
   (function(Command2) {
     function is(obj) {
@@ -7799,6 +7821,11 @@
     InlayHintKind3[InlayHintKind3["Parameter"] = 2] = "Parameter";
   })(InlayHintKind || (InlayHintKind = {}));
   var TokenizationRegistry2 = new TokenizationRegistry();
+  var InlineEditTriggerKind;
+  (function(InlineEditTriggerKind3) {
+    InlineEditTriggerKind3[InlineEditTriggerKind3["Invoke"] = 0] = "Invoke";
+    InlineEditTriggerKind3[InlineEditTriggerKind3["Automatic"] = 1] = "Automatic";
+  })(InlineEditTriggerKind || (InlineEditTriggerKind = {}));
 
   // ../../node_modules/monaco-editor/esm/vs/editor/common/standalone/standaloneEnums.js
   var AccessibilitySupport;
@@ -7959,91 +7986,92 @@
     EditorOption2[EditorOption2["hover"] = 60] = "hover";
     EditorOption2[EditorOption2["inDiffEditor"] = 61] = "inDiffEditor";
     EditorOption2[EditorOption2["inlineSuggest"] = 62] = "inlineSuggest";
-    EditorOption2[EditorOption2["letterSpacing"] = 63] = "letterSpacing";
-    EditorOption2[EditorOption2["lightbulb"] = 64] = "lightbulb";
-    EditorOption2[EditorOption2["lineDecorationsWidth"] = 65] = "lineDecorationsWidth";
-    EditorOption2[EditorOption2["lineHeight"] = 66] = "lineHeight";
-    EditorOption2[EditorOption2["lineNumbers"] = 67] = "lineNumbers";
-    EditorOption2[EditorOption2["lineNumbersMinChars"] = 68] = "lineNumbersMinChars";
-    EditorOption2[EditorOption2["linkedEditing"] = 69] = "linkedEditing";
-    EditorOption2[EditorOption2["links"] = 70] = "links";
-    EditorOption2[EditorOption2["matchBrackets"] = 71] = "matchBrackets";
-    EditorOption2[EditorOption2["minimap"] = 72] = "minimap";
-    EditorOption2[EditorOption2["mouseStyle"] = 73] = "mouseStyle";
-    EditorOption2[EditorOption2["mouseWheelScrollSensitivity"] = 74] = "mouseWheelScrollSensitivity";
-    EditorOption2[EditorOption2["mouseWheelZoom"] = 75] = "mouseWheelZoom";
-    EditorOption2[EditorOption2["multiCursorMergeOverlapping"] = 76] = "multiCursorMergeOverlapping";
-    EditorOption2[EditorOption2["multiCursorModifier"] = 77] = "multiCursorModifier";
-    EditorOption2[EditorOption2["multiCursorPaste"] = 78] = "multiCursorPaste";
-    EditorOption2[EditorOption2["multiCursorLimit"] = 79] = "multiCursorLimit";
-    EditorOption2[EditorOption2["occurrencesHighlight"] = 80] = "occurrencesHighlight";
-    EditorOption2[EditorOption2["overviewRulerBorder"] = 81] = "overviewRulerBorder";
-    EditorOption2[EditorOption2["overviewRulerLanes"] = 82] = "overviewRulerLanes";
-    EditorOption2[EditorOption2["padding"] = 83] = "padding";
-    EditorOption2[EditorOption2["pasteAs"] = 84] = "pasteAs";
-    EditorOption2[EditorOption2["parameterHints"] = 85] = "parameterHints";
-    EditorOption2[EditorOption2["peekWidgetDefaultFocus"] = 86] = "peekWidgetDefaultFocus";
-    EditorOption2[EditorOption2["definitionLinkOpensInPeek"] = 87] = "definitionLinkOpensInPeek";
-    EditorOption2[EditorOption2["quickSuggestions"] = 88] = "quickSuggestions";
-    EditorOption2[EditorOption2["quickSuggestionsDelay"] = 89] = "quickSuggestionsDelay";
-    EditorOption2[EditorOption2["readOnly"] = 90] = "readOnly";
-    EditorOption2[EditorOption2["readOnlyMessage"] = 91] = "readOnlyMessage";
-    EditorOption2[EditorOption2["renameOnType"] = 92] = "renameOnType";
-    EditorOption2[EditorOption2["renderControlCharacters"] = 93] = "renderControlCharacters";
-    EditorOption2[EditorOption2["renderFinalNewline"] = 94] = "renderFinalNewline";
-    EditorOption2[EditorOption2["renderLineHighlight"] = 95] = "renderLineHighlight";
-    EditorOption2[EditorOption2["renderLineHighlightOnlyWhenFocus"] = 96] = "renderLineHighlightOnlyWhenFocus";
-    EditorOption2[EditorOption2["renderValidationDecorations"] = 97] = "renderValidationDecorations";
-    EditorOption2[EditorOption2["renderWhitespace"] = 98] = "renderWhitespace";
-    EditorOption2[EditorOption2["revealHorizontalRightPadding"] = 99] = "revealHorizontalRightPadding";
-    EditorOption2[EditorOption2["roundedSelection"] = 100] = "roundedSelection";
-    EditorOption2[EditorOption2["rulers"] = 101] = "rulers";
-    EditorOption2[EditorOption2["scrollbar"] = 102] = "scrollbar";
-    EditorOption2[EditorOption2["scrollBeyondLastColumn"] = 103] = "scrollBeyondLastColumn";
-    EditorOption2[EditorOption2["scrollBeyondLastLine"] = 104] = "scrollBeyondLastLine";
-    EditorOption2[EditorOption2["scrollPredominantAxis"] = 105] = "scrollPredominantAxis";
-    EditorOption2[EditorOption2["selectionClipboard"] = 106] = "selectionClipboard";
-    EditorOption2[EditorOption2["selectionHighlight"] = 107] = "selectionHighlight";
-    EditorOption2[EditorOption2["selectOnLineNumbers"] = 108] = "selectOnLineNumbers";
-    EditorOption2[EditorOption2["showFoldingControls"] = 109] = "showFoldingControls";
-    EditorOption2[EditorOption2["showUnused"] = 110] = "showUnused";
-    EditorOption2[EditorOption2["snippetSuggestions"] = 111] = "snippetSuggestions";
-    EditorOption2[EditorOption2["smartSelect"] = 112] = "smartSelect";
-    EditorOption2[EditorOption2["smoothScrolling"] = 113] = "smoothScrolling";
-    EditorOption2[EditorOption2["stickyScroll"] = 114] = "stickyScroll";
-    EditorOption2[EditorOption2["stickyTabStops"] = 115] = "stickyTabStops";
-    EditorOption2[EditorOption2["stopRenderingLineAfter"] = 116] = "stopRenderingLineAfter";
-    EditorOption2[EditorOption2["suggest"] = 117] = "suggest";
-    EditorOption2[EditorOption2["suggestFontSize"] = 118] = "suggestFontSize";
-    EditorOption2[EditorOption2["suggestLineHeight"] = 119] = "suggestLineHeight";
-    EditorOption2[EditorOption2["suggestOnTriggerCharacters"] = 120] = "suggestOnTriggerCharacters";
-    EditorOption2[EditorOption2["suggestSelection"] = 121] = "suggestSelection";
-    EditorOption2[EditorOption2["tabCompletion"] = 122] = "tabCompletion";
-    EditorOption2[EditorOption2["tabIndex"] = 123] = "tabIndex";
-    EditorOption2[EditorOption2["unicodeHighlighting"] = 124] = "unicodeHighlighting";
-    EditorOption2[EditorOption2["unusualLineTerminators"] = 125] = "unusualLineTerminators";
-    EditorOption2[EditorOption2["useShadowDOM"] = 126] = "useShadowDOM";
-    EditorOption2[EditorOption2["useTabStops"] = 127] = "useTabStops";
-    EditorOption2[EditorOption2["wordBreak"] = 128] = "wordBreak";
-    EditorOption2[EditorOption2["wordSeparators"] = 129] = "wordSeparators";
-    EditorOption2[EditorOption2["wordWrap"] = 130] = "wordWrap";
-    EditorOption2[EditorOption2["wordWrapBreakAfterCharacters"] = 131] = "wordWrapBreakAfterCharacters";
-    EditorOption2[EditorOption2["wordWrapBreakBeforeCharacters"] = 132] = "wordWrapBreakBeforeCharacters";
-    EditorOption2[EditorOption2["wordWrapColumn"] = 133] = "wordWrapColumn";
-    EditorOption2[EditorOption2["wordWrapOverride1"] = 134] = "wordWrapOverride1";
-    EditorOption2[EditorOption2["wordWrapOverride2"] = 135] = "wordWrapOverride2";
-    EditorOption2[EditorOption2["wrappingIndent"] = 136] = "wrappingIndent";
-    EditorOption2[EditorOption2["wrappingStrategy"] = 137] = "wrappingStrategy";
-    EditorOption2[EditorOption2["showDeprecated"] = 138] = "showDeprecated";
-    EditorOption2[EditorOption2["inlayHints"] = 139] = "inlayHints";
-    EditorOption2[EditorOption2["editorClassName"] = 140] = "editorClassName";
-    EditorOption2[EditorOption2["pixelRatio"] = 141] = "pixelRatio";
-    EditorOption2[EditorOption2["tabFocusMode"] = 142] = "tabFocusMode";
-    EditorOption2[EditorOption2["layoutInfo"] = 143] = "layoutInfo";
-    EditorOption2[EditorOption2["wrappingInfo"] = 144] = "wrappingInfo";
-    EditorOption2[EditorOption2["defaultColorDecorators"] = 145] = "defaultColorDecorators";
-    EditorOption2[EditorOption2["colorDecoratorsActivatedOn"] = 146] = "colorDecoratorsActivatedOn";
-    EditorOption2[EditorOption2["inlineCompletionsAccessibilityVerbose"] = 147] = "inlineCompletionsAccessibilityVerbose";
+    EditorOption2[EditorOption2["inlineEdit"] = 63] = "inlineEdit";
+    EditorOption2[EditorOption2["letterSpacing"] = 64] = "letterSpacing";
+    EditorOption2[EditorOption2["lightbulb"] = 65] = "lightbulb";
+    EditorOption2[EditorOption2["lineDecorationsWidth"] = 66] = "lineDecorationsWidth";
+    EditorOption2[EditorOption2["lineHeight"] = 67] = "lineHeight";
+    EditorOption2[EditorOption2["lineNumbers"] = 68] = "lineNumbers";
+    EditorOption2[EditorOption2["lineNumbersMinChars"] = 69] = "lineNumbersMinChars";
+    EditorOption2[EditorOption2["linkedEditing"] = 70] = "linkedEditing";
+    EditorOption2[EditorOption2["links"] = 71] = "links";
+    EditorOption2[EditorOption2["matchBrackets"] = 72] = "matchBrackets";
+    EditorOption2[EditorOption2["minimap"] = 73] = "minimap";
+    EditorOption2[EditorOption2["mouseStyle"] = 74] = "mouseStyle";
+    EditorOption2[EditorOption2["mouseWheelScrollSensitivity"] = 75] = "mouseWheelScrollSensitivity";
+    EditorOption2[EditorOption2["mouseWheelZoom"] = 76] = "mouseWheelZoom";
+    EditorOption2[EditorOption2["multiCursorMergeOverlapping"] = 77] = "multiCursorMergeOverlapping";
+    EditorOption2[EditorOption2["multiCursorModifier"] = 78] = "multiCursorModifier";
+    EditorOption2[EditorOption2["multiCursorPaste"] = 79] = "multiCursorPaste";
+    EditorOption2[EditorOption2["multiCursorLimit"] = 80] = "multiCursorLimit";
+    EditorOption2[EditorOption2["occurrencesHighlight"] = 81] = "occurrencesHighlight";
+    EditorOption2[EditorOption2["overviewRulerBorder"] = 82] = "overviewRulerBorder";
+    EditorOption2[EditorOption2["overviewRulerLanes"] = 83] = "overviewRulerLanes";
+    EditorOption2[EditorOption2["padding"] = 84] = "padding";
+    EditorOption2[EditorOption2["pasteAs"] = 85] = "pasteAs";
+    EditorOption2[EditorOption2["parameterHints"] = 86] = "parameterHints";
+    EditorOption2[EditorOption2["peekWidgetDefaultFocus"] = 87] = "peekWidgetDefaultFocus";
+    EditorOption2[EditorOption2["definitionLinkOpensInPeek"] = 88] = "definitionLinkOpensInPeek";
+    EditorOption2[EditorOption2["quickSuggestions"] = 89] = "quickSuggestions";
+    EditorOption2[EditorOption2["quickSuggestionsDelay"] = 90] = "quickSuggestionsDelay";
+    EditorOption2[EditorOption2["readOnly"] = 91] = "readOnly";
+    EditorOption2[EditorOption2["readOnlyMessage"] = 92] = "readOnlyMessage";
+    EditorOption2[EditorOption2["renameOnType"] = 93] = "renameOnType";
+    EditorOption2[EditorOption2["renderControlCharacters"] = 94] = "renderControlCharacters";
+    EditorOption2[EditorOption2["renderFinalNewline"] = 95] = "renderFinalNewline";
+    EditorOption2[EditorOption2["renderLineHighlight"] = 96] = "renderLineHighlight";
+    EditorOption2[EditorOption2["renderLineHighlightOnlyWhenFocus"] = 97] = "renderLineHighlightOnlyWhenFocus";
+    EditorOption2[EditorOption2["renderValidationDecorations"] = 98] = "renderValidationDecorations";
+    EditorOption2[EditorOption2["renderWhitespace"] = 99] = "renderWhitespace";
+    EditorOption2[EditorOption2["revealHorizontalRightPadding"] = 100] = "revealHorizontalRightPadding";
+    EditorOption2[EditorOption2["roundedSelection"] = 101] = "roundedSelection";
+    EditorOption2[EditorOption2["rulers"] = 102] = "rulers";
+    EditorOption2[EditorOption2["scrollbar"] = 103] = "scrollbar";
+    EditorOption2[EditorOption2["scrollBeyondLastColumn"] = 104] = "scrollBeyondLastColumn";
+    EditorOption2[EditorOption2["scrollBeyondLastLine"] = 105] = "scrollBeyondLastLine";
+    EditorOption2[EditorOption2["scrollPredominantAxis"] = 106] = "scrollPredominantAxis";
+    EditorOption2[EditorOption2["selectionClipboard"] = 107] = "selectionClipboard";
+    EditorOption2[EditorOption2["selectionHighlight"] = 108] = "selectionHighlight";
+    EditorOption2[EditorOption2["selectOnLineNumbers"] = 109] = "selectOnLineNumbers";
+    EditorOption2[EditorOption2["showFoldingControls"] = 110] = "showFoldingControls";
+    EditorOption2[EditorOption2["showUnused"] = 111] = "showUnused";
+    EditorOption2[EditorOption2["snippetSuggestions"] = 112] = "snippetSuggestions";
+    EditorOption2[EditorOption2["smartSelect"] = 113] = "smartSelect";
+    EditorOption2[EditorOption2["smoothScrolling"] = 114] = "smoothScrolling";
+    EditorOption2[EditorOption2["stickyScroll"] = 115] = "stickyScroll";
+    EditorOption2[EditorOption2["stickyTabStops"] = 116] = "stickyTabStops";
+    EditorOption2[EditorOption2["stopRenderingLineAfter"] = 117] = "stopRenderingLineAfter";
+    EditorOption2[EditorOption2["suggest"] = 118] = "suggest";
+    EditorOption2[EditorOption2["suggestFontSize"] = 119] = "suggestFontSize";
+    EditorOption2[EditorOption2["suggestLineHeight"] = 120] = "suggestLineHeight";
+    EditorOption2[EditorOption2["suggestOnTriggerCharacters"] = 121] = "suggestOnTriggerCharacters";
+    EditorOption2[EditorOption2["suggestSelection"] = 122] = "suggestSelection";
+    EditorOption2[EditorOption2["tabCompletion"] = 123] = "tabCompletion";
+    EditorOption2[EditorOption2["tabIndex"] = 124] = "tabIndex";
+    EditorOption2[EditorOption2["unicodeHighlighting"] = 125] = "unicodeHighlighting";
+    EditorOption2[EditorOption2["unusualLineTerminators"] = 126] = "unusualLineTerminators";
+    EditorOption2[EditorOption2["useShadowDOM"] = 127] = "useShadowDOM";
+    EditorOption2[EditorOption2["useTabStops"] = 128] = "useTabStops";
+    EditorOption2[EditorOption2["wordBreak"] = 129] = "wordBreak";
+    EditorOption2[EditorOption2["wordSeparators"] = 130] = "wordSeparators";
+    EditorOption2[EditorOption2["wordWrap"] = 131] = "wordWrap";
+    EditorOption2[EditorOption2["wordWrapBreakAfterCharacters"] = 132] = "wordWrapBreakAfterCharacters";
+    EditorOption2[EditorOption2["wordWrapBreakBeforeCharacters"] = 133] = "wordWrapBreakBeforeCharacters";
+    EditorOption2[EditorOption2["wordWrapColumn"] = 134] = "wordWrapColumn";
+    EditorOption2[EditorOption2["wordWrapOverride1"] = 135] = "wordWrapOverride1";
+    EditorOption2[EditorOption2["wordWrapOverride2"] = 136] = "wordWrapOverride2";
+    EditorOption2[EditorOption2["wrappingIndent"] = 137] = "wrappingIndent";
+    EditorOption2[EditorOption2["wrappingStrategy"] = 138] = "wrappingStrategy";
+    EditorOption2[EditorOption2["showDeprecated"] = 139] = "showDeprecated";
+    EditorOption2[EditorOption2["inlayHints"] = 140] = "inlayHints";
+    EditorOption2[EditorOption2["editorClassName"] = 141] = "editorClassName";
+    EditorOption2[EditorOption2["pixelRatio"] = 142] = "pixelRatio";
+    EditorOption2[EditorOption2["tabFocusMode"] = 143] = "tabFocusMode";
+    EditorOption2[EditorOption2["layoutInfo"] = 144] = "layoutInfo";
+    EditorOption2[EditorOption2["wrappingInfo"] = 145] = "wrappingInfo";
+    EditorOption2[EditorOption2["defaultColorDecorators"] = 146] = "defaultColorDecorators";
+    EditorOption2[EditorOption2["colorDecoratorsActivatedOn"] = 147] = "colorDecoratorsActivatedOn";
+    EditorOption2[EditorOption2["inlineCompletionsAccessibilityVerbose"] = 148] = "inlineCompletionsAccessibilityVerbose";
   })(EditorOption || (EditorOption = {}));
   var EndOfLinePreference;
   (function(EndOfLinePreference2) {
@@ -8059,7 +8087,8 @@
   var GlyphMarginLane;
   (function(GlyphMarginLane3) {
     GlyphMarginLane3[GlyphMarginLane3["Left"] = 1] = "Left";
-    GlyphMarginLane3[GlyphMarginLane3["Right"] = 2] = "Right";
+    GlyphMarginLane3[GlyphMarginLane3["Center"] = 2] = "Center";
+    GlyphMarginLane3[GlyphMarginLane3["Right"] = 3] = "Right";
   })(GlyphMarginLane || (GlyphMarginLane = {}));
   var IndentAction;
   (function(IndentAction2) {
@@ -8085,6 +8114,11 @@
     InlineCompletionTriggerKind3[InlineCompletionTriggerKind3["Automatic"] = 0] = "Automatic";
     InlineCompletionTriggerKind3[InlineCompletionTriggerKind3["Explicit"] = 1] = "Explicit";
   })(InlineCompletionTriggerKind2 || (InlineCompletionTriggerKind2 = {}));
+  var InlineEditTriggerKind2;
+  (function(InlineEditTriggerKind3) {
+    InlineEditTriggerKind3[InlineEditTriggerKind3["Invoke"] = 0] = "Invoke";
+    InlineEditTriggerKind3[InlineEditTriggerKind3["Automatic"] = 1] = "Automatic";
+  })(InlineEditTriggerKind2 || (InlineEditTriggerKind2 = {}));
   var KeyCode;
   (function(KeyCode2) {
     KeyCode2[KeyCode2["DependsOnKbLayout"] = -1] = "DependsOnKbLayout";
@@ -8256,6 +8290,10 @@
     MouseTargetType2[MouseTargetType2["OVERLAY_WIDGET"] = 12] = "OVERLAY_WIDGET";
     MouseTargetType2[MouseTargetType2["OUTSIDE_EDITOR"] = 13] = "OUTSIDE_EDITOR";
   })(MouseTargetType || (MouseTargetType = {}));
+  var NewSymbolNameTag2;
+  (function(NewSymbolNameTag3) {
+    NewSymbolNameTag3[NewSymbolNameTag3["AIGenerated"] = 1] = "AIGenerated";
+  })(NewSymbolNameTag2 || (NewSymbolNameTag2 = {}));
   var OverlayWidgetPositionPreference;
   (function(OverlayWidgetPositionPreference2) {
     OverlayWidgetPositionPreference2[OverlayWidgetPositionPreference2["TOP_RIGHT_CORNER"] = 0] = "TOP_RIGHT_CORNER";
@@ -8307,12 +8345,12 @@
     SelectionDirection2[SelectionDirection2["LTR"] = 0] = "LTR";
     SelectionDirection2[SelectionDirection2["RTL"] = 1] = "RTL";
   })(SelectionDirection || (SelectionDirection = {}));
-  var ShowAiIconMode;
-  (function(ShowAiIconMode2) {
-    ShowAiIconMode2["Off"] = "off";
-    ShowAiIconMode2["OnCode"] = "onCode";
-    ShowAiIconMode2["On"] = "on";
-  })(ShowAiIconMode || (ShowAiIconMode = {}));
+  var ShowLightbulbIconMode;
+  (function(ShowLightbulbIconMode2) {
+    ShowLightbulbIconMode2["Off"] = "off";
+    ShowLightbulbIconMode2["OnCode"] = "onCode";
+    ShowLightbulbIconMode2["On"] = "on";
+  })(ShowLightbulbIconMode || (ShowLightbulbIconMode = {}));
   var SignatureHelpTriggerKind2;
   (function(SignatureHelpTriggerKind3) {
     SignatureHelpTriggerKind3[SignatureHelpTriggerKind3["Invoke"] = 1] = "Invoke";
@@ -8464,7 +8502,8 @@
   var GlyphMarginLane2;
   (function(GlyphMarginLane3) {
     GlyphMarginLane3[GlyphMarginLane3["Left"] = 1] = "Left";
-    GlyphMarginLane3[GlyphMarginLane3["Right"] = 2] = "Right";
+    GlyphMarginLane3[GlyphMarginLane3["Center"] = 2] = "Center";
+    GlyphMarginLane3[GlyphMarginLane3["Right"] = 3] = "Right";
   })(GlyphMarginLane2 || (GlyphMarginLane2 = {}));
   var MinimapPosition2;
   (function(MinimapPosition3) {
@@ -8802,12 +8841,6 @@
         sortedRanges.splice(i, j - i, new _OffsetRange(start, end));
       }
     }
-    static tryCreate(start, endExclusive) {
-      if (start > endExclusive) {
-        return void 0;
-      }
-      return new _OffsetRange(start, endExclusive);
-    }
     static ofLength(length) {
       return new _OffsetRange(0, length);
     }
@@ -8839,12 +8872,6 @@
     toString() {
       return `[${this.start}, ${this.endExclusive})`;
     }
-    equals(other) {
-      return this.start === other.start && this.endExclusive === other.endExclusive;
-    }
-    containsRange(other) {
-      return this.start <= other.start && other.endExclusive <= this.endExclusive;
-    }
     contains(offset) {
       return this.start <= offset && offset < this.endExclusive;
     }
@@ -8868,6 +8895,11 @@
         return new _OffsetRange(start, end);
       }
       return void 0;
+    }
+    intersects(other) {
+      const start = Math.max(this.start, other.start);
+      const end = Math.min(this.endExclusive, other.endExclusive);
+      return start < end;
     }
     isBefore(other) {
       return this.endExclusive <= other.start;
@@ -8977,9 +9009,6 @@
 
   // ../../node_modules/monaco-editor/esm/vs/editor/common/core/lineRange.js
   var LineRange = class _LineRange {
-    static fromRange(range) {
-      return new _LineRange(range.startLineNumber, range.endLineNumber);
-    }
     static fromRangeInclusive(range) {
       return new _LineRange(range.startLineNumber, range.endLineNumber + 1);
     }
@@ -9241,16 +9270,27 @@
       let lastOriginalEndLineNumber = 1;
       let lastModifiedEndLineNumber = 1;
       for (const m of mapping) {
-        const r2 = new DetailedLineRangeMapping(new LineRange(lastOriginalEndLineNumber, m.original.startLineNumber), new LineRange(lastModifiedEndLineNumber, m.modified.startLineNumber), void 0);
+        const r2 = new _LineRangeMapping(new LineRange(lastOriginalEndLineNumber, m.original.startLineNumber), new LineRange(lastModifiedEndLineNumber, m.modified.startLineNumber));
         if (!r2.modified.isEmpty) {
           result.push(r2);
         }
         lastOriginalEndLineNumber = m.original.endLineNumberExclusive;
         lastModifiedEndLineNumber = m.modified.endLineNumberExclusive;
       }
-      const r = new DetailedLineRangeMapping(new LineRange(lastOriginalEndLineNumber, originalLineCount + 1), new LineRange(lastModifiedEndLineNumber, modifiedLineCount + 1), void 0);
+      const r = new _LineRangeMapping(new LineRange(lastOriginalEndLineNumber, originalLineCount + 1), new LineRange(lastModifiedEndLineNumber, modifiedLineCount + 1));
       if (!r.modified.isEmpty) {
         result.push(r);
+      }
+      return result;
+    }
+    static clip(mapping, originalRange, modifiedRange) {
+      const result = [];
+      for (const m of mapping) {
+        const original = m.original.intersect(originalRange);
+        const modified = m.modified.intersect(modifiedRange);
+        if (original && !original.isEmpty && modified && !modified.isEmpty) {
+          result.push(new _LineRangeMapping(original, modified));
+        }
       }
       return result;
     }
@@ -9781,13 +9821,22 @@
       return new OffsetPair(this.seq1Range.endExclusive, this.seq2Range.endExclusive);
     }
   };
-  var OffsetPair = class {
+  var OffsetPair = class _OffsetPair {
     constructor(offset1, offset2) {
       this.offset1 = offset1;
       this.offset2 = offset2;
     }
     toString() {
       return `${this.offset1} <-> ${this.offset2}`;
+    }
+    delta(offset) {
+      if (offset === 0) {
+        return this;
+      }
+      return new _OffsetPair(this.offset1 + offset, this.offset2 + offset);
+    }
+    equals(other) {
+      return this.offset1 === other.offset1 && this.offset2 === other.offset2;
     }
   };
   OffsetPair.zero = new OffsetPair(0, 0);
@@ -10580,6 +10629,9 @@
       if (prevCategory === 7 && nextCategory === 8) {
         return 0;
       }
+      if (prevCategory === 8) {
+        return 150;
+      }
       let score2 = 0;
       if (prevCategory !== nextCategory) {
         score2 += 10;
@@ -10661,7 +10713,7 @@
     [
       5
       /* CharBoundaryCategory.Separator */
-    ]: 3,
+    ]: 30,
     [
       6
       /* CharBoundaryCategory.Space */
@@ -10995,8 +11047,8 @@
       const prevDiff = i > 0 ? sequenceDiffs[i - 1] : void 0;
       const diff = sequenceDiffs[i];
       const nextDiff = i + 1 < sequenceDiffs.length ? sequenceDiffs[i + 1] : void 0;
-      const seq1ValidRange = new OffsetRange(prevDiff ? prevDiff.seq1Range.start + 1 : 0, nextDiff ? nextDiff.seq1Range.endExclusive - 1 : sequence1.length);
-      const seq2ValidRange = new OffsetRange(prevDiff ? prevDiff.seq2Range.start + 1 : 0, nextDiff ? nextDiff.seq2Range.endExclusive - 1 : sequence2.length);
+      const seq1ValidRange = new OffsetRange(prevDiff ? prevDiff.seq1Range.endExclusive + 1 : 0, nextDiff ? nextDiff.seq1Range.start - 1 : sequence1.length);
+      const seq2ValidRange = new OffsetRange(prevDiff ? prevDiff.seq2Range.endExclusive + 1 : 0, nextDiff ? nextDiff.seq2Range.start - 1 : sequence2.length);
       if (diff.seq1Range.isEmpty) {
         sequenceDiffs[i] = shiftDiffToBetterPosition(diff, sequence1, sequence2, seq1ValidRange, seq2ValidRange);
       } else if (diff.seq2Range.isEmpty) {
@@ -11050,59 +11102,54 @@
     return result;
   }
   function extendDiffsToEntireWordIfAppropriate(sequence1, sequence2, sequenceDiffs) {
+    const equalMappings = SequenceDiff.invert(sequenceDiffs, sequence1.length);
     const additional = [];
-    let lastModifiedWord = void 0;
-    function maybePushWordToAdditional() {
-      if (!lastModifiedWord) {
+    let lastPoint = new OffsetPair(0, 0);
+    function scanWord(pair, equalMapping) {
+      if (pair.offset1 < lastPoint.offset1 || pair.offset2 < lastPoint.offset2) {
         return;
       }
-      const originalLength1 = lastModifiedWord.s1Range.length - lastModifiedWord.deleted;
-      const originalLength2 = lastModifiedWord.s2Range.length - lastModifiedWord.added;
-      if (originalLength1 !== originalLength2) {
+      const w1 = sequence1.findWordContaining(pair.offset1);
+      const w2 = sequence2.findWordContaining(pair.offset2);
+      if (!w1 || !w2) {
+        return;
       }
-      if (Math.max(lastModifiedWord.deleted, lastModifiedWord.added) + (lastModifiedWord.count - 1) > originalLength1) {
-        additional.push(new SequenceDiff(lastModifiedWord.s1Range, lastModifiedWord.s2Range));
+      let w = new SequenceDiff(w1, w2);
+      const equalPart = w.intersect(equalMapping);
+      let equalChars1 = equalPart.seq1Range.length;
+      let equalChars2 = equalPart.seq2Range.length;
+      while (equalMappings.length > 0) {
+        const next = equalMappings[0];
+        const intersects = next.seq1Range.intersects(w1) || next.seq2Range.intersects(w2);
+        if (!intersects) {
+          break;
+        }
+        const v1 = sequence1.findWordContaining(next.seq1Range.start);
+        const v2 = sequence2.findWordContaining(next.seq2Range.start);
+        const v = new SequenceDiff(v1, v2);
+        const equalPart2 = v.intersect(next);
+        equalChars1 += equalPart2.seq1Range.length;
+        equalChars2 += equalPart2.seq2Range.length;
+        w = w.join(v);
+        if (w.seq1Range.endExclusive >= next.seq1Range.endExclusive) {
+          equalMappings.shift();
+        } else {
+          break;
+        }
       }
-      lastModifiedWord = void 0;
+      if (equalChars1 + equalChars2 < (w.seq1Range.length + w.seq2Range.length) * 2 / 3) {
+        additional.push(w);
+      }
+      lastPoint = w.getEndExclusives();
     }
-    for (const s of sequenceDiffs) {
-      let processWord = function(s1Range, s2Range) {
-        var _a4, _b2, _c, _d;
-        if (!lastModifiedWord || !lastModifiedWord.s1Range.containsRange(s1Range) || !lastModifiedWord.s2Range.containsRange(s2Range)) {
-          if (lastModifiedWord && !(lastModifiedWord.s1Range.endExclusive < s1Range.start && lastModifiedWord.s2Range.endExclusive < s2Range.start)) {
-            const s1Added = OffsetRange.tryCreate(lastModifiedWord.s1Range.endExclusive, s1Range.start);
-            const s2Added = OffsetRange.tryCreate(lastModifiedWord.s2Range.endExclusive, s2Range.start);
-            lastModifiedWord.deleted += (_a4 = s1Added === null || s1Added === void 0 ? void 0 : s1Added.length) !== null && _a4 !== void 0 ? _a4 : 0;
-            lastModifiedWord.added += (_b2 = s2Added === null || s2Added === void 0 ? void 0 : s2Added.length) !== null && _b2 !== void 0 ? _b2 : 0;
-            lastModifiedWord.s1Range = lastModifiedWord.s1Range.join(s1Range);
-            lastModifiedWord.s2Range = lastModifiedWord.s2Range.join(s2Range);
-          } else {
-            maybePushWordToAdditional();
-            lastModifiedWord = { added: 0, deleted: 0, count: 0, s1Range, s2Range };
-          }
-        }
-        const changedS1 = s1Range.intersect(s.seq1Range);
-        const changedS2 = s2Range.intersect(s.seq2Range);
-        lastModifiedWord.count++;
-        lastModifiedWord.deleted += (_c = changedS1 === null || changedS1 === void 0 ? void 0 : changedS1.length) !== null && _c !== void 0 ? _c : 0;
-        lastModifiedWord.added += (_d = changedS2 === null || changedS2 === void 0 ? void 0 : changedS2.length) !== null && _d !== void 0 ? _d : 0;
-      };
-      const w1Before = sequence1.findWordContaining(s.seq1Range.start - 1);
-      const w2Before = sequence2.findWordContaining(s.seq2Range.start - 1);
-      const w1After = sequence1.findWordContaining(s.seq1Range.endExclusive);
-      const w2After = sequence2.findWordContaining(s.seq2Range.endExclusive);
-      if (w1Before && w1After && w2Before && w2After && w1Before.equals(w1After) && w2Before.equals(w2After)) {
-        processWord(w1Before, w2Before);
-      } else {
-        if (w1Before && w2Before) {
-          processWord(w1Before, w2Before);
-        }
-        if (w1After && w2After) {
-          processWord(w1After, w2After);
-        }
+    while (equalMappings.length > 0) {
+      const next = equalMappings.shift();
+      if (next.seq1Range.isEmpty) {
+        continue;
       }
+      scanWord(next.getStarts(), next);
+      scanWord(next.getEndExclusives().delta(-1), next);
     }
-    maybePushWordToAdditional();
     const merged = mergeSequenceDiffs(sequenceDiffs, additional);
     return merged;
   }
@@ -11230,7 +11277,11 @@
       }
       const availableSpace = SequenceDiff.fromOffsetPairs(prev ? prev.getEndExclusives() : OffsetPair.zero, next ? next.getStarts() : OffsetPair.max);
       const result = newDiff.intersect(availableSpace);
-      newDiffs.push(result);
+      if (newDiffs.length > 0 && result.getStarts().equals(newDiffs[newDiffs.length - 1].getEndExclusives())) {
+        newDiffs[newDiffs.length - 1] = newDiffs[newDiffs.length - 1].join(result);
+      } else {
+        newDiffs.push(result);
+      }
     });
     return newDiffs;
   }
@@ -12238,7 +12289,8 @@
         if (!original || !modified) {
           return null;
         }
-        return _EditorSimpleWorker.computeDiff(original, modified, options, algorithm);
+        const result = _EditorSimpleWorker.computeDiff(original, modified, options, algorithm);
+        return result;
       });
     }
     static computeDiff(originalTextModel, modifiedTextModel, options, algorithm) {
